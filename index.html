@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartRoad - Pelaporan Jalan Rusak Berbasis Web</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Navbar Placeholder -->
+    <div id="navbar-placeholder"></div>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container hero-content">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-5 mb-lg-0">
+                    <span class="badge bg-primary-light text-primary px-3 py-2 rounded-pill mb-4 shadow-sm border border-primary-subtle d-inline-flex align-items-center gap-2">
+                        <i data-lucide="building-2" style="width: 16px; height: 16px;"></i> Smart City Initiative
+                    </span>
+                    <h1>Laporkan Jalan Rusak Dengan Mudah</h1>
+                    <p class="lead text-muted">Bantu wujudkan infrastruktur jalan kota yang lebih baik, aman, dan nyaman. Laporkan jalan berlubang, banjir, atau fasilitas jalan rusak hanya dengan beberapa klik.</p>
+                    <div class="d-flex flex-column flex-md-row gap-3 mt-4">
+                        <a href="login.html" class="btn btn-primary btn-lg shadow-sm">
+                            <i data-lucide="megaphone" style="width: 20px; height: 20px;"></i> Buat Laporan
+                        </a>
+                        <a href="#fitur" class="btn btn-outline-primary btn-lg">
+                            Pelajari Lebih Lanjut
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 d-none d-lg-block text-center position-relative">
+                    <div class="position-absolute top-50 start-50 translate-middle w-100 h-100 bg-primary-light rounded-circle" style="z-index: -1; filter: blur(60px); opacity: 0.6;"></div>
+                    <img src="https://images.unsplash.com/photo-1519608425089-7f3bfa6f6bb8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Smart City Infrastructure" class="img-fluid rounded-lg shadow-lg border" style="transform: perspective(1000px) rotateY(-5deg);">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section class="py-5 bg-white border-bottom border-top border-light">
+        <div class="container">
+            <div class="row gy-4">
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i data-lucide="file-text" style="width: 28px; height: 28px;"></i>
+                        </div>
+                        <div>
+                            <div class="stat-number counter" data-target="1254">0</div>
+                            <p class="text-muted mb-0 fw-medium">Total Laporan</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color: var(--success-color); background: var(--success-light);">
+                            <i data-lucide="check-circle" style="width: 28px; height: 28px;"></i>
+                        </div>
+                        <div>
+                            <div class="stat-number counter" data-target="986">0</div>
+                            <p class="text-muted mb-0 fw-medium">Laporan Selesai</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color: var(--warning-color); background: var(--warning-light);">
+                            <i data-lucide="users" style="width: 28px; height: 28px;"></i>
+                        </div>
+                        <div>
+                            <div class="stat-number counter" data-target="4521">0</div>
+                            <p class="text-muted mb-0 fw-medium">User Aktif</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="fitur" class="py-5 bg-light">
+        <div class="container py-5">
+            <div class="text-center mb-5">
+                <h6 class="text-primary fw-bold text-uppercase" style="letter-spacing: 0.1em;">Fitur Unggulan</h6>
+                <h2 class="fw-bold mb-3">Kenapa Memilih SmartRoad?</h2>
+                <p class="text-muted mx-auto" style="max-width: 600px;">Platform ini didesain modern untuk memberikan kemudahan pelaporan dan transparansi penanganan masalah infrastruktur.</p>
+            </div>
+            
+            <div class="row gy-4">
+                <div class="col-lg-3 col-md-6">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon mx-auto">
+                            <i data-lucide="camera" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">Upload Bukti Foto</h5>
+                        <p class="text-muted mb-0">Lampirkan foto kerusakan langsung dari kamera HP Anda sebagai bukti validasi laporan.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon mx-auto">
+                            <i data-lucide="map" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">Integrasi Maps</h5>
+                        <p class="text-muted mb-0">Tentukan titik lokasi jalan rusak dengan akurasi tinggi menggunakan integrasi peta digital.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon mx-auto">
+                            <i data-lucide="activity" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">Tracking Realtime</h5>
+                        <p class="text-muted mb-0">Pantau perkembangan status laporan Anda, dari 'Menunggu' hingga 'Selesai Diperbaiki'.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon mx-auto">
+                            <i data-lucide="bell" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">Notifikasi Otomatis</h5>
+                        <p class="text-muted mb-0">Dapatkan pemberitahuan via email setiap kali ada pembaruan status pada laporan Anda.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="cara-kerja" class="py-5 bg-white border-top border-light">
+        <div class="container py-5">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-5 mb-lg-0 pe-lg-5">
+                    <img src="https://images.unsplash.com/photo-1573108724029-4c46571d6490?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="How it works" class="img-fluid rounded-lg shadow-sm border">
+                </div>
+                <div class="col-lg-6">
+                    <h6 class="text-primary fw-bold text-uppercase" style="letter-spacing: 0.1em;">Cara Kerja</h6>
+                    <h2 class="fw-bold mb-4">4 Langkah Mudah Melapor</h2>
+                    
+                    <div class="d-flex mb-4">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary-light text-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm border border-primary-subtle" style="width: 50px; height: 50px; font-weight: bold; font-size: 1.2rem;">1</div>
+                        </div>
+                        <div class="ms-4">
+                            <h5 class="fw-bold">Buat Akun</h5>
+                            <p class="text-muted">Daftarkan diri Anda untuk bisa melacak semua riwayat laporan yang pernah Anda buat.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex mb-4">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary-light text-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm border border-primary-subtle" style="width: 50px; height: 50px; font-weight: bold; font-size: 1.2rem;">2</div>
+                        </div>
+                        <div class="ms-4">
+                            <h5 class="fw-bold">Isi Form & Upload Foto</h5>
+                            <p class="text-muted">Jelaskan kerusakan, pilih lokasi di peta, dan lampirkan foto jalan yang rusak.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex mb-4">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary-light text-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm border border-primary-subtle" style="width: 50px; height: 50px; font-weight: bold; font-size: 1.2rem;">3</div>
+                        </div>
+                        <div class="ms-4">
+                            <h5 class="fw-bold">Proses Verifikasi</h5>
+                            <p class="text-muted">Petugas terkait akan memverifikasi laporan Anda dan menjadwalkan perbaikan lapangan.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary-light text-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm border border-primary-subtle" style="width: 50px; height: 50px; font-weight: bold; font-size: 1.2rem;">4</div>
+                        </div>
+                        <div class="ms-4">
+                            <h5 class="fw-bold">Masalah Teratasi</h5>
+                            <p class="text-muted">Jalan diperbaiki dan status laporan Anda akan diperbarui menjadi 'Selesai'.</p>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="py-5 bg-light border-top border-light">
+        <div class="container py-5">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold mb-3">Apa Kata Masyarakat?</h2>
+                <p class="text-muted">Ulasan dari warga yang telah menggunakan SmartRoad.</p>
+            </div>
+            
+            <div class="row gy-4">
+                <div class="col-lg-4">
+                    <div class="card-modern p-4 border-0">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" class="rounded-circle me-3" width="56" height="56">
+                            <div>
+                                <h6 class="fw-bold mb-0">Budi Santoso</h6>
+                                <span class="text-warning small d-flex gap-1 mt-1">
+                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
+                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
+                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
+                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
+                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <p class="text-muted">"Jalan berlubang di depan rumah saya langsung diperbaiki 3 hari setelah lapor di SmartRoad. Sangat responsif!"</p>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card-modern p-4 border-0">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" class="rounded-circle me-3" width="56" height="56">
+                            <div>
+                                <h6 class="fw-bold mb-0">Siti Aminah</h6>
+                                <span class="text-warning small d-flex gap-1 mt-1">
+                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
+                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
+                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
+                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
+                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <p class="text-muted">"Sistem tracking-nya sangat membantu. Kita jadi tahu kalau laporan kita benar-benar dikerjakan oleh petugas."</p>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card-modern p-4 border-0">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="https://randomuser.me/api/portraits/men/85.jpg" alt="User" class="rounded-circle me-3" width="56" height="56">
+                            <div>
+                                <h6 class="fw-bold mb-0">Reza Fahlevi</h6>
+                                <span class="text-warning small d-flex gap-1 mt-1">
+                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
+                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
+                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
+                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
+                                    <i data-lucide="star" style="width: 14px; height: 14px;"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <p class="text-muted">"Desain webnya modern, mudah digunakan, dan yang paling penting fitur upload foto plus koordinat map-nya akurat."</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Placeholder -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Bootstrap & Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom JS -->
+    <script src="js/script.js"></script>
+</body>
+</html>

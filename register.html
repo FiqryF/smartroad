@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar - SmartRoad</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="auth-page">
+    
+    <div class="container d-flex justify-content-center align-items-center min-vh-100 py-5">
+        <div class="auth-card" style="max-width: 500px;">
+            <div class="text-center mb-5">
+                <a href="index.html" class="navbar-brand fs-3 mb-3 justify-content-center d-flex align-items-center">
+                    <div class="bg-primary-light p-2 rounded-md me-2">
+                        <i data-lucide="map-pinned" class="icon text-primary"></i>
+                    </div>
+                    SmartRoad
+                </a>
+                <h4 class="fw-bold mb-2">Buat Akun Baru</h4>
+                <p class="text-muted">Daftar untuk mulai melaporkan kerusakan infrastruktur.</p>
+            </div>
+            
+            <form class="needs-validation" novalidate action="login.html">
+                <div class="mb-3">
+                    <label for="nama" class="form-label fw-medium text-dark">Nama Lengkap</label>
+                    <div class="position-relative">
+                        <div class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted">
+                            <i data-lucide="user" style="width: 18px; height: 18px;"></i>
+                        </div>
+                        <input type="text" class="form-control" style="padding-left: 2.5rem;" id="nama" placeholder="Masukkan nama lengkap" required>
+                    </div>
+                    <div class="invalid-feedback">
+                        Harap masukkan nama lengkap Anda.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label fw-medium text-dark">Alamat Email</label>
+                    <div class="position-relative">
+                        <div class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted">
+                            <i data-lucide="mail" style="width: 18px; height: 18px;"></i>
+                        </div>
+                        <input type="email" class="form-control" style="padding-left: 2.5rem;" id="email" placeholder="nama@email.com" required>
+                    </div>
+                    <div class="invalid-feedback">
+                        Harap masukkan alamat email yang valid.
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="password" class="form-label fw-medium text-dark">Kata Sandi</label>
+                        <div class="position-relative">
+                            <div class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted">
+                                <i data-lucide="lock" style="width: 18px; height: 18px;"></i>
+                            </div>
+                            <input type="password" class="form-control" style="padding-left: 2.5rem;" id="password" placeholder="Min. 8 karakter" required>
+                        </div>
+                        <div class="invalid-feedback">
+                            Kata sandi diperlukan.
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label for="confirm_password" class="form-label fw-medium text-dark">Konfirmasi Sandi</label>
+                        <div class="position-relative">
+                            <div class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted">
+                                <i data-lucide="lock" style="width: 18px; height: 18px;"></i>
+                            </div>
+                            <input type="password" class="form-control" style="padding-left: 2.5rem;" id="confirm_password" placeholder="Ulangi sandi" required>
+                        </div>
+                        <div class="invalid-feedback">
+                            Konfirmasi sandi diperlukan.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4 form-check">
+                    <input type="checkbox" class="form-check-input" id="terms" required>
+                    <label class="form-check-label text-muted small ms-1" for="terms">
+                        Saya setuju dengan <a href="#" class="text-primary fw-medium">Syarat & Ketentuan</a> serta <a href="#" class="text-primary fw-medium">Kebijakan Privasi</a>.
+                    </label>
+                    <div class="invalid-feedback">
+                        Anda harus menyetujui syarat & ketentuan.
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100 mb-4 py-2">
+                    Daftar Sekarang <i data-lucide="user-plus" class="ms-1" style="width: 18px; height: 18px;"></i>
+                </button>
+                
+                <div class="text-center">
+                    <p class="text-muted mb-0">Sudah punya akun? <a href="login.html" class="text-primary fw-medium text-decoration-none">Masuk di sini</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom JS -->
+    <script src="js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buat Laporan - SmartRoad</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        #laporanMap {
+            height: 400px;
+            width: 100%;
+            border-radius: var(--border-radius-md);
+            z-index: 1; /* prevent map overlapping navbar */
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <!-- Navbar Placeholder -->
+    <div id="navbar-placeholder"></div>
+
+    <div class="container py-5 mt-5">
+        <div class="row mb-4">
+            <div class="col-12 text-center text-md-start">
+                <h3 class="fw-bold mb-1 d-flex align-items-center justify-content-center justify-content-md-start"><i data-lucide="file-plus-2" class="text-primary me-2" style="width: 28px; height: 28px;"></i>Buat Laporan Baru</h3>
+                <p class="text-muted mb-0">Isi detail kerusakan jalan dengan akurat agar petugas dapat segera menindaklanjuti.</p>
+            </div>
+        </div>
+
+        <form class="needs-validation" novalidate action="dashboard-user.html">
+            <div class="row gy-4">
+                <!-- Left Column: Form Info -->
+                <div class="col-lg-7">
+                    <div class="card-modern h-100 border-0 shadow-sm">
+                        <div class="p-4 p-md-5">
+                            <h5 class="fw-bold border-bottom pb-3 mb-4 d-flex align-items-center"><i data-lucide="info" class="text-primary me-2" style="width: 20px; height: 20px;"></i>Informasi Kerusakan</h5>
+                            
+                            <div class="mb-4">
+                                <label for="judul" class="form-label fw-medium text-dark">Judul Laporan</label>
+                                <input type="text" class="form-control form-control-lg" id="judul" placeholder="Contoh: Jalan Berlubang Parah di Sudirman" required>
+                                <div class="invalid-feedback">Judul laporan wajib diisi.</div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label for="kategori" class="form-label fw-medium text-dark">Kategori Kerusakan</label>
+                                    <select class="form-select form-select-lg" id="kategori" required>
+                                        <option value="" selected disabled>Pilih Kategori...</option>
+                                        <option value="Jalan Berlubang">Jalan Berlubang</option>
+                                        <option value="Banjir/Genangan">Banjir/Genangan</option>
+                                        <option value="Lampu Jalan Mati">Lampu Jalan Mati</option>
+                                        <option value="Marka Jalan Pudar">Marka Jalan Pudar / Rusak</option>
+                                        <option value="Pohon Tumbang">Pohon Tumbang / Rawan</option>
+                                        <option value="Lainnya">Lainnya</option>
+                                    </select>
+                                    <div class="invalid-feedback">Pilih kategori kerusakan.</div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <label for="tingkat" class="form-label fw-medium text-dark">Tingkat Keparahan</label>
+                                    <select class="form-select form-select-lg" id="tingkat" required>
+                                        <option value="" selected disabled>Pilih Tingkat...</option>
+                                        <option value="Rendah">Rendah (Mengganggu kenyamanan)</option>
+                                        <option value="Sedang">Sedang (Berpotensi bahaya)</option>
+                                        <option value="Tinggi">Tinggi (Sangat berbahaya, butuh segera)</option>
+                                    </select>
+                                    <div class="invalid-feedback">Pilih tingkat keparahan.</div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="deskripsi" class="form-label fw-medium text-dark">Deskripsi Lengkap</label>
+                                <textarea class="form-control" id="deskripsi" rows="5" placeholder="Jelaskan secara detail lokasi, ukuran kerusakan, dan dampaknya bagi pengguna jalan..." required></textarea>
+                                <div class="invalid-feedback">Deskripsi lengkap wajib diisi.</div>
+                            </div>
+                            
+                            <h5 class="fw-bold border-bottom pb-3 mb-4 mt-5 d-flex align-items-center"><i data-lucide="camera" class="text-primary me-2" style="width: 20px; height: 20px;"></i>Bukti Foto</h5>
+                            <div class="mb-4">
+                                <label class="upload-area w-100 d-block" for="imageUpload">
+                                    <i data-lucide="upload-cloud" class="text-primary mb-3" style="width: 48px; height: 48px;"></i>
+                                    <h6 class="fw-bold mb-1">Klik atau Drag & Drop foto di sini</h6>
+                                    <p class="text-muted small mb-0">Format JPG, PNG max 5MB</p>
+                                    <input type="file" id="imageUpload" class="d-none" accept="image/*" required>
+                                </label>
+                                <img id="imagePreview" src="#" alt="Preview" class="preview-image mt-3 shadow-sm w-100" style="max-height: 300px; object-fit: cover;">
+                                <div class="invalid-feedback">Foto bukti wajib dilampirkan.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Map & Submit -->
+                <div class="col-lg-5">
+                    <div class="card-modern sticky-md-top border-0 shadow-sm" style="top: 100px;">
+                        <div class="p-4">
+                            <h5 class="fw-bold border-bottom pb-3 mb-4 d-flex align-items-center"><i data-lucide="map-pin" class="text-danger me-2" style="width: 20px; height: 20px;"></i>Titik Lokasi</h5>
+                            
+                            <div class="mb-3">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0"><i data-lucide="search" class="text-muted" style="width: 16px; height: 16px;"></i></span>
+                                    <input type="text" class="form-control border-start-0 ps-0 bg-light" id="searchLocation" placeholder="Cari area atau patokan terdekat...">
+                                    <button class="btn btn-outline-primary d-flex align-items-center justify-content-center" type="button" id="btnCurrentLocation" title="Gunakan Lokasi Saat Ini"><i data-lucide="crosshair" style="width: 18px; height: 18px;"></i></button>
+                                </div>
+                                <small class="text-muted mt-2 d-flex align-items-center"><i data-lucide="mouse-pointer-click" class="me-1" style="width: 14px; height: 14px;"></i> Geser pin biru pada peta untuk menentukan titik koordinat yang presisi.</small>
+                            </div>
+
+                            <div class="mb-4 shadow-sm rounded-md overflow-hidden border">
+                                <div id="laporanMap"></div>
+                            </div>
+                            
+                            <input type="hidden" id="latitude" name="latitude" required>
+                            <input type="hidden" id="longitude" name="longitude" required>
+
+                            <hr class="my-4 border-light">
+
+                            <div class="d-grid gap-3">
+                                <button type="submit" class="btn btn-primary btn-lg shadow-sm d-flex justify-content-center align-items-center">
+                                    <i data-lucide="send" class="me-2" style="width: 18px; height: 18px;"></i> Kirim Laporan
+                                </button>
+                                <a href="dashboard-user.html" class="btn btn-light border">Batal & Kembali</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Footer Placeholder -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Custom JS -->
+    <script src="js/script.js"></script>
+    
+    <!-- Map Initialization Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Default coordinate (Bandung / Jakarta, using Jakarta for now)
+            let defaultLat = -6.2088;
+            let defaultLng = 106.8456;
+            
+            // Initialize Leaflet Map
+            const map = L.map('laporanMap').setView([defaultLat, defaultLng], 13);
+            
+            // Set OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Add Draggable Marker
+            let marker = L.marker([defaultLat, defaultLng], {
+                draggable: true
+            }).addTo(map);
+            
+            // Update hidden inputs initially
+            document.getElementById('latitude').value = defaultLat;
+            document.getElementById('longitude').value = defaultLng;
+
+            // When marker is dragged, update coordinates
+            marker.on('dragend', function(e) {
+                const position = marker.getLatLng();
+                document.getElementById('latitude').value = position.lat;
+                document.getElementById('longitude').value = position.lng;
+            });
+            
+            // Click on map to move marker
+            map.on('click', function(e) {
+                marker.setLatLng(e.latlng);
+                document.getElementById('latitude').value = e.latlng.lat;
+                document.getElementById('longitude').value = e.latlng.lng;
+            });
+
+            // Geolocation feature
+            document.getElementById('btnCurrentLocation').addEventListener('click', function() {
+                if ("geolocation" in navigator) {
+                    const btnIcon = this.querySelector('i');
+                    btnIcon.setAttribute('data-lucide', 'loader-2');
+                    btnIcon.classList.add('lucide-spin');
+                    lucide.createIcons();
+                    
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        map.setView([lat, lng], 16);
+                        marker.setLatLng([lat, lng]);
+                        
+                        document.getElementById('latitude').value = lat;
+                        document.getElementById('longitude').value = lng;
+                        
+                        btnIcon.setAttribute('data-lucide', 'crosshair');
+                        btnIcon.classList.remove('lucide-spin');
+                        lucide.createIcons();
+                    }, function(error) {
+                        alert("Tidak dapat mengakses lokasi Anda. " + error.message);
+                        btnIcon.setAttribute('data-lucide', 'crosshair');
+                        btnIcon.classList.remove('lucide-spin');
+                        lucide.createIcons();
+                    });
+                } else {
+                    alert("Browser Anda tidak mendukung geolokasi.");
+                }
+            });
+            
+            // Fix map rendering issue when inside hidden/collapsed element or dynamically loaded
+            setTimeout(function(){ map.invalidateSize()}, 500);
+        });
+    </script>
+</body>
+</html>

@@ -3,271 +3,2080 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartRoad - Pelaporan Jalan Rusak Berbasis Web</title>
+    <title>SmartRoad - Sistem Pelaporan Infrastruktur Jalan Kota</title>
     
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts: Inter (UI/Body) & Montserrat (Heavy Headings) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css">
+    <!-- Custom Integrated CSS -->
+    <style>
+        :root {
+            /* Branding Colors - Professional, Industrial & Engineering */
+            --asphalt-dark: #121416;       /* Deep dark carbon asphalt background */
+            --asphalt-medium: #181B1E;     /* Slightly lighter dark background */
+            --asphalt-light: #202428;      /* Cards in dark mode */
+            --asphalt-border: #262B30;     /* Thin clean dark border */
+            
+            --safety-orange: #FF6B00;      /* Safety high-vis orange */
+            --safety-orange-hover: #E05E00;/* Rich orange hover state */
+            --safety-orange-glow: rgba(255, 107, 0, 0.15);
+            
+            --concrete-gray: #F8F9FA;      /* Readability light sections */
+            --concrete-dark: #E9ECEF;      /* Darker grey dividers */
+            --concrete-border: #E2E5E8;    /* Very light clean borders */
+            
+            --text-dark: #1F2226;          /* High contrast dark text */
+            --text-muted: #5A626A;         /* Slate grey body text */
+            --text-light: #B9C2CB;         /* Light grey text for dark themes */
+            --text-white: #FFFFFF;         
+            
+            --danger-red: #E63946;         /* Hazard indicator */
+            --success-green: #2A9D8F;      /* Resolved indicator */
+            
+            /* Sharp, Minimalist Tokens */
+            --border-radius: 4px;          /* Sharp, minimal industrial round */
+            --transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Basic Resets */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--text-dark);
+            background-color: var(--concrete-gray);
+        }
+
+        body {
+            line-height: 1.5;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::selection {
+            background-color: var(--safety-orange);
+            color: var(--text-white);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: var(--transition);
+        }
+
+        /* Grid System */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Common Section Headers */
+        .section-header {
+            margin-bottom: 4rem;
+            text-align: center;
+        }
+
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--asphalt-dark);
+            color: var(--safety-orange);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            padding: 0.4rem 0.8rem;
+            border-left: 2px solid var(--safety-orange);
+            margin-bottom: 0.75rem;
+            border-radius: 2px;
+        }
+
+        .section-header.light-bg .section-badge {
+            background-color: var(--concrete-dark);
+        }
+
+        .section-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--asphalt-dark);
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.75rem;
+        }
+
+        .section-header.dark-bg .section-title {
+            color: var(--text-white);
+        }
+
+        .section-desc {
+            max-width: 600px;
+            margin: 0 auto;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 400;
+        }
+
+        .section-header.dark-bg .section-desc {
+            color: var(--text-light);
+        }
+
+        /* Buttons (Minimal, Sharp) */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.6rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1.5px solid transparent;
+        }
+
+        .btn-primary {
+            background-color: var(--safety-orange);
+            color: var(--text-white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--safety-orange-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-white {
+            background-color: transparent;
+            border-color: var(--text-white);
+            color: var(--text-white);
+        }
+
+        .btn-outline-white:hover {
+            background-color: var(--text-white);
+            color: var(--asphalt-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-orange {
+            background-color: transparent;
+            border-color: var(--safety-orange);
+            color: var(--safety-orange);
+        }
+
+        .btn-outline-orange:hover {
+            background-color: var(--safety-orange);
+            color: var(--text-white);
+            transform: translateY(-1px);
+        }
+
+        /* 1. Floating Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1.25rem 0;
+            transition: var(--transition);
+        }
+
+        .header.scrolled {
+            background-color: rgba(18, 20, 22, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--asphalt-border);
+            padding: 0.85rem 0;
+        }
+
+        .header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: var(--text-white);
+            letter-spacing: -0.03em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .logo i {
+            color: var(--safety-orange);
+            display: flex;
+        }
+
+        .logo span {
+            color: var(--safety-orange);
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: var(--text-light);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.4rem 0;
+            position: relative;
+        }
+
+        .nav-link:hover, .nav-menu .active {
+            color: var(--text-white);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0%;
+            height: 1.5px;
+            background-color: var(--safety-orange);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover::after, .nav-menu .active::after {
+            width: 100%;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .header-cta {
+            padding: 0.55rem 1.2rem;
+            font-size: 0.75rem;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-white);
+            font-size: 1.35rem;
+            cursor: pointer;
+            z-index: 1010;
+        }
+
+        /* 2. Full-Photo Hero Section */
+        .hero {
+            height: 100vh;
+            min-height: 600px;
+            position: relative;
+            background: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070') no-repeat center center/cover;
+            display: flex;
+            align-items: center;
+            color: var(--text-white);
+            overflow: hidden;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            /* Re-designed refined linear dark overlay for high contrast text on both desktop and mobile */
+            background: linear-gradient(135deg, rgba(18, 20, 22, 0.95) 0%, rgba(18, 20, 22, 0.8) 50%, rgba(18, 20, 22, 0.3) 100%);
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 3;
+            max-width: 720px;
+            margin-top: 4rem;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background-color: var(--safety-orange);
+            color: var(--text-white);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            padding: 0.4rem 0.8rem;
+            border-radius: 2px;
+            margin-bottom: 1.25rem;
+        }
+
+        .hero-headline {
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(2rem, 4.5vw, 3.5rem);
+            font-weight: 900;
+            line-height: 1.15;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            margin-bottom: 1.25rem;
+        }
+
+        .hero-headline span {
+            color: var(--safety-orange);
+        }
+
+        .hero-desc {
+            font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+            color: var(--text-light);
+            margin-bottom: 2.25rem;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        .hero-ctas {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        /* 3. Live Statistics Section */
+        .stats {
+            background-color: var(--asphalt-dark);
+            padding: 4rem 0;
+            position: relative;
+            z-index: 4;
+            border-top: 3px solid var(--safety-orange);
+            border-bottom: 1px solid var(--asphalt-border);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background-color: var(--asphalt-medium);
+            border: 1px solid var(--asphalt-border);
+            padding: 2rem 1.75rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            position: relative;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: var(--safety-orange);
+        }
+
+        .stat-icon-wrapper {
+            background-color: var(--asphalt-light);
+            color: var(--safety-orange);
+            width: 3.5rem;
+            height: 3.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--border-radius);
+            font-size: 1.5rem;
+            border: 1px solid var(--asphalt-border);
+        }
+
+        .stat-info {
+            flex: 1;
+        }
+
+        .stat-number-box {
+            display: flex;
+            align-items: baseline;
+            gap: 0.15rem;
+        }
+
+        .stat-number {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--text-white);
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+        }
+
+        .stat-plus {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--safety-orange);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-light);
+            margin-top: 0.2rem;
+        }
+
+        .live-pulse {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: var(--safety-orange);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            background-color: var(--safety-orange);
+            border-radius: 50%;
+            animation: pulse-animation 1.5s infinite;
+        }
+
+        /* 4. App Explanation Section */
+        .explanation {
+            background-color: var(--concrete-gray);
+            padding: 6rem 0;
+        }
+
+        .explanation-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .expl-content h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 1.25rem;
+            letter-spacing: -0.01em;
+            color: var(--asphalt-dark);
+            border-left: 3px solid var(--safety-orange);
+            padding-left: 0.75rem;
+        }
+
+        .expl-content p {
+            color: var(--text-muted);
+            margin-bottom: 1.25rem;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .expl-content strong {
+            color: var(--asphalt-dark);
+            font-weight: 600;
+        }
+
+        .expl-feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .feature-card {
+            background-color: var(--text-white);
+            border: 1px solid var(--concrete-border);
+            padding: 1.75rem 1.5rem;
+            transition: var(--transition);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--safety-orange);
+        }
+
+        .feature-icon {
+            background-color: var(--asphalt-dark);
+            color: var(--safety-orange);
+            width: 2.75rem;
+            height: 2.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            color: var(--asphalt-dark);
+        }
+
+        .feature-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* 5. Step-by-Step Guide Section */
+        .guide {
+            background-color: var(--text-white);
+            padding: 6rem 0;
+            border-top: 1px solid var(--concrete-dark);
+            border-bottom: 1px solid var(--concrete-dark);
+        }
+
+        .timeline-wrapper {
+            position: relative;
+            max-width: 900px;
+            margin: 3rem auto 0;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: var(--concrete-dark);
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+
+        .timeline-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 4rem;
+            position: relative;
+            z-index: 3;
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-img-side, .timeline-text-side {
+            width: 45%;
+        }
+
+        .timeline-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 2.25rem;
+            height: 2.25rem;
+            background-color: var(--asphalt-dark);
+            border: 3px solid var(--text-white);
+            box-shadow: 0 0 0 3px var(--concrete-dark);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-white);
+            z-index: 4;
+        }
+
+        .timeline-item:hover .timeline-marker {
+            background-color: var(--safety-orange);
+            box-shadow: 0 0 0 3px var(--safety-orange-glow);
+        }
+
+        .step-card {
+            background-color: var(--concrete-gray);
+            border: 1px solid var(--concrete-border);
+            padding: 1.75rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .timeline-item:hover .step-card {
+            border-color: var(--safety-orange);
+            background-color: var(--text-white);
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .step-header i {
+            color: var(--safety-orange);
+            font-size: 1.15rem;
+        }
+
+        .step-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--asphalt-dark);
+        }
+
+        .step-desc {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .step-media {
+            border: 1px solid var(--concrete-border);
+            padding: 0.35rem;
+            background-color: var(--text-white);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .step-media img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 2px;
+        }
+
+        /* 6. Before & After Gallery Section (CRITICAL INFINITE AUTO-SCROLL CAROUSEL) */
+        .gallery {
+            background-color: var(--concrete-gray);
+            padding: 6rem 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Carousel Outer Track Container */
+        .marquee-container {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            padding: 1rem 0;
+        }
+
+        .marquee-container::before, .marquee-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .marquee-container::before {
+            left: 0;
+            background: linear-gradient(to right, var(--concrete-gray) 0%, transparent 100%);
+        }
+
+        .marquee-container::after {
+            right: 0;
+            background: linear-gradient(to left, var(--concrete-gray) 0%, transparent 100%);
+        }
+
+        .marquee-track {
+            display: flex;
+            width: max-content;
+            gap: 2rem;
+            animation: marquee-scroll 45s linear infinite;
+        }
+
+        /* Hover pauses scroll */
+        .marquee-track:hover {
+            animation-play-state: paused;
+        }
+
+        @keyframes marquee-scroll {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                /* Set to translate exactly by 50% since we duplicate cards inside the track */
+                transform: translateX(-50%);
+            }
+        }
+
+        /* Minimalist Style Cards for Gallery */
+        .gallery-case {
+            width: 420px; /* Precise uniform size for carousel cards */
+            background-color: var(--text-white);
+            border: 1px solid var(--concrete-border);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            flex-shrink: 0;
+            transition: var(--transition);
+        }
+
+        .gallery-case:hover {
+            border-color: var(--safety-orange);
+            transform: translateY(-2px);
+        }
+
+        .gallery-photos {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .photo-container {
+            position: relative;
+            height: 180px;
+            overflow: hidden;
+            border: 1px solid var(--concrete-border);
+        }
+
+        .photo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-label {
+            position: absolute;
+            top: 0.5rem;
+            left: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-white);
+            border-radius: 2px;
+            z-index: 10;
+        }
+
+        .photo-label.before {
+            background-color: var(--danger-red);
+        }
+
+        .photo-label.after {
+            background-color: var(--success-green);
+        }
+
+        .comparison-divider {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--safety-orange);
+            color: var(--text-white);
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            border: 3px solid var(--text-white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            z-index: 11;
+        }
+
+        .gallery-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .gallery-details h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--asphalt-dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .gallery-details p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .gallery-details i {
+            color: var(--safety-orange);
+            font-size: 0.8rem;
+        }
+
+        .gallery-status-badge {
+            background-color: rgba(42, 157, 143, 0.08);
+            color: var(--success-green);
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.3rem 0.6rem;
+            border: 1px solid rgba(42, 157, 143, 0.15);
+            border-radius: 2px;
+        }
+
+        /* 7. Community Feedback Section (CRITICAL FIX: MINIMALIST & PROFESSIONAL) */
+        .feedback {
+            background-color: var(--asphalt-dark);
+            color: var(--text-white);
+            padding: 6rem 0;
+            border-top: 1px solid var(--asphalt-border);
+            border-bottom: 3px solid var(--safety-orange);
+        }
+
+        .feedback-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        /* Simplified, smaller testimonial card */
+        .testimonial-card {
+            background-color: var(--asphalt-medium);
+            border: 1px solid var(--asphalt-border);
+            padding: 1.75rem;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .testimonial-card:hover {
+            border-color: var(--safety-orange);
+        }
+
+        /* Smaller text font size for clean minimalist UI */
+        .testimonial-quote {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            font-style: italic;
+            font-weight: 400;
+            position: relative;
+            z-index: 2;
+        }
+
+        .testimonial-stars {
+            color: var(--safety-orange);
+            display: flex;
+            gap: 0.15rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .testimonial-stars i {
+            font-size: 0.85rem;
+            fill: var(--safety-orange);
+        }
+
+        .testimonial-stars i.empty {
+            fill: none;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-top: 1px solid var(--asphalt-border);
+            padding-top: 1.25rem;
+        }
+
+        /* Cleaner avatar styling */
+        .author-avatar {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1.5px solid var(--safety-orange);
+        }
+
+        .author-name {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            color: var(--text-white);
+        }
+
+        .author-role {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-top: 0.05rem;
+        }
+
+        /* 8. Professional Footer Section */
+        .footer {
+            background-color: var(--asphalt-dark);
+            color: var(--text-white);
+            padding: 4rem 0 2rem;
+            border-top: 1px solid var(--asphalt-border);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1.2fr 1.8fr;
+            gap: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            text-transform: uppercase;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer-logo i {
+            color: var(--safety-orange);
+        }
+
+        .footer-logo span {
+            color: var(--safety-orange);
+        }
+
+        .footer-desc {
+            color: var(--text-light);
+            font-size: 0.85rem;
+            margin-bottom: 1.25rem;
+            line-height: 1.5;
+            max-width: 280px;
+        }
+
+        .footer-socials {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .social-link {
+            width: 2.25rem;
+            height: 2.25rem;
+            background-color: var(--asphalt-medium);
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--asphalt-border);
+            font-size: 0.95rem;
+        }
+
+        .social-link:hover {
+            background-color: var(--safety-orange);
+            color: var(--text-white);
+            border-color: var(--safety-orange);
+            transform: translateY(-2px);
+        }
+
+        .footer-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-white);
+            margin-bottom: 1.25rem;
+            position: relative;
+            padding-bottom: 0.4rem;
+        }
+
+        .footer-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 1.5rem;
+            height: 1.5px;
+            background-color: var(--safety-orange);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.6rem;
+        }
+
+        .footer-links a {
+            color: var(--text-light);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .footer-links a:hover {
+            color: var(--safety-orange);
+            padding-left: 4px;
+        }
+
+        .footer-contact li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            color: var(--text-light);
+            font-size: 0.8rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .footer-contact i {
+            color: var(--safety-orange);
+            margin-top: 0.15rem;
+            flex-shrink: 0;
+            font-size: 0.9rem;
+        }
+
+        .footer-newsletter p {
+            color: var(--text-light);
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .newsletter-form {
+            display: flex;
+            border: 1px solid var(--asphalt-border);
+            background-color: var(--asphalt-medium);
+            padding: 0.25rem;
+            border-radius: var(--border-radius);
+        }
+
+        .newsletter-input {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 0.5rem 0.75rem;
+            color: var(--text-white);
+            font-family: inherit;
+            font-size: 0.8rem;
+            outline: none;
+        }
+
+        .newsletter-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .newsletter-btn {
+            background-color: var(--safety-orange);
+            color: var(--text-white);
+            border: none;
+            width: 2.25rem;
+            height: 2.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .newsletter-btn:hover {
+            background-color: var(--safety-orange-hover);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--asphalt-border);
+            padding-top: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-copy {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .footer-legal {
+            display: flex;
+            gap: 1.25rem;
+            list-style: none;
+        }
+
+        .footer-legal a {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .footer-legal a:hover {
+            color: var(--safety-orange);
+        }
+
+        /* Micro-Animations */
+        @keyframes pulse-animation {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 5px rgba(255, 107, 0, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(255, 107, 0, 0);
+            }
+        }
+
+        /* PORTRAIT SMARTPHONE & RESPONSIVENESS FIXES */
+        @media (max-width: 1024px) {
+            .explanation-grid {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+            }
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .section-header {
+                margin-bottom: 2.5rem;
+            }
+
+            .section-title {
+                font-size: 1.65rem;
+            }
+
+            /* FIXED MOBILE NAVIGATION & HAMBURGER DRAWER */
+            .nav-menu {
+                display: flex;
+                flex-direction: column;
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 280px;
+                height: 100vh;
+                background-color: var(--asphalt-dark);
+                border-left: 1px solid var(--asphalt-border);
+                padding: 6rem 2rem 2rem;
+                gap: 1.5rem;
+                align-items: flex-start;
+                transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+                z-index: 1005;
+                box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+            }
+            
+            .nav-menu.active {
+                right: 0;
+            }
+
+            .nav-link {
+                font-size: 0.9rem;
+                width: 100%;
+                display: block;
+                border-bottom: 1px solid var(--asphalt-border);
+                padding-bottom: 0.75rem;
+            }
+
+            .nav-link::after {
+                display: none;
+            }
+
+            /* Header button & Menu alignment */
+            .header-cta {
+                display: none; /* Collapsed on mobile, or put inside the menu */
+            }
+
+            .nav-menu .menu-cta-item {
+                display: block;
+                width: 100%;
+                margin-top: 1.5rem;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            /* Mobile Hero Section adjustment */
+            .hero {
+                min-height: 100vh;
+                height: auto;
+                padding: 7rem 0 4rem;
+                display: flex;
+                align-items: center;
+            }
+
+            .hero-content {
+                margin-top: 0;
+            }
+
+            .hero-headline {
+                font-size: 2.25rem;
+                line-height: 1.2;
+            }
+
+            .hero-ctas .btn {
+                width: 100%;
+            }
+
+            /* Timeline Mobile Fix */
+            .timeline-line {
+                left: 1.25rem;
+                transform: none;
+            }
+
+            .timeline-item {
+                flex-direction: column !important;
+                align-items: flex-start;
+                padding-left: 3rem;
+                margin-bottom: 3rem;
+            }
+
+            .timeline-img-side, .timeline-text-side {
+                width: 100%;
+            }
+
+            .timeline-img-side {
+                margin-top: 1rem;
+            }
+
+            .timeline-marker {
+                left: 1.25rem;
+                transform: translate(-50%, -50%);
+            }
+
+            /* Gallery Mobile Carousel (Let infinite marquee adapt seamlessly on smaller viewports) */
+            .gallery-case {
+                width: 320px; /* Scaled down for mobile touch/swipe view */
+            }
+
+            .photo-container {
+                height: 140px;
+            }
+
+            /* Footer grid mobile collapse */
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+        }
+
+        /* Screen overlay active when drawer is open */
+        .drawer-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .drawer-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Navbar Placeholder -->
-    <div id="navbar-placeholder"></div>
+    <!-- Drawer Overlay for Mobile Navbar -->
+    <div class="drawer-overlay" id="drawerOverlay"></div>
 
-    <!-- Hero Section -->
-    <section class="hero-section">
-        <div class="container hero-content">
-            <div class="row align-items-center">
-                <div class="col-lg-6 mb-5 mb-lg-0">
-                    <span class="badge bg-primary-light text-primary px-3 py-2 rounded-pill mb-4 shadow-sm border border-primary-subtle d-inline-flex align-items-center gap-2">
-                        <i data-lucide="building-2" style="width: 16px; height: 16px;"></i> Smart City Initiative
-                    </span>
-                    <h1>Laporkan Jalan Rusak Dengan Mudah</h1>
-                    <p class="lead text-muted">Bantu wujudkan infrastruktur jalan kota yang lebih baik, aman, dan nyaman. Laporkan jalan berlubang, banjir, atau fasilitas jalan rusak hanya dengan beberapa klik.</p>
-                    <div class="d-flex flex-column flex-md-row gap-3 mt-4">
-                        <a href="login.html" class="btn btn-primary btn-lg shadow-sm">
-                            <i data-lucide="megaphone" style="width: 20px; height: 20px;"></i> Buat Laporan
-                        </a>
-                        <a href="#fitur" class="btn btn-outline-primary btn-lg">
-                            Pelajari Lebih Lanjut
-                        </a>
-                    </div>
-                </div>
-                <div class="col-lg-6 d-none d-lg-block text-center position-relative">
-                    <div class="position-absolute top-50 start-50 translate-middle w-100 h-100 bg-primary-light rounded-circle" style="z-index: -1; filter: blur(60px); opacity: 0.6;"></div>
-                    <img src="https://images.unsplash.com/photo-1519608425089-7f3bfa6f6bb8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Smart City Infrastructure" class="img-fluid rounded-lg shadow-lg border" style="transform: perspective(1000px) rotateY(-5deg);">
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Statistics Section -->
-    <section class="py-5 bg-white border-bottom border-top border-light">
+    <!-- 1. Floating Header -->
+    <header class="header" id="navbar">
         <div class="container">
-            <div class="row gy-4">
-                <div class="col-md-4">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i data-lucide="file-text" style="width: 28px; height: 28px;"></i>
-                        </div>
-                        <div>
-                            <div class="stat-number counter" data-target="1254">0</div>
-                            <p class="text-muted mb-0 fw-medium">Total Laporan</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="stat-card">
-                        <div class="stat-icon" style="color: var(--success-color); background: var(--success-light);">
-                            <i data-lucide="check-circle" style="width: 28px; height: 28px;"></i>
-                        </div>
-                        <div>
-                            <div class="stat-number counter" data-target="986">0</div>
-                            <p class="text-muted mb-0 fw-medium">Laporan Selesai</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="stat-card">
-                        <div class="stat-icon" style="color: var(--warning-color); background: var(--warning-light);">
-                            <i data-lucide="users" style="width: 28px; height: 28px;"></i>
-                        </div>
-                        <div>
-                            <div class="stat-number counter" data-target="4521">0</div>
-                            <p class="text-muted mb-0 fw-medium">User Aktif</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section id="fitur" class="py-5 bg-light">
-        <div class="container py-5">
-            <div class="text-center mb-5">
-                <h6 class="text-primary fw-bold text-uppercase" style="letter-spacing: 0.1em;">Fitur Unggulan</h6>
-                <h2 class="fw-bold mb-3">Kenapa Memilih SmartRoad?</h2>
-                <p class="text-muted mx-auto" style="max-width: 600px;">Platform ini didesain modern untuk memberikan kemudahan pelaporan dan transparansi penanganan masalah infrastruktur.</p>
-            </div>
+            <a href="#" class="logo">
+                <i data-lucide="shield-alert"></i>Smart<span>Road</span>
+            </a>
             
-            <div class="row gy-4">
-                <div class="col-lg-3 col-md-6">
-                    <div class="feature-card text-center">
-                        <div class="feature-icon mx-auto">
-                            <i data-lucide="camera" style="width: 24px; height: 24px;"></i>
-                        </div>
-                        <h5 class="fw-bold mb-3">Upload Bukti Foto</h5>
-                        <p class="text-muted mb-0">Lampirkan foto kerusakan langsung dari kamera HP Anda sebagai bukti validasi laporan.</p>
-                    </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#" class="nav-link active">Beranda</a></li>
+                <li><a href="#fitur" class="nav-link">Tentang</a></li>
+                <li><a href="#cara-kerja" class="nav-link">Cara Kerja</a></li>
+                <li><a href="#galeri" class="nav-link">Galeri</a></li>
+                <li><a href="#testimoni" class="nav-link">Testimoni</a></li>
+                <!-- Mobile Only CTA inside drawer menu -->
+                <li class="menu-cta-item" style="display: none; width: 100%;">
+                    <a href="login.html" class="btn btn-primary" style="width: 100%;">Lapor Sekarang</a>
+                </li>
+            </ul>
+
+            <div class="header-actions">
+                <a href="login.html" class="btn btn-primary header-cta">Lapor Sekarang</a>
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle Menu">
+                    <i data-lucide="menu"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. Full-Photo Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-overlay"></div>
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i data-lucide="construction" style="width: 12px; height: 12px;"></i> Infrastruktur Smart City
                 </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="feature-card text-center">
-                        <div class="feature-icon mx-auto">
-                            <i data-lucide="map" style="width: 24px; height: 24px;"></i>
-                        </div>
-                        <h5 class="fw-bold mb-3">Integrasi Maps</h5>
-                        <p class="text-muted mb-0">Tentukan titik lokasi jalan rusak dengan akurasi tinggi menggunakan integrasi peta digital.</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="feature-card text-center">
-                        <div class="feature-icon mx-auto">
-                            <i data-lucide="activity" style="width: 24px; height: 24px;"></i>
-                        </div>
-                        <h5 class="fw-bold mb-3">Tracking Realtime</h5>
-                        <p class="text-muted mb-0">Pantau perkembangan status laporan Anda, dari 'Menunggu' hingga 'Selesai Diperbaiki'.</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="feature-card text-center">
-                        <div class="feature-icon mx-auto">
-                            <i data-lucide="bell" style="width: 24px; height: 24px;"></i>
-                        </div>
-                        <h5 class="fw-bold mb-3">Notifikasi Otomatis</h5>
-                        <p class="text-muted mb-0">Dapatkan pemberitahuan via email setiap kali ada pembaruan status pada laporan Anda.</p>
-                    </div>
+                <h1 class="hero-headline">Jalan Rusak?<br>Jangan Hanya Dilihat. <span>Laporkan!</span></h1>
+                <p class="hero-desc">Portal resmi pelaporan infrastruktur publik terpadu. Laporkan jalan berlubang, retakan struktural, atau fasilitas jalan kota yang rusak secara instan langsung ke dinas pekerjaan umum terkait.</p>
+                <div class="hero-ctas">
+                    <a href="login.html" class="btn btn-primary">
+                        <i data-lucide="megaphone" style="width: 14px; height: 14px;"></i> Lapor Sekarang
+                    </a>
+                    <a href="#cara-kerja" class="btn btn-outline-white">
+                        Cara Kerja
+                    </a>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- How It Works Section -->
-    <section id="cara-kerja" class="py-5 bg-white border-top border-light">
-        <div class="container py-5">
-            <div class="row align-items-center">
-                <div class="col-lg-6 mb-5 mb-lg-0 pe-lg-5">
-                    <img src="https://images.unsplash.com/photo-1573108724029-4c46571d6490?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="How it works" class="img-fluid rounded-lg shadow-sm border">
+    <!-- 3. Live Statistics Section -->
+    <section class="stats">
+        <div class="container">
+            <div class="stats-grid">
+                
+                <!-- Stat Card 1 -->
+                <div class="stat-card">
+                    <div class="live-pulse">
+                        <span class="pulse-dot"></span> Live Telemetry
+                    </div>
+                    <div class="stat-icon-wrapper">
+                        <i data-lucide="file-warning"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number-box">
+                            <span class="stat-number" data-target="2453">0</span>
+                            <span class="stat-plus">+</span>
+                        </div>
+                        <p class="stat-label">Laporan Masuk</p>
+                    </div>
                 </div>
-                <div class="col-lg-6">
-                    <h6 class="text-primary fw-bold text-uppercase" style="letter-spacing: 0.1em;">Cara Kerja</h6>
-                    <h2 class="fw-bold mb-4">4 Langkah Mudah Melapor</h2>
-                    
-                    <div class="d-flex mb-4">
-                        <div class="flex-shrink-0">
-                            <div class="bg-primary-light text-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm border border-primary-subtle" style="width: 50px; height: 50px; font-weight: bold; font-size: 1.2rem;">1</div>
-                        </div>
-                        <div class="ms-4">
-                            <h5 class="fw-bold">Buat Akun</h5>
-                            <p class="text-muted">Daftarkan diri Anda untuk bisa melacak semua riwayat laporan yang pernah Anda buat.</p>
-                        </div>
+
+                <!-- Stat Card 2 -->
+                <div class="stat-card">
+                    <div class="live-pulse">
+                        <span class="pulse-dot"></span> Live Telemetry
                     </div>
-                    
-                    <div class="d-flex mb-4">
-                        <div class="flex-shrink-0">
-                            <div class="bg-primary-light text-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm border border-primary-subtle" style="width: 50px; height: 50px; font-weight: bold; font-size: 1.2rem;">2</div>
-                        </div>
-                        <div class="ms-4">
-                            <h5 class="fw-bold">Isi Form & Upload Foto</h5>
-                            <p class="text-muted">Jelaskan kerusakan, pilih lokasi di peta, dan lampirkan foto jalan yang rusak.</p>
-                        </div>
+                    <div class="stat-icon-wrapper">
+                        <i data-lucide="check-circle-2"></i>
                     </div>
-                    
-                    <div class="d-flex mb-4">
-                        <div class="flex-shrink-0">
-                            <div class="bg-primary-light text-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm border border-primary-subtle" style="width: 50px; height: 50px; font-weight: bold; font-size: 1.2rem;">3</div>
+                    <div class="stat-info">
+                        <div class="stat-number-box">
+                            <span class="stat-number" data-target="2104">0</span>
+                            <span class="stat-plus">+</span>
                         </div>
-                        <div class="ms-4">
-                            <h5 class="fw-bold">Proses Verifikasi</h5>
-                            <p class="text-muted">Petugas terkait akan memverifikasi laporan Anda dan menjadwalkan perbaikan lapangan.</p>
-                        </div>
+                        <p class="stat-label">Laporan Ditangani</p>
                     </div>
-                    
-                    <div class="d-flex">
-                        <div class="flex-shrink-0">
-                            <div class="bg-primary-light text-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm border border-primary-subtle" style="width: 50px; height: 50px; font-weight: bold; font-size: 1.2rem;">4</div>
-                        </div>
-                        <div class="ms-4">
-                            <h5 class="fw-bold">Masalah Teratasi</h5>
-                            <p class="text-muted">Jalan diperbaiki dan status laporan Anda akan diperbarui menjadi 'Selesai'.</p>
-                        </div>
-                    </div>
-                    
                 </div>
+
+                <!-- Stat Card 3 -->
+                <div class="stat-card">
+                    <div class="stat-icon-wrapper">
+                        <i data-lucide="users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number-box">
+                            <span class="stat-number" data-target="15820">0</span>
+                            <span class="stat-plus">+</span>
+                        </div>
+                        <p class="stat-label">Partisipasi Warga</p>
+                    </div>
+                </div>
+
             </div>
         </div>
     </section>
 
-    <!-- Testimonials Section -->
-    <section class="py-5 bg-light border-top border-light">
-        <div class="container py-5">
-            <div class="text-center mb-5">
-                <h2 class="fw-bold mb-3">Apa Kata Masyarakat?</h2>
-                <p class="text-muted">Ulasan dari warga yang telah menggunakan SmartRoad.</p>
+    <!-- 4. App Explanation Section -->
+    <section class="explanation" id="fitur">
+        <div class="container">
+            <div class="section-header light-bg">
+                <span class="section-badge">Tentang Platform</span>
+                <h2 class="section-title">Apa itu SmartRoad?</h2>
+                <p class="section-desc">SmartRoad memfasilitasi komunikasi dua arah yang transparan antara masyarakat dengan instansi Pekerjaan Umum kota untuk percepatan perbaikan jalan.</p>
             </div>
-            
-            <div class="row gy-4">
-                <div class="col-lg-4">
-                    <div class="card-modern p-4 border-0">
-                        <div class="d-flex align-items-center mb-3">
-                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" class="rounded-circle me-3" width="56" height="56">
-                            <div>
-                                <h6 class="fw-bold mb-0">Budi Santoso</h6>
-                                <span class="text-warning small d-flex gap-1 mt-1">
-                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
-                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
-                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
-                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
-                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
-                                </span>
-                            </div>
-                        </div>
-                        <p class="text-muted">"Jalan berlubang di depan rumah saya langsung diperbaiki 3 hari setelah lapor di SmartRoad. Sangat responsif!"</p>
-                    </div>
+
+            <div class="explanation-grid">
+                
+                <!-- Left Text Column -->
+                <div class="expl-content">
+                    <h3>Mempercepat Penanganan Masalah Lapangan</h3>
+                    <p>Seringkali kerusakan jalan berlubang terbengkalai berminggu-minggu tanpa penanganan hanya karena sistem pengaduan administrasi birokrasi yang panjang dan tidak efisien. <strong>SmartRoad memotong birokrasi lambat tersebut.</strong></p>
+                    <p>Melalui integrasi navigasi geo-location presisi dan unggahan bukti visual langsung dari lapangan, setiap laporan warga terverifikasi langsung terpetakan ke dalam sistem pemantauan dinas kota secara real-time demi prioritas pengerjaan konstruksi.</p>
+                    <a href="register.html" class="btn btn-outline-orange" style="margin-top: 1rem;">
+                        Buat Akun Warga <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
+                    </a>
                 </div>
-                <div class="col-lg-4">
-                    <div class="card-modern p-4 border-0">
-                        <div class="d-flex align-items-center mb-3">
-                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" class="rounded-circle me-3" width="56" height="56">
-                            <div>
-                                <h6 class="fw-bold mb-0">Siti Aminah</h6>
-                                <span class="text-warning small d-flex gap-1 mt-1">
-                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
-                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
-                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
-                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
-                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
-                                </span>
-                            </div>
+
+                <!-- Right Feature Cards Grid -->
+                <div class="expl-feature-grid">
+                    
+                    <!-- Card 1 -->
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i data-lucide="camera"></i>
                         </div>
-                        <p class="text-muted">"Sistem tracking-nya sangat membantu. Kita jadi tahu kalau laporan kita benar-benar dikerjakan oleh petugas."</p>
+                        <h4 class="feature-title">Bukti Visual Instan</h4>
+                        <p class="feature-desc">Unggah foto kerusakan langsung dari kamera ponsel untuk kemudahan analisis tim dinas Pekerjaan Umum.</p>
                     </div>
-                </div>
-                <div class="col-lg-4">
-                    <div class="card-modern p-4 border-0">
-                        <div class="d-flex align-items-center mb-3">
-                            <img src="https://randomuser.me/api/portraits/men/85.jpg" alt="User" class="rounded-circle me-3" width="56" height="56">
-                            <div>
-                                <h6 class="fw-bold mb-0">Reza Fahlevi</h6>
-                                <span class="text-warning small d-flex gap-1 mt-1">
-                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
-                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
-                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
-                                    <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
-                                    <i data-lucide="star" style="width: 14px; height: 14px;"></i>
-                                </span>
-                            </div>
+
+                    <!-- Card 2 -->
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i data-lucide="map-pin"></i>
                         </div>
-                        <p class="text-muted">"Desain webnya modern, mudah digunakan, dan yang paling penting fitur upload foto plus koordinat map-nya akurat."</p>
+                        <h4 class="feature-title">Presisi Lokasi GPS</h4>
+                        <p class="feature-desc">Menentukan titik koordinat jalan rusak secara presisi di peta digital untuk kemudahan navigasi petugas.</p>
                     </div>
+
+                    <!-- Card 3 -->
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i data-lucide="activity"></i>
+                        </div>
+                        <h4 class="feature-title">Pelacakan Real-time</h4>
+                        <p class="feature-desc">Pantau progres pengerjaan laporan Anda secara transparan dari tahap verifikasi hingga penambalan selesai.</p>
+                    </div>
+
+                    <!-- Card 4 -->
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i data-lucide="bell"></i>
+                        </div>
+                        <h4 class="feature-title">Notifikasi Otomatis</h4>
+                        <p class="feature-desc">Menerima pemberitahuan email otomatis setiap kali terjadi perubahan status pada laporan konstruksi Anda.</p>
+                    </div>
+
                 </div>
+
             </div>
         </div>
     </section>
 
-    <!-- Footer Placeholder -->
-    <div id="footer-placeholder"></div>
+    <!-- 5. Step-by-Step Guide Section -->
+    <section class="guide" id="cara-kerja">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">Alur Pelaporan</span>
+                <h2 class="section-title">Langkah Pelaporan</h2>
+                <p class="section-desc">Prosedur pelaporan infrastruktur publik dirancang minimalis dan ringkas agar keluhan Anda dapat ditanggapi dengan cepat.</p>
+            </div>
 
-    <!-- Bootstrap & Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Lucide Icons -->
+            <div class="timeline-wrapper">
+                <div class="timeline-line"></div>
+
+                <!-- Step 1 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker">1</div>
+                    <div class="timeline-text-side">
+                        <div class="step-card">
+                            <div class="step-header">
+                                <i data-lucide="camera-off"></i>
+                                <h3 class="step-title">1. Dokumentasi Foto</h3>
+                            </div>
+                            <p class="step-desc">Temukan jalan rusak atau berlubang yang mengganggu keselamatan umum. Ambil foto kerusakan secara jelas dari jarak dekat dan sudut pandang lebar untuk mempermudah identifikasi.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-img-side">
+                        <div class="step-media">
+                            <img src="https://images.unsplash.com/photo-1515162305285-0293e4767cc2?q=80&w=800" alt="Dokumentasi kerusakan jalan">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker">2</div>
+                    <div class="timeline-text-side">
+                        <div class="step-card">
+                            <div class="step-header">
+                                <i data-lucide="send"></i>
+                                <h3 class="step-title">2. Unggah & Pilih Lokasi</h3>
+                            </div>
+                            <p class="step-desc">Masuk ke aplikasi SmartRoad, unggah bukti foto, ketik keterangan singkat, dan tentukan letak koordinat jalan rusak tersebut pada peta terintegrasi secara akurat.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-img-side">
+                        <div class="step-media">
+                            <img src="https://images.unsplash.com/photo-1573108724029-4c46571d6490?q=80&w=800" alt="Unggah detail di dashboard">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker">3</div>
+                    <div class="timeline-text-side">
+                        <div class="step-card">
+                            <div class="step-header">
+                                <i data-lucide="check-square"></i>
+                                <h3 class="step-title">3. Verifikasi & Penugasan</h3>
+                            </div>
+                            <p class="step-desc">Sistem admin dinas akan memvalidasi keaslian berkas aduan untuk mencegah penyalahgunaan. Laporan terverifikasi langsung masuk ke daftar penugasan kontraktor perbaikan.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-img-side">
+                        <div class="step-media">
+                            <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=800" alt="Proses verifikasi admin">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker">4</div>
+                    <div class="timeline-text-side">
+                        <div class="step-card">
+                            <div class="step-header">
+                                <i data-lucide="check-circle-2"></i>
+                                <h3 class="step-title">4. Konstruksi Perbaikan</h3>
+                            </div>
+                            <p class="step-desc">Tim teknisi ditugaskan ke lapangan membawa material aspal baru dan alat gilas. Setelah perbaikan selesai, dinas merilis foto hasil kerja dan status laporan berganti menjadi Selesai.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-img-side">
+                        <div class="step-media">
+                            <img src="https://images.unsplash.com/photo-1534224039826-c7a0eda0e6b3?q=80&w=800" alt="Konstruksi perbaikan aspal">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. Before & After Gallery Section (CRITICAL FIX: INFINITE AUTO-SCROLL CAROUSEL) -->
+    <section class="gallery" id="galeri">
+        <div class="container">
+            <div class="section-header light-bg">
+                <span class="section-badge">Galeri Infrastruktur</span>
+                <h2 class="section-title">Bukti Nyata Perbaikan</h2>
+                <p class="section-desc">Dokumentasi transparansi hasil pengerjaan jalan rusak di lapangan secara nyata dari sebelum dan setelah pengerjaan konstruksi.</p>
+            </div>
+        </div>
+
+        <!-- INFINITE AUTO-SCROLL MARQUEE CAROUSEL TRACK -->
+        <div class="marquee-container">
+            <!-- Continuous Infinite Loop Marquee (Consists of 4 unique pairs, duplicated exactly once inside the track to ensure seamless scroll) -->
+            <div class="marquee-track">
+                
+                <!-- Card 1 -->
+                <div class="gallery-case">
+                    <div class="gallery-photos">
+                        <div class="photo-container">
+                            <span class="photo-label before">Sebelum</span>
+                            <img src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=600" alt="Kerusakan jalan berlubang">
+                        </div>
+                        <div class="comparison-divider"><i data-lucide="arrow-right-left" style="width: 12px; height: 12px;"></i></div>
+                        <div class="photo-container">
+                            <span class="photo-label after">Sesudah</span>
+                            <img src="https://images.unsplash.com/photo-1599740487708-411a76c8c4cf?q=80&w=600" alt="Jalan selesai diaspal">
+                        </div>
+                    </div>
+                    <div class="gallery-info">
+                        <div class="gallery-details">
+                            <h4>Lubang Patah Struktural</h4>
+                            <p><i data-lucide="map-pin"></i> Jl. Jenderal Sudirman KM 12</p>
+                        </div>
+                        <span class="gallery-status-badge">Selesai 3 Hari</span>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="gallery-case">
+                    <div class="gallery-photos">
+                        <div class="photo-container">
+                            <span class="photo-label before">Sebelum</span>
+                            <img src="https://images.unsplash.com/photo-1515162305285-0293e4767cc2?q=80&w=600" alt="Keretakan bahu jalan">
+                        </div>
+                        <div class="comparison-divider"><i data-lucide="arrow-right-left" style="width: 12px; height: 12px;"></i></div>
+                        <div class="photo-container">
+                            <span class="photo-label after">Sesudah</span>
+                            <img src="https://images.unsplash.com/photo-1534224039826-c7a0eda0e6b3?q=80&w=600" alt="Pengaspalan marka rapi">
+                        </div>
+                    </div>
+                    <div class="gallery-info">
+                        <div class="gallery-details">
+                            <h4>Keretakan & Ambruk Bahu Jalan</h4>
+                            <p><i data-lucide="map-pin"></i> Lingkar Luar Timur, Pasar Induk</p>
+                        </div>
+                        <span class="gallery-status-badge">Selesai 5 Hari</span>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="gallery-case">
+                    <div class="gallery-photos">
+                        <div class="photo-container">
+                            <span class="photo-label before">Sebelum</span>
+                            <img src="https://images.unsplash.com/photo-1476973422984-e4afd97ad028?q=80&w=600" alt="Genangan air jalan raya">
+                        </div>
+                        <div class="comparison-divider"><i data-lucide="arrow-right-left" style="width: 12px; height: 12px;"></i></div>
+                        <div class="photo-container">
+                            <span class="photo-label after">Sesudah</span>
+                            <img src="https://images.unsplash.com/photo-1498654896293-37aacf113fd9?q=80&w=600" alt="Jalan aspal kering bersih">
+                        </div>
+                    </div>
+                    <div class="gallery-info">
+                        <div class="gallery-details">
+                            <h4>Genangan Banjir & Drainase Mampet</h4>
+                            <p><i data-lucide="map-pin"></i> Koridor Gatot Subroto Kav. 5</p>
+                        </div>
+                        <span class="gallery-status-badge">Selesai 2 Hari</span>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="gallery-case">
+                    <div class="gallery-photos">
+                        <div class="photo-container">
+                            <span class="photo-label before">Sebelum</span>
+                            <img src="https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?q=80&w=600" alt="Pembatas jalan hancur">
+                        </div>
+                        <div class="comparison-divider"><i data-lucide="arrow-right-left" style="width: 12px; height: 12px;"></i></div>
+                        <div class="photo-container">
+                            <span class="photo-label after">Sesudah</span>
+                            <img src="https://images.unsplash.com/photo-1542362567-b07eac790947?q=80&w=600" alt="Pembatas jalan selesai dirapikan">
+                        </div>
+                    </div>
+                    <div class="gallery-info">
+                        <div class="gallery-details">
+                            <h4>Fasilitas Rambu & Pembatas Rusak</h4>
+                            <p><i data-lucide="map-pin"></i> Bundaran HI Sektor Selatan</p>
+                        </div>
+                        <span class="gallery-status-badge">Selesai 4 Hari</span>
+                    </div>
+                </div>
+
+                <!-- DUPLICATED CARDS FOR SEAMLESS INFINITE LOOP MARQUEE -->
+                
+                <!-- Duplicate Card 1 -->
+                <div class="gallery-case">
+                    <div class="gallery-photos">
+                        <div class="photo-container">
+                            <span class="photo-label before">Sebelum</span>
+                            <img src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=600" alt="Kerusakan jalan berlubang">
+                        </div>
+                        <div class="comparison-divider"><i data-lucide="arrow-right-left" style="width: 12px; height: 12px;"></i></div>
+                        <div class="photo-container">
+                            <span class="photo-label after">Sesudah</span>
+                            <img src="https://images.unsplash.com/photo-1599740487708-411a76c8c4cf?q=80&w=600" alt="Jalan selesai diaspal">
+                        </div>
+                    </div>
+                    <div class="gallery-info">
+                        <div class="gallery-details">
+                            <h4>Lubang Patah Struktural</h4>
+                            <p><i data-lucide="map-pin"></i> Jl. Jenderal Sudirman KM 12</p>
+                        </div>
+                        <span class="gallery-status-badge">Selesai 3 Hari</span>
+                    </div>
+                </div>
+
+                <!-- Duplicate Card 2 -->
+                <div class="gallery-case">
+                    <div class="gallery-photos">
+                        <div class="photo-container">
+                            <span class="photo-label before">Sebelum</span>
+                            <img src="https://images.unsplash.com/photo-1515162305285-0293e4767cc2?q=80&w=600" alt="Keretakan bahu jalan">
+                        </div>
+                        <div class="comparison-divider"><i data-lucide="arrow-right-left" style="width: 12px; height: 12px;"></i></div>
+                        <div class="photo-container">
+                            <span class="photo-label after">Sesudah</span>
+                            <img src="https://images.unsplash.com/photo-1534224039826-c7a0eda0e6b3?q=80&w=600" alt="Pengaspalan marka rapi">
+                        </div>
+                    </div>
+                    <div class="gallery-info">
+                        <div class="gallery-details">
+                            <h4>Keretakan & Ambruk Bahu Jalan</h4>
+                            <p><i data-lucide="map-pin"></i> Lingkar Luar Timur, Pasar Induk</p>
+                        </div>
+                        <span class="gallery-status-badge">Selesai 5 Hari</span>
+                    </div>
+                </div>
+
+                <!-- Duplicate Card 3 -->
+                <div class="gallery-case">
+                    <div class="gallery-photos">
+                        <div class="photo-container">
+                            <span class="photo-label before">Sebelum</span>
+                            <img src="https://images.unsplash.com/photo-1476973422984-e4afd97ad028?q=80&w=600" alt="Genangan air jalan raya">
+                        </div>
+                        <div class="comparison-divider"><i data-lucide="arrow-right-left" style="width: 12px; height: 12px;"></i></div>
+                        <div class="photo-container">
+                            <span class="photo-label after">Sesudah</span>
+                            <img src="https://images.unsplash.com/photo-1498654896293-37aacf113fd9?q=80&w=600" alt="Jalan aspal kering bersih">
+                        </div>
+                    </div>
+                    <div class="gallery-info">
+                        <div class="gallery-details">
+                            <h4>Genangan Banjir & Drainase Mampet</h4>
+                            <p><i data-lucide="map-pin"></i> Koridor Gatot Subroto Kav. 5</p>
+                        </div>
+                        <span class="gallery-status-badge">Selesai 2 Hari</span>
+                    </div>
+                </div>
+
+                <!-- Duplicate Card 4 -->
+                <div class="gallery-case">
+                    <div class="gallery-photos">
+                        <div class="photo-container">
+                            <span class="photo-label before">Sebelum</span>
+                            <img src="https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?q=80&w=600" alt="Pembatas jalan hancur">
+                        </div>
+                        <div class="comparison-divider"><i data-lucide="arrow-right-left" style="width: 12px; height: 12px;"></i></div>
+                        <div class="photo-container">
+                            <span class="photo-label after">Sesudah</span>
+                            <img src="https://images.unsplash.com/photo-1542362567-b07eac790947?q=80&w=600" alt="Pembatas jalan selesai dirapikan">
+                        </div>
+                    </div>
+                    <div class="gallery-info">
+                        <div class="gallery-details">
+                            <h4>Fasilitas Rambu & Pembatas Rusak</h4>
+                            <p><i data-lucide="map-pin"></i> Bundaran HI Sektor Selatan</p>
+                        </div>
+                        <span class="gallery-status-badge">Selesai 4 Hari</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. Community Feedback Section (CRITICAL FIX: MINIMALIST & PROFESSIONAL) -->
+    <section class="feedback" id="testimoni">
+        <div class="container">
+            <div class="section-header dark-bg">
+                <span class="section-badge">Ulasan Publik</span>
+                <h2 class="section-title">Apa Kata Warga?</h2>
+                <p class="section-desc">Umpan balik langsung dari warga kota mengenai dampak positif penanganan masalah jalan cepat melalui platform SmartRoad.</p>
+            </div>
+
+            <div class="feedback-grid">
+                
+                <!-- Feedback 1 -->
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        <i data-lucide="star"></i>
+                        <i data-lucide="star"></i>
+                        <i data-lucide="star"></i>
+                        <i data-lucide="star"></i>
+                        <i data-lucide="star"></i>
+                    </div>
+                    <p class="testimonial-quote">"Lubang jalan sedalam satu meter di dekat persimpangan jalan perumahan kami yang sering membahayakan keselamatan pengendara sepeda motor akhirnya dilapisi aspal kembali 3 hari setelah dilaporkan. Sangat efisien!"</p>
+                    <div class="testimonial-author">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Budi Santoso" class="author-avatar">
+                        <div>
+                            <h4 class="author-name">Budi Santoso</h4>
+                            <p class="author-role">Warga RT 04, Sukolilo</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feedback 2 -->
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        <i data-lucide="star"></i>
+                        <i data-lucide="star"></i>
+                        <i data-lucide="star"></i>
+                        <i data-lucide="star"></i>
+                        <i data-lucide="star"></i>
+                    </div>
+                    <p class="testimonial-quote">"Transparansi pelacakan status penugasan di dashboard sangat mencerminkan integrasi Smart City. Kita dapat mengawasi dengan jelas pengerjaan lapangan laporan dari tim admin dinas."</p>
+                    <div class="testimonial-author">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Siti Aminah" class="author-avatar">
+                        <div>
+                            <h4 class="author-name">Siti Aminah</h4>
+                            <p class="author-role">Pengendara Komuter Harian</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feedback 3 -->
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        <i data-lucide="star"></i>
+                        <i data-lucide="star"></i>
+                        <i data-lucide="star"></i>
+                        <i data-lucide="star"></i>
+                        <i data-lucide="star" class="empty"></i>
+                    </div>
+                    <p class="testimonial-quote">"Sebagai pengemudi pengantar barang, fitur pinpoint koordinat GPS dan unggah gambar jalan berlubang sangat membantu. Dinas PU tidak perlu lagi menanyakan letak jalan berlubang."</p>
+                    <div class="testimonial-author">
+                        <img src="https://randomuser.me/api/portraits/men/85.jpg" alt="Reza Fahlevi" class="author-avatar">
+                        <div>
+                            <h4 class="author-name">Reza Fahlevi</h4>
+                            <p class="author-role">Kurir Layanan Logistik</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. Professional Footer Section (FIXED MOBILE LAYOUT) -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                
+                <!-- Col 1: Brand Info -->
+                <div>
+                    <a href="#" class="footer-logo">
+                        <i data-lucide="shield-alert"></i>Smart<span>Road</span>
+                    </a>
+                    <p class="footer-desc">Pusat penanganan pelaporan aduan kerusakan jalan raya berbasis transparansi publik dan pemetaan geospasial real-time.</p>
+                    <div class="footer-socials">
+                        <a href="#" class="social-link" aria-label="Facebook"><i data-lucide="facebook"></i></a>
+                        <a href="#" class="social-link" aria-label="Twitter"><i data-lucide="twitter"></i></a>
+                        <a href="#" class="social-link" aria-label="Instagram"><i data-lucide="instagram"></i></a>
+                        <a href="#" class="social-link" aria-label="Linkedin"><i data-lucide="linkedin"></i></a>
+                    </div>
+                </div>
+
+                <!-- Col 2: Navigation Links -->
+                <div>
+                    <h4 class="footer-title">Tautan</h4>
+                    <ul class="footer-links">
+                        <li><a href="#home">Beranda</a></li>
+                        <li><a href="#fitur">Tentang Layanan</a></li>
+                        <li><a href="#cara-kerja">Langkah Melapor</a></li>
+                        <li><a href="#galeri">Galeri Aspal</a></li>
+                        <li><a href="#testimoni">Ulasan Warga</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 3: Assistance Hotlines -->
+                <div>
+                    <h4 class="footer-title">Pusat Bantuan</h4>
+                    <ul class="footer-contact">
+                        <li>
+                            <i data-lucide="map-pin"></i>
+                            <span>Jl. Dinas Pekerjaan Umum No. 45, Gedung Bina Marga, Kota Surabaya</span>
+                        </li>
+                        <li>
+                            <i data-lucide="phone"></i>
+                            <span>(031) 555-0199 / 555-0200</span>
+                        </li>
+                        <li>
+                            <i data-lucide="mail"></i>
+                            <span>pengaduan@smartroad.go.id</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Col 4: Newsletter -->
+                <div>
+                    <h4 class="footer-title">Buletin Kota</h4>
+                    <p class="footer-newsletter">Menerima informasi bulanan rekapitulasi penambalan jalan rusak kota dan peningkatan platform SmartRoad.</p>
+                    <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Terima kasih telah bergabung dengan newsletter kami!');">
+                        <input type="email" class="newsletter-input" placeholder="Masukkan email Anda..." required>
+                        <button type="submit" class="newsletter-btn" aria-label="Berlangganan">
+                            <i data-lucide="arrow-right"></i>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+
+            <!-- Footer Bottom legal info -->
+            <div class="footer-bottom">
+                <p class="footer-copy">&copy; 2026 SmartRoad City Initiative. Seluruh Hak Cipta Dilindungi Undang-Undang.</p>
+                <ul class="footer-legal">
+                    <li><a href="#">Kebijakan Privasi</a></li>
+                    <li><a href="#">Syarat Penggunaan</a></li>
+                    <li><a href="#">Dinas Bina Marga</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Lucide Icons Bundle -->
     <script src="https://unpkg.com/lucide@latest"></script>
     
-    <!-- Custom JS -->
-    <script src="js/script.js"></script>
+    <!-- Custom Navigation, Counter, and Mobile Drawer Logic Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Lucide Icons
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+
+            // 1. Sticky Translucent Header & Navigation link scroll tracking
+            const navbar = document.getElementById('navbar');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('section');
+
+            const handleScroll = () => {
+                if (window.scrollY > 40) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+
+                // Dynamic scroll spy active menu highlight
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop - 150;
+                    if (window.scrollY >= sectionTop) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').substring(1) === current) {
+                        link.classList.add('active');
+                    }
+                });
+            };
+
+            window.addEventListener('scroll', handleScroll);
+            handleScroll(); // Trigger immediately at startup
+
+            // 2. FIXED MOBILE NAVIGATION HAMBURGER DRAWER MENU
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.getElementById('navMenu');
+            const drawerOverlay = document.getElementById('drawerOverlay');
+
+            const toggleMobileMenu = () => {
+                navMenu.classList.toggle('active');
+                drawerOverlay.classList.toggle('active');
+                
+                // Toggle Lucide Menu/X icons
+                const icon = menuToggle.querySelector('i');
+                if (navMenu.classList.contains('active')) {
+                    icon.setAttribute('data-lucide', 'x');
+                    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                } else {
+                    icon.setAttribute('data-lucide', 'menu');
+                    document.body.style.overflow = '';
+                }
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            };
+
+            if (menuToggle && navMenu && drawerOverlay) {
+                menuToggle.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleMobileMenu();
+                });
+
+                // Close menu clicking on navigation drawer items
+                navLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        navMenu.classList.remove('active');
+                        drawerOverlay.classList.remove('active');
+                        document.body.style.overflow = '';
+                        const icon = menuToggle.querySelector('i');
+                        icon.setAttribute('data-lucide', 'menu');
+                        if (window.lucide) {
+                            window.lucide.createIcons();
+                        }
+                    });
+                });
+
+                // Close menu clicking overlay
+                drawerOverlay.addEventListener('click', () => {
+                    navMenu.classList.remove('active');
+                    drawerOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                    const icon = menuToggle.querySelector('i');
+                    icon.setAttribute('data-lucide', 'menu');
+                    if (window.lucide) {
+                        window.lucide.createIcons();
+                    }
+                });
+            }
+
+            // 3. Live Statistics Counter Animating
+            const counters = document.querySelectorAll('.stat-number');
+            const counterObserverOptions = {
+                threshold: 0.1,
+                rootMargin: '0px'
+            };
+
+            const animateCounter = (counter) => {
+                const target = parseInt(counter.getAttribute('data-target'), 10);
+                const duration = 1800; // Counter timing in milliseconds
+                const stepTime = 20;   // Interval frame rate
+                const totalSteps = duration / stepTime;
+                const increment = target / totalSteps;
+                let currentCount = 0;
+                let stepCount = 0;
+
+                const counterInterval = setInterval(() => {
+                    stepCount++;
+                    currentCount += increment;
+                    
+                    if (stepCount >= totalSteps) {
+                        counter.textContent = target.toLocaleString('id-ID');
+                        clearInterval(counterInterval);
+                    } else {
+                        counter.textContent = Math.floor(currentCount).toLocaleString('id-ID');
+                    }
+                }, stepTime);
+            };
+
+            const counterObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animateCounter(entry.target);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, counterObserverOptions);
+
+            counters.forEach(counter => {
+                counterObserver.observe(counter);
+            });
+
+            // 4. Smooth scroll back to top on branding logo click
+            const logo = document.querySelector('.logo');
+            if (logo) {
+                logo.addEventListener('click', (e) => {
+                    if (window.scrollY > 0) {
+                        e.preventDefault();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

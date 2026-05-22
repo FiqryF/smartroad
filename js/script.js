@@ -124,6 +124,18 @@ function loadComponent(id, url) {
 function initDummyChart() {
     const ctx = document.getElementById('laporanChart');
     if (ctx && typeof Chart !== 'undefined') {
+        const chartCtx = ctx.getContext('2d');
+        
+        // Create primary gradient (Indigo-Blue)
+        const gradPrimary = chartCtx.createLinearGradient(0, 0, 0, 250);
+        gradPrimary.addColorStop(0, 'rgba(59, 130, 246, 0.3)');
+        gradPrimary.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+        
+        // Create success gradient (Emerald-Green)
+        const gradSuccess = chartCtx.createLinearGradient(0, 0, 0, 250);
+        gradSuccess.addColorStop(0, 'rgba(16, 185, 129, 0.3)');
+        gradSuccess.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+
         new Chart(ctx, {
             type: 'line',
             data: {
@@ -131,20 +143,26 @@ function initDummyChart() {
                 datasets: [{
                     label: 'Laporan Masuk',
                     data: [12, 19, 15, 25, 22, 30],
-                    borderColor: '#0d6efd',
-                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                    borderWidth: 2,
+                    borderColor: '#3b82f6',
+                    backgroundColor: gradPrimary,
+                    borderWidth: 3,
                     fill: true,
-                    tension: 0.4
+                    tension: 0.4,
+                    pointBackgroundColor: '#3b82f6',
+                    pointHoverRadius: 6,
+                    pointRadius: 4
                 },
                 {
                     label: 'Laporan Selesai',
                     data: [8, 15, 10, 20, 18, 25],
-                    borderColor: '#198754',
-                    backgroundColor: 'rgba(25, 135, 84, 0.1)',
-                    borderWidth: 2,
+                    borderColor: '#10b981',
+                    backgroundColor: gradSuccess,
+                    borderWidth: 3,
                     fill: true,
-                    tension: 0.4
+                    tension: 0.4,
+                    pointBackgroundColor: '#10b981',
+                    pointHoverRadius: 6,
+                    pointRadius: 4
                 }]
             },
             options: {
@@ -153,6 +171,29 @@ function initDummyChart() {
                 plugins: {
                     legend: {
                         position: 'top',
+                        labels: {
+                            font: {
+                                family: "'Plus Jakarta Sans', 'Inter', sans-serif",
+                                weight: 600,
+                                size: 12
+                            },
+                            color: '#64748b',
+                            boxWidth: 12,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        titleFont: {
+                            family: "'Plus Jakarta Sans', sans-serif",
+                            weight: 700
+                        },
+                        bodyFont: {
+                            family: "'Inter', sans-serif"
+                        },
+                        padding: 12,
+                        cornerRadius: 8
                     }
                 },
                 scales: {
@@ -160,12 +201,26 @@ function initDummyChart() {
                         beginAtZero: true,
                         grid: {
                             display: true,
-                            color: '#f0f0f0'
+                            color: '#f1f5f9'
+                        },
+                        ticks: {
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 11
+                            },
+                            color: '#64748b'
                         }
                     },
                     x: {
                         grid: {
                             display: false
+                        },
+                        ticks: {
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 11
+                            },
+                            color: '#64748b'
                         }
                     }
                 }

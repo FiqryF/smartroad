@@ -3,82 +3,541 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk - SmartRoad</title>
+    <title>SELAMAT DATANG KEMBALI — SmartRoad</title>
+    <!-- Google Fonts: Plus Jakarta Sans & Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
     
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body class="auth-page">
-    
-    <div class="container d-flex justify-content-center align-items-center min-vh-100 py-5">
-        <div class="auth-card">
-            <div class="text-center mb-5">
-                <a href="index.html" class="navbar-brand fs-3 mb-3 justify-content-center d-flex align-items-center">
-                    <div class="bg-primary-light p-2 rounded-md me-2">
-                        <i data-lucide="map-pinned" class="icon text-primary"></i>
-                    </div>
-                    SmartRoad
-                </a>
-                <h4 class="fw-bold mb-2">Selamat Datang Kembali</h4>
-                <p class="text-muted">Masuk ke akun Anda untuk melanjutkan.</p>
-            </div>
+    <style>
+        /* ═══════════════════════════════════════════════════
+           DESIGN TOKENS — Industrial Dark Theme
+        ═══════════════════════════════════════════════════ */
+        :root {
+            --bg-base: #121416;          /* Asphalt Dark */
+            --card-bg: #1A1D20;          /* Asphalt Light - solid, completely opaque */
+            --accent: #FF6B00;           /* Safety Orange */
+            --accent-hover: #E65100;     /* Deep Orange */
+            --text-primary: #FFFFFF;     /* Crisp White */
+            --text-muted: #8E9BAE;       /* Muted Gray */
+            --input-border: rgba(248, 249, 250, 0.25); /* Subtle Concrete Gray border */
+            --input-border-focus: #FF6B00;
+            --card-border: #111315;      /* Slightly darker grey for card border */
             
-            <form class="needs-validation" novalidate action="dashboard-user.html">
-                <div class="mb-4">
-                    <label for="email" class="form-label fw-medium text-dark">Alamat Email</label>
-                    <div class="position-relative">
-                        <div class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted">
-                            <i data-lucide="mail" style="width: 18px; height: 18px;"></i>
-                        </div>
-                        <input type="email" class="form-control" style="padding-left: 2.5rem;" id="email" placeholder="nama@email.com" required>
-                    </div>
-                    <div class="invalid-feedback">
-                        Harap masukkan alamat email yang valid.
+            /* Professional, less sharp border radius */
+            --radius-card: 12px;
+            --radius-input: 6px;
+            --radius-btn: 6px;
+            
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ═══════════════════════════════════════════════════
+           GLOBAL RESET
+        ═══════════════════════════════════════════════════ */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* ═══════════════════════════════════════════════════
+           BACKGROUND ENGINEERING (50% Opacity Overlay)
+        ═══════════════════════════════════════════════════ */
+        .bg-layer {
+            position: fixed;
+            inset: 0;
+            background-image: url('https://images.unsplash.com/photo-1518005020951-eccb494ad742?q=80&w=2560&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: -3;
+        }
+
+        /* Solid Asphalt Dark base overlay at 50% opacity */
+        .bg-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(18, 20, 22, 0.5);
+            z-index: -2;
+        }
+
+        /* Heavy dark linear gradient from bottom-to-top to ground the layout */
+        .bg-gradient {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(to top, var(--bg-base) 0%, rgba(18, 20, 22, 0.6) 50%, rgba(18, 20, 22, 0.2) 100%);
+            z-index: -1;
+        }
+
+        /* ═══════════════════════════════════════════════════
+           BACK BUTTON (ELEGANT & FLOATING)
+        ═══════════════════════════════════════════════════ */
+        .btn-back {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: var(--transition);
+            z-index: 100;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background-color: rgba(26, 29, 32, 0.80);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: var(--radius-btn);
+            cursor: pointer;
+        }
+
+        .btn-back:hover {
+            color: var(--text-primary);
+            border-color: var(--accent);
+            background-color: var(--card-bg);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-back i {
+            width: 20px;
+            height: 20px;
+            transition: var(--transition);
+        }
+
+        .btn-back:hover i {
+            transform: translateX(-2px);
+        }
+
+        /* ═══════════════════════════════════════════════════
+           SYMMETRICAL CENTERED CONTAINER
+        ═══════════════════════════════════════════════════ */
+        .auth-container {
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* ═══════════════════════════════════════════════════
+           SOLID OPAQUE CARD (No Transparency)
+        ═══════════════════════════════════════════════════ */
+        .auth-card {
+            background-color: var(--card-bg); /* #1A1D20 - solid, no transparency */
+            border: 1px solid var(--card-border);
+            border-top: 3px solid var(--accent); /* Tech-dashboard feel */
+            border-radius: var(--radius-card); /* Less sharp, more professional */
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+            width: 100%;
+            padding: 48px 40px;
+            text-align: center;
+        }
+
+        /* ═══════════════════════════════════════════════════
+           LOGO (MATCHING INDEX.HTML STYLE)
+        ═══════════════════════════════════════════════════ */
+        .logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-transform: uppercase;
+            text-decoration: none;
+            margin-bottom: 24px;
+        }
+
+        .logo i {
+            color: var(--accent);
+            display: flex;
+            width: 24px;
+            height: 24px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .card-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 36px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ═══════════════════════════════════════════════════
+           FORM & INPUTS
+        ═══════════════════════════════════════════════════ */
+        .form-group {
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .input-icon i {
+            width: 18px;
+            height: 18px;
+        }
+
+        .form-control {
+            width: 100%;
+            min-height: 50px;
+            background-color: var(--card-bg); /* Asphalt Light (#1A1D20) */
+            border: 1px solid var(--input-border); /* Subtle Concrete Gray border */
+            border-radius: var(--radius-input);
+            padding: 0 16px 0 48px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.35);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(255, 107, 0, 0.2); /* Orange focus glow */
+        }
+
+        /* Password visibility toggle */
+        .form-control.has-toggle {
+            padding-right: 48px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .password-toggle:hover {
+            color: var(--text-primary);
+        }
+
+        .password-toggle i {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* ═══════════════════════════════════════════════════
+           CONTROLS ROW (Symmetrical Grid)
+        ═══════════════════════════════════════════════════ */
+        .controls-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            margin-bottom: 32px;
+            font-size: 12px;
+        }
+
+        /* Custom Checkbox */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .checkbox-container input {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border: 1px solid var(--input-border);
+            border-radius: 3px;
+            background-color: var(--bg-base);
+            cursor: pointer;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .checkbox-container input:checked {
+            background-color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .checkbox-container input:checked::after {
+            content: "";
+            position: absolute;
+            left: 5px;
+            top: 2px;
+            width: 4px;
+            height: 8px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .forgot-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: var(--transition);
+        }
+
+        .forgot-link:hover {
+            color: var(--accent);
+        }
+
+        /* ═══════════════════════════════════════════════════
+           BUTTON / ACTION
+        ═══════════════════════════════════════════════════ */
+        .btn-submit {
+            width: 100%;
+            min-height: 50px;
+            background-color: var(--accent);
+            color: var(--text-primary);
+            border: none;
+            border-radius: var(--radius-btn);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: var(--transition);
+            margin-bottom: 24px;
+        }
+
+        .btn-submit i {
+            width: 16px;
+            height: 16px;
+            transition: var(--transition);
+        }
+
+        .btn-submit:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 107, 0, 0.35);
+        }
+
+        .btn-submit:hover i {
+            transform: translateX(4px);
+        }
+
+        /* Footer links */
+        .footer-link {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .footer-link a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-link a:hover {
+            color: var(--accent-hover);
+        }
+
+        /* ═══════════════════════════════════════════════════
+           MOBILE RESPONSIVENESS
+        ═══════════════════════════════════════════════════ */
+        @media (max-width: 768px) {
+            .btn-back {
+                top: 20px;
+                left: 20px;
+                width: 38px;
+                height: 38px;
+            }
+            .btn-back i {
+                width: 18px;
+                height: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 36px 24px;
+            }
+            .controls-row {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background System -->
+    <div class="bg-layer"></div>
+    <div class="bg-overlay"></div>
+    <div class="bg-gradient"></div>
+
+    <!-- Back Button -->
+    <a href="index.html" class="btn-back" title="Kembali ke Beranda" aria-label="Kembali ke Beranda">
+        <i data-lucide="arrow-left"></i>
+    </a>
+
+    <!-- Centered Box -->
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Brand Logo matching index.html -->
+            <a href="index.html" class="logo">
+                <i data-lucide="shield-alert"></i>Smart<span>Road</span>
+            </a>
+            
+            <h1 class="card-title">SELAMAT DATANG KEMBALI</h1>
+            <p class="card-subtitle">PORTAL PELAPORAN INFRASTRUKTUR JALAN</p>
+
+            <form action="dashboard-user.html" method="GET">
+                <!-- Email Input -->
+                <div class="form-group">
+                    <label class="form-label" for="email">ALAMAT EMAIL</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">
+                            <i data-lucide="mail"></i>
+                        </span>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            class="form-control" 
+                            placeholder="nama@smartroad.go.id" 
+                            required
+                        >
                     </div>
                 </div>
-                
-                <div class="mb-4">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <label for="password" class="form-label fw-medium text-dark mb-0">Kata Sandi</label>
-                        <a href="#" class="text-primary text-decoration-none small fw-medium">Lupa sandi?</a>
-                    </div>
-                    <div class="position-relative">
-                        <div class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted">
-                            <i data-lucide="lock" style="width: 18px; height: 18px;"></i>
-                        </div>
-                        <input type="password" class="form-control" style="padding-left: 2.5rem;" id="password" placeholder="••••••••" required>
-                    </div>
-                    <div class="invalid-feedback">
-                        Harap masukkan kata sandi Anda.
+
+                <!-- Password Input -->
+                <div class="form-group">
+                    <label class="form-label" for="password">KATA SANDI</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">
+                            <i data-lucide="lock"></i>
+                        </span>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            class="form-control has-toggle" 
+                            placeholder="KATA SANDI ANDA" 
+                            required
+                        >
+                        <button type="button" class="password-toggle" id="togglePassword" aria-label="Toggle Password Visibility">
+                            <i data-lucide="eye" id="eyeIcon"></i>
+                        </button>
                     </div>
                 </div>
-                
-                <div class="mb-4 form-check">
-                    <input type="checkbox" class="form-check-input" id="rememberMe">
-                    <label class="form-check-label text-muted ms-1" for="rememberMe">Ingat Saya</label>
+
+                <!-- Controls -->
+                <div class="controls-row">
+                    <label class="checkbox-container">
+                        <input type="checkbox" name="remember">
+                        <span>INGAT SAYA</span>
+                    </label>
+                    <a href="#" class="forgot-link">LUPA SANDI?</a>
                 </div>
-                
-                <button type="submit" class="btn btn-primary w-100 mb-4 py-2">
-                    Masuk Sekarang <i data-lucide="arrow-right" class="ms-1" style="width: 18px; height: 18px;"></i>
+
+                <!-- CTA Submit Button -->
+                <button type="submit" class="btn-submit">
+                    <span>MASUK SEKARANG</span>
+                    <i data-lucide="arrow-right"></i>
                 </button>
-                
-                <div class="text-center">
-                    <p class="text-muted mb-0">Belum punya akun? <a href="register.html" class="text-primary fw-medium text-decoration-none">Daftar di sini</a></p>
-                </div>
             </form>
+
+            <div class="footer-link">
+                BELUM PUNYA AKUN? <a href="register.html">DAFTAR DI SINI</a>
+            </div>
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Lucide Icons -->
+    <!-- Lucide Icon Library -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <!-- Custom JS -->
-    <script src="js/script.js"></script>
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Password Toggle Script
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+
+        togglePassword.addEventListener('click', () => {
+            const isPassword = passwordInput.getAttribute('type') === 'password';
+            passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+            
+            // Toggle eye icon class
+            eyeIcon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
+            lucide.createIcons();
+        });
+    </script>
 </body>
 </html>

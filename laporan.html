@@ -1,50 +1,71 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Pelaporan - SmartRoad</title>
-    
+
     <!-- Google Fonts: Inter (UI/Body) & Montserrat (Heavy Headings) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap"
+        rel="stylesheet">
+
     <!-- Leaflet.js Map Library CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 
     <!-- Integrated Industrial Design CSS matching index.html perfectly -->
     <style>
         :root {
             /* Branding Colors - Professional, Industrial & Engineering */
-            --asphalt-dark: #121416;       /* Deep dark carbon asphalt background */
-            --asphalt-medium: #181B1E;     /* Slightly lighter dark background */
-            --asphalt-light: #202428;      /* Cards in dark mode */
-            --asphalt-border: #262B30;     /* Thin clean dark border */
-            
-            --safety-orange: #FF6B00;      /* Safety high-vis orange */
-            --safety-orange-hover: #E05E00;/* Rich orange hover state */
+            --asphalt-dark: #121416;
+            /* Deep dark carbon asphalt background */
+            --asphalt-medium: #181B1E;
+            /* Slightly lighter dark background */
+            --asphalt-light: #202428;
+            /* Cards in dark mode */
+            --asphalt-border: #262B30;
+            /* Thin clean dark border */
+
+            --safety-orange: #FF6B00;
+            /* Safety high-vis orange */
+            --safety-orange-hover: #E05E00;
+            /* Rich orange hover state */
             --safety-orange-glow: rgba(255, 107, 0, 0.15);
-            
-            --concrete-gray: #F8F9FA;      /* Readability light sections */
-            --concrete-dark: #E9ECEF;      /* Darker grey dividers */
-            --concrete-border: #E2E5E8;    /* Very light clean borders */
-            
-            --text-dark: #1F2226;          /* High contrast dark text */
-            --text-muted: #5A626A;         /* Slate grey body text */
-            --text-light: #B9C2CB;         /* Light grey text for dark themes */
-            --text-white: #FFFFFF;         
-            
-            --danger-red: #E63946;         /* Hazard indicator */
-            --success-green: #2A9D8F;      /* Resolved indicator */
-            
+
+            --concrete-gray: #F8F9FA;
+            /* Readability light sections */
+            --concrete-dark: #E9ECEF;
+            /* Darker grey dividers */
+            --concrete-border: #E2E5E8;
+            /* Very light clean borders */
+
+            --text-dark: #1F2226;
+            /* High contrast dark text */
+            --text-muted: #5A626A;
+            /* Slate grey body text */
+            --text-light: #B9C2CB;
+            /* Light grey text for dark themes */
+            --text-white: #FFFFFF;
+
+            --danger-red: #E63946;
+            /* Hazard indicator */
+            --success-green: #2A9D8F;
+            /* Resolved indicator */
+
             /* Sharp, Minimalist Tokens */
-            --border-radius: 4px;          /* Sharp, minimal industrial round */
+            --border-radius: 4px;
+            /* Sharp, minimal industrial round */
             --transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         /* Basic Resets */
-        *, *::before, *::after {
+        *,
+        *::before,
+        *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
@@ -234,7 +255,8 @@
             cursor: pointer;
         }
 
-        .nav-link:hover, .nav-link.active {
+        .nav-link:hover,
+        .nav-link.active {
             color: var(--text-white);
         }
 
@@ -249,7 +271,8 @@
             transition: var(--transition);
         }
 
-        .nav-link:hover::after, .nav-link.active::after {
+        .nav-link:hover::after,
+        .nav-link.active::after {
             width: 100%;
         }
 
@@ -315,6 +338,148 @@
             letter-spacing: 0.05em;
             color: var(--text-white);
             transition: var(--transition);
+        }
+
+        .header-dropdowns {
+            position: absolute;
+            top: 100%;
+            right: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            z-index: 1020;
+            pointer-events: none;
+        }
+
+        .notification-panel,
+        .profile-menu {
+            position: absolute;
+            top: calc(100% + 0.75rem);
+            right: 0;
+            width: 320px;
+            max-width: calc(100vw - 2rem);
+            background-color: var(--text-white);
+            border: 1px solid var(--concrete-border);
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px);
+            transition: var(--transition);
+            pointer-events: auto;
+        }
+
+        .notification-panel.active,
+        .profile-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .panel-card {
+            padding: 1.25rem;
+        }
+
+        .panel-title {
+            font-size: 0.85rem;
+            color: var(--text-dark);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+
+        .panel-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            gap: 0.85rem;
+        }
+
+        .panel-list li {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        .panel-link {
+            display: inline-block;
+            margin-top: 1rem;
+            color: var(--safety-orange);
+            font-weight: 700;
+        }
+
+        .panel-link:hover {
+            text-decoration: underline;
+        }
+
+        .panel-profile-card {
+            min-width: 280px;
+        }
+
+        .profile-summary {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .profile-avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .profile-summary strong {
+            display: block;
+            font-size: 0.95rem;
+            color: var(--asphalt-dark);
+            margin-bottom: 0.15rem;
+        }
+
+        .profile-summary p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .profile-detail {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            padding: 0.95rem 0;
+            border-top: 1px solid var(--concrete-border);
+            border-bottom: 1px solid var(--concrete-border);
+            margin-bottom: 1rem;
+        }
+
+        .profile-detail span {
+            display: block;
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .profile-detail strong {
+            font-size: 0.9rem;
+            color: var(--asphalt-dark);
+        }
+
+        .panel-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn-outline-primary {
+            background-color: transparent;
+            border-color: var(--safety-orange);
+            color: var(--safety-orange);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--safety-orange);
+            color: var(--text-white);
         }
 
         /* Mobile specific layout inside sliding drawer */
@@ -400,7 +565,8 @@
             outline: none;
         }
 
-        .tab-trigger:hover, .tab-trigger.active {
+        .tab-trigger:hover,
+        .tab-trigger.active {
             color: var(--asphalt-dark);
         }
 
@@ -475,7 +641,9 @@
             color: var(--text-dark);
         }
 
-        .form-input, .form-select, .form-textarea {
+        .form-input,
+        .form-select,
+        .form-textarea {
             width: 100%;
             background-color: var(--concrete-gray);
             border: 1.5px solid var(--concrete-border);
@@ -488,7 +656,9 @@
             transition: var(--transition);
         }
 
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
             border-color: var(--safety-orange);
             background-color: var(--text-white);
             box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.15);
@@ -514,7 +684,8 @@
             gap: 0.75rem;
         }
 
-        .upload-drag-box:hover, .upload-drag-box.drag-over {
+        .upload-drag-box:hover,
+        .upload-drag-box.drag-over {
             border-color: var(--safety-orange);
             background-color: rgba(255, 107, 0, 0.02);
         }
@@ -963,6 +1134,7 @@
                 grid-template-columns: 1fr;
                 gap: 2.5rem;
             }
+
             .footer-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 2rem;
@@ -987,17 +1159,20 @@
                 right: -100%;
                 width: 280px;
                 height: 100vh;
-                background-color: #121416 !important; /* Solid Asphalt Dark, 100% Opacity */
+                background-color: #121416 !important;
+                /* Solid Asphalt Dark, 100% Opacity */
                 border-left: 1px solid var(--asphalt-border);
                 padding: 6rem 2rem 2rem;
                 gap: 1.75rem;
-                align-items: center; /* Centered Navigation links */
+                align-items: center;
+                /* Centered Navigation links */
                 text-align: center;
                 transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-                z-index: 1005; /* High z-index */
-                box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+                z-index: 1005;
+                /* High z-index */
+                box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
             }
-            
+
             .nav-menu.active {
                 right: 0;
             }
@@ -1016,11 +1191,13 @@
             }
 
             .user-profile-desktop {
-                display: none; /* Hide desktop version on mobile */
+                display: none;
+                /* Hide desktop version on mobile */
             }
 
             .menu-user-item {
-                display: block; /* Show user in mobile menu drawer */
+                display: block;
+                /* Show user in mobile menu drawer */
             }
 
             .menu-toggle {
@@ -1060,6 +1237,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <!-- Drawer Overlay for Mobile Navbar -->
@@ -1071,16 +1249,18 @@
             <a href="dashboard.html" class="logo">
                 <i data-lucide="shield-alert"></i>Smart<span>Road</span>
             </a>
-            
+
             <ul class="nav-menu" id="navMenu">
                 <li><a href="dashboard.html" class="nav-link">Beranda</a></li>
                 <li><a href="dashboard.html#fitur" class="nav-link">Tentang</a></li>
                 <li><a href="laporan.html" class="nav-link active">Buat Laporan</a></li>
-                
+                <li><a href="riwayat.html" class="nav-link">Riwayat Laporan</a></li>
+
                 <!-- Mobile Only User Info inside drawer menu (Centered & non-duplicating) -->
                 <li class="menu-user-item">
                     <div class="user-profile-mobile" onclick="window.location.href='dashboard-user.html'">
-                        <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Fiqry" class="avatar-img">
+                        <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Fiqry"
+                            class="avatar-img">
                         <span class="user-name">Fiqry</span>
                     </div>
                 </li>
@@ -1091,10 +1271,11 @@
                     <i data-lucide="bell"></i>
                     <span class="notification-badge"></span>
                 </button>
-                
+
                 <!-- Desktop Only Profile section (Aligned perfectly in a single row) -->
                 <div class="user-profile-desktop" onclick="window.location.href='dashboard-user.html'">
-                    <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Fiqry" class="avatar-img">
+                    <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Fiqry"
+                        class="avatar-img">
                     <span class="user-name">Fiqry</span>
                 </div>
 
@@ -1102,41 +1283,78 @@
                     <i data-lucide="menu"></i>
                 </button>
             </div>
+
+            <div class="header-dropdowns">
+                <div class="notification-panel" id="notificationPanel" aria-hidden="true">
+                    <div class="panel-card">
+                        <div class="panel-title">Notifikasi Terbaru</div>
+                        <ul class="panel-list">
+                            <li><strong>23 Mei 2026</strong> - Laporan #002 sedang dalam penanganan tim lapangan.</li>
+                            <li><strong>20 Mei 2026</strong> - Laporan #001 berhasil ditutup dan ditindaklanjuti.</li>
+                            <li><strong>18 Mei 2026</strong> - Admin meminta detail tambahan untuk laporan Anda.</li>
+                        </ul>
+                        <a href="mailto:pengaduan@smartroad.go.id" class="panel-link">Hubungi Admin</a>
+                    </div>
+                </div>
+                <div class="profile-menu" id="profileMenu" aria-hidden="true">
+                    <div class="panel-card panel-profile-card">
+                        <div class="panel-title">Profil Pengguna</div>
+                        <div class="profile-summary">
+                            <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Avatar" class="profile-avatar">
+                            <div>
+                                <strong>Fiqry</strong>
+                                <p>Warga Terdaftar</p>
+                            </div>
+                        </div>
+                        <div class="profile-detail">
+                            <span>Email</span>
+                            <strong>fiqry@example.com</strong>
+                        </div>
+                        <div class="panel-actions">
+                            <a href="dashboard-user.html" class="btn btn-outline-primary">Lihat Profil</a>
+                            <a href="#" class="btn btn-secondary">Keluar</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </header>
 
     <!-- 2. Main Content Wrapper Section -->
     <section class="main-content-section">
         <div class="container">
-            
+
             <div class="section-header">
                 <span class="section-badge">Panel Pelayanan Publik</span>
                 <h1 class="section-title">Layanan Pengaduan Jalan</h1>
-                <p class="section-desc">Laporkan kerusakan prasarana jalan secara presisi untuk diproses instan oleh dinas tata kota setempat.</p>
+                <p class="section-desc">Laporkan kerusakan prasarana jalan secara presisi untuk diproses instan oleh
+                    dinas tata kota setempat.</p>
             </div>
 
-            <!-- Tab Controls -->
             <div class="tabs-nav">
                 <button class="tab-trigger active" id="tabCreateTrigger">Tambah Laporan</button>
-                <button class="tab-trigger" id="tabHistoryTrigger">Riwayat Laporan</button>
+                <a class="tab-trigger" href="riwayat.html">Riwayat Laporan</a>
             </div>
 
             <!-- VIEW 1: TAMBAH LAPORAN (FORM view) -->
             <div class="tab-view active" id="tabCreateView">
                 <form class="form-card" id="laporanForm" onsubmit="event.preventDefault(); handleFormSubmit();">
                     <div class="form-grid">
-                        
+
                         <!-- Left Column: Input Text Fields -->
                         <div class="form-column">
-                            
+
                             <div class="form-group">
                                 <label for="judulLaporan" class="form-label">Judul Laporan</label>
-                                <input type="text" id="judulLaporan" class="form-input" placeholder="Contoh: Lubang Jalan Besar di Tengah Lajur Cepat" required>
+                                <input type="text" id="judulLaporan" class="form-input"
+                                    placeholder="Contoh: Lubang Jalan Besar di Tengah Lajur Cepat" required>
                             </div>
 
                             <div class="form-group">
                                 <label for="alamatLengkap" class="form-label">Alamat Lengkap Jalan yang Rusak</label>
-                                <input type="text" id="alamatLengkap" class="form-input" placeholder="Masukkan nama jalan, nomor, RT/RW, kelurahan, atau ciri penanda sekitar..." required>
+                                <input type="text" id="alamatLengkap" class="form-input"
+                                    placeholder="Masukkan nama jalan, nomor, RT/RW, kelurahan, atau ciri penanda sekitar..."
+                                    required>
                             </div>
 
                             <div class="form-row">
@@ -1163,15 +1381,18 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="deskripsiKerusakan" class="form-label">Deskripsi Kerusakan secara Detail</label>
-                                <textarea id="deskripsiKerusakan" class="form-textarea" placeholder="Jelaskan ukuran perkiraan lubang, kedalaman, dan sejak kapan terjadi kerusakan..." required></textarea>
+                                <label for="deskripsiKerusakan" class="form-label">Deskripsi Kerusakan secara
+                                    Detail</label>
+                                <textarea id="deskripsiKerusakan" class="form-textarea"
+                                    placeholder="Jelaskan ukuran perkiraan lubang, kedalaman, dan sejak kapan terjadi kerusakan..."
+                                    required></textarea>
                             </div>
 
                         </div>
 
                         <!-- Right Column: Visual Box Upload & Geo-coordinates Map -->
                         <div class="form-column">
-                            
+
                             <div class="form-group">
                                 <label class="form-label">Bukti Foto (Visual Uploads)</label>
                                 <div class="upload-drag-box" id="uploadBox">
@@ -1179,16 +1400,18 @@
                                         <i data-lucide="camera"></i>
                                     </div>
                                     <div class="upload-title">Seret & Jatuhkan Foto di Sini</div>
-                                    <div class="upload-desc">Atau klik untuk memilih berkas dari folder (Format JPG, PNG maks. 5MB)</div>
+                                    <div class="upload-desc">Atau klik untuk memilih berkas dari folder (Format JPG, PNG
+                                        maks. 5MB)</div>
                                     <input type="file" id="fileInput" class="file-input" accept="image/*" required>
                                 </div>
-                                
+
                                 <div class="upload-preview-container" id="uploadPreview">
                                     <div class="upload-preview-info">
                                         <img src="" alt="Pratinjau" class="upload-preview-img" id="previewImg">
                                         <span class="upload-preview-name" id="previewName">nama_file.jpg</span>
                                     </div>
-                                    <button type="button" class="upload-remove-btn" id="removeUploadBtn" aria-label="Hapus Unggahan">
+                                    <button type="button" class="upload-remove-btn" id="removeUploadBtn"
+                                        aria-label="Hapus Unggahan">
                                         <i data-lucide="trash-2"></i>
                                     </button>
                                 </div>
@@ -1197,10 +1420,10 @@
                             <div class="form-group">
                                 <label class="form-label">Titik Lokasi (Sesuai GPS / Peta Digital)</label>
                                 <div class="map-wrapper">
-                                    
+
                                     <!-- Light themed Leaflet Map container with border -->
                                     <div id="map" class="map-element"></div>
-                                    
+
                                     <div class="location-actions">
                                         <div class="coordinate-info">
                                             <span>Lat: <strong id="valLat">-7.2575</strong></span>
@@ -1215,7 +1438,8 @@
 
                             <!-- Buttons Actions Inside Card -->
                             <div class="form-actions">
-                                <button type="button" class="btn btn-secondary" onclick="window.location.href='dashboard.html'">Batal</button>
+                                <button type="button" class="btn btn-secondary"
+                                    onclick="window.location.href='dashboard.html'">Batal</button>
                                 <button type="submit" class="btn btn-primary">Kirim Laporan</button>
                             </div>
 
@@ -1225,58 +1449,6 @@
                 </form>
             </div>
 
-            <!-- VIEW 2: RIWAYAT LAPORAN (Modern cards view, no tables) -->
-            <div class="tab-view" id="tabHistoryView">
-                <div class="history-wrapper" id="historyWrapper">
-                    
-                    <!-- Card 1: Diproses -->
-                    <div class="history-card">
-                        <img src="https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=150&q=80" alt="Jalan Setiabudi" class="history-img">
-                        <div class="history-content-box">
-                            <div class="history-date">12 Mei 2026 • 14:30 WIB</div>
-                            <h3 class="history-card-title">Lubang Jalan Sedang dan Aspal Retak Parah</h3>
-                            <div class="history-address">
-                                <i data-lucide="map-pin"></i> Jl. Dr. Setiabudi No. 120, Bandung
-                            </div>
-                            <div class="badge badge-processing">
-                                <i data-lucide="loader" style="animation: spin 3s linear infinite;"></i> Diproses
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card 2: Selesai -->
-                    <div class="history-card">
-                        <img src="https://images.unsplash.com/photo-1584467735815-f778f274e296?auto=format&fit=crop&w=150&q=80" alt="Jalan Gatot Subroto" class="history-img">
-                        <div class="history-content-box">
-                            <div class="history-date">05 Mei 2026 • 09:15 WIB</div>
-                            <h3 class="history-card-title">Lampu Penerangan Jalan Umum (PJU) Mati</h3>
-                            <div class="history-address">
-                                <i data-lucide="map-pin"></i> Jl. Gatot Subroto No. 45, Bandung
-                            </div>
-                            <div class="badge badge-done">
-                                <i data-lucide="check-circle"></i> Selesai
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card 3: Selesai -->
-                    <div class="history-card">
-                        <img src="https://images.unsplash.com/photo-1574689049597-7e6d24f0ee0d?auto=format&fit=crop&w=150&q=80" alt="Jalan Soekarno Hatta" class="history-img">
-                        <div class="history-content-box">
-                            <div class="history-date">28 April 2026 • 16:45 WIB</div>
-                            <h3 class="history-card-title">Genangan Air dan Banjir Akibat Penyumbatan Drainase</h3>
-                            <div class="history-address">
-                                <i data-lucide="map-pin"></i> Jl. Soekarno-Hatta RT 03/RW 04, Bandung
-                            </div>
-                            <div class="badge badge-done">
-                                <i data-lucide="check-circle"></i> Selesai
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
         </div>
     </section>
 
@@ -1284,13 +1456,14 @@
     <footer class="footer">
         <div class="container">
             <div class="footer-grid">
-                
+
                 <!-- Col 1: Brand Info -->
                 <div>
                     <a href="#" class="footer-logo">
                         <i data-lucide="shield-alert"></i>Smart<span>Road</span>
                     </a>
-                    <p class="footer-desc">Pusat penanganan pelaporan aduan kerusakan jalan raya berbasis transparansi publik dan pemetaan geospasial real-time.</p>
+                    <p class="footer-desc">Pusat penanganan pelaporan aduan kerusakan jalan raya berbasis transparansi
+                        publik dan pemetaan geospasial real-time.</p>
                     <div class="footer-socials">
                         <a href="#" class="social-link" aria-label="Facebook"><i data-lucide="facebook"></i></a>
                         <a href="#" class="social-link" aria-label="Twitter"><i data-lucide="twitter"></i></a>
@@ -1332,8 +1505,10 @@
                 <!-- Col 4: Newsletter -->
                 <div>
                     <h4 class="footer-title">Buletin Kota</h4>
-                    <p class="footer-newsletter">Menerima informasi bulanan rekapitulasi penambalan jalan rusak kota dan peningkatan platform SmartRoad.</p>
-                    <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Terima kasih telah bergabung dengan newsletter kami!');">
+                    <p class="footer-newsletter">Menerima informasi bulanan rekapitulasi penambalan jalan rusak kota dan
+                        peningkatan platform SmartRoad.</p>
+                    <form class="newsletter-form"
+                        onsubmit="event.preventDefault(); alert('Terima kasih telah bergabung dengan newsletter kami!');">
                         <input type="email" class="newsletter-input" placeholder="Masukkan email Anda..." required>
                         <button type="submit" class="newsletter-btn" aria-label="Berlangganan">
                             <i data-lucide="arrow-right"></i>
@@ -1345,7 +1520,8 @@
 
             <!-- Footer Bottom legal info -->
             <div class="footer-bottom">
-                <p class="footer-copy">&copy; 2026 SmartRoad City Initiative. Seluruh Hak Cipta Dilindungi Undang-Undang.</p>
+                <p class="footer-copy">&copy; 2026 SmartRoad City Initiative. Seluruh Hak Cipta Dilindungi
+                    Undang-Undang.</p>
                 <ul class="footer-legal">
                     <li><a href="#">Kebijakan Privasi</a></li>
                     <li><a href="#">Syarat Penggunaan</a></li>
@@ -1366,9 +1542,10 @@
 
     <!-- Lucide Icons Bundle -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    
+
     <!-- Leaflet.js Map Library JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <!-- Scripts Logic -->
     <script>
@@ -1399,7 +1576,7 @@
             const toggleMobileMenu = () => {
                 navMenu.classList.toggle('active');
                 drawerOverlay.classList.toggle('active');
-                
+
                 // Toggle Lucide Menu/X icons
                 const icon = menuToggle.querySelector('i');
                 if (navMenu.classList.contains('active')) {
@@ -1430,26 +1607,58 @@
                         window.lucide.createIcons();
                     }
                 });
+
+                const navLinks = document.querySelectorAll('.nav-link');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        navMenu.classList.remove('active');
+                        drawerOverlay.classList.remove('active');
+                        document.body.style.overflow = '';
+                        const icon = menuToggle.querySelector('i');
+                        icon.setAttribute('data-lucide', 'menu');
+                        if (window.lucide) {
+                            window.lucide.createIcons();
+                        }
+                    });
+                });
             }
 
-            // 3. Tab Switching Logic (Premium transitions)
-            const tabCreateTrigger = document.getElementById('tabCreateTrigger');
-            const tabHistoryTrigger = document.getElementById('tabHistoryTrigger');
-            const tabCreateView = document.getElementById('tabCreateView');
-            const tabHistoryView = document.getElementById('tabHistoryView');
+            // Notification and Profile Panels
+            const notificationBtn = document.querySelector('.notification-btn');
+            const profileDesktop = document.querySelector('.user-profile-desktop');
+            const notificationPanel = document.getElementById('notificationPanel');
+            const profileMenu = document.getElementById('profileMenu');
 
-            tabCreateTrigger.addEventListener('click', () => {
-                tabHistoryTrigger.classList.remove('active');
-                tabCreateTrigger.classList.add('active');
-                tabHistoryView.classList.remove('active');
-                tabCreateView.classList.add('active');
+            const closePanels = () => {
+                if (notificationPanel) notificationPanel.classList.remove('active');
+                if (profileMenu) profileMenu.classList.remove('active');
+            };
+
+            notificationBtn?.addEventListener('click', (event) => {
+                event.stopPropagation();
+                if (profileMenu) profileMenu.classList.remove('active');
+                notificationPanel?.classList.toggle('active');
             });
 
-            tabHistoryTrigger.addEventListener('click', () => {
-                tabCreateTrigger.classList.remove('active');
-                tabHistoryTrigger.classList.add('active');
-                tabCreateView.classList.remove('active');
-                tabHistoryView.classList.add('active');
+            profileDesktop?.addEventListener('click', (event) => {
+                event.stopPropagation();
+                if (notificationPanel) notificationPanel.classList.remove('active');
+                profileMenu?.classList.toggle('active');
+            });
+
+            document.addEventListener('click', (event) => {
+                if (!event.target.closest('.header-actions') && !event.target.closest('.header-dropdowns')) {
+                    closePanels();
+                }
+            });
+
+            // 3. Tab switching is simplified because riwayat laporan sekarang di halaman terpisah.
+            const tabCreateTrigger = document.getElementById('tabCreateTrigger');
+            const tabCreateView = document.getElementById('tabCreateView');
+
+            tabCreateTrigger.addEventListener('click', () => {
+                tabCreateTrigger.classList.add('active');
+                tabCreateView.classList.add('active');
             });
 
             // 4. Drag & Drop Visual Box Upload Logic
@@ -1571,11 +1780,11 @@
                         (position) => {
                             const lat = position.coords.latitude;
                             const lng = position.coords.longitude;
-                            
+
                             map.setView([lat, lng], 16);
                             marker.setLatLng([lat, lng]);
                             updateCoordsDisplay(lat, lng);
-                            
+
                             btnGps.innerHTML = '<i data-lucide="check"></i> Terdeteksi';
                             if (window.lucide) {
                                 window.lucide.createIcons();
@@ -1590,11 +1799,11 @@
                             alert("Akses lokasi ditolak atau tidak tersedia. Mensimulasikan koordinat Surabaya.");
                             const simLat = -7.2625 + (Math.random() - 0.5) * 0.01;
                             const simLng = 112.7485 + (Math.random() - 0.5) * 0.01;
-                            
+
                             map.setView([simLat, simLng], 15);
                             marker.setLatLng([simLat, simLng]);
                             updateCoordsDisplay(simLat, simLng);
-                            
+
                             btnGps.innerHTML = '<i data-lucide="crosshair"></i> Deteksi GPS';
                             if (window.lucide) {
                                 window.lucide.createIcons();
@@ -1639,7 +1848,7 @@
                         </div>
                     </div>
                 `;
-                
+
                 // Prepend to top of lists
                 historyWrapper.insertBefore(newCard, historyWrapper.firstChild);
 
@@ -1648,7 +1857,7 @@
                 }
 
                 alert('Laporan Anda berhasil dikirim dan terdaftar pada sistem SmartRoad Kota!');
-                
+
                 // Reset form fields
                 document.getElementById('laporanForm').reset();
                 fileInput.value = '';
@@ -1668,4 +1877,5 @@
         });
     </script>
 </body>
+
 </html>

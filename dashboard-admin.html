@@ -3,306 +3,708 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin - SmartRoad</title>
+    <title>SmartRoad - Admin Command Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        asphalt: '#121416',
+                        concrete: '#F8F9FA',
+                        safety: '#FF6B00',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Chart.js for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Leaflet CSS -->
+    <!-- Leaflet CSS & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Leaflet.heat -->
+    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Custom scrollbar for better UX */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+
+        /* Nav active styles */
+        .nav-active {
+            background-color: #FF6B00 !important;
+            color: white !important;
+            box-shadow: 0 4px 6px -1px rgba(255, 107, 0, 0.2), 0 2px 4px -1px rgba(255, 107, 0, 0.1) !important;
+        }
+        .nav-active i {
+            color: white !important;
+        }
+        .nav-inactive {
+            color: #9ca3af; /* text-gray-400 */
+        }
+        .nav-inactive:hover {
+            background-color: #1f2937; /* hover:bg-gray-800 */
+            color: white !important;
+        }
+        .nav-inactive:hover i {
+            color: #FF6B00 !important; /* hover:text-safety */
+        }
+
+        /* Fix Leaflet map taking up height */
+        #overviewMapContainer, #heatmapMap {
+            height: 100%;
+            width: 100%;
+            z-index: 1;
+        }
+    </style>
 </head>
-<body>
-    <div class="dashboard-wrapper">
-        <!-- Sidebar -->
-        <nav class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <a href="index.html" class="sidebar-brand d-flex align-items-center">
-                    <i data-lucide="map-pinned" class="icon me-2" style="width: 24px; height: 24px;"></i> 
-                    SmartRoad 
-                    <span class="badge bg-danger ms-2 fw-medium" style="font-size: 0.6rem;">ADMIN</span>
-                </a>
+<body class="bg-concrete font-sans text-gray-800 h-screen overflow-hidden flex">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-asphalt text-white flex-shrink-0 flex flex-col h-full z-20 shadow-xl transition-all duration-300 relative">
+        <div class="p-6 flex items-center gap-3 border-b border-gray-800">
+            <div class="w-10 h-10 bg-safety rounded-lg flex items-center justify-center shadow-lg shadow-safety/20">
+                <i class="fa-solid fa-road text-white text-xl"></i>
             </div>
-            <div class="p-3">
-                <div class="d-flex align-items-center gap-3 mb-4 p-3 bg-light rounded-md border border-light">
-                    <img src="https://randomuser.me/api/portraits/men/90.jpg" alt="Admin" class="rounded-circle" width="45" height="45">
-                    <div>
-                        <h6 class="mb-0 text-dark fw-bold">Administrator</h6>
-                        <small class="text-muted">Dinas PU</small>
-                    </div>
-                </div>
-                <ul class="sidebar-menu">
-                    <li class="sidebar-item">
-                        <a href="dashboard-admin.html" class="sidebar-link active">
-                            <i data-lucide="pie-chart" style="width: 20px; height: 20px;"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="#" class="sidebar-link">
-                            <i data-lucide="list-checks" style="width: 20px; height: 20px;"></i> Kelola Laporan
-                        </a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="#" class="sidebar-link">
-                            <i data-lucide="map" style="width: 20px; height: 20px;"></i> Peta Kerusakan
-                        </a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="#" class="sidebar-link">
-                            <i data-lucide="users" style="width: 20px; height: 20px;"></i> Data Pengguna
-                        </a>
-                    </li>
-                    <li class="sidebar-item mt-4 mb-2">
-                        <small class="text-muted fw-bold px-3 text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.05em;">Pengaturan</small>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="login.html" class="sidebar-link text-danger">
-                            <i data-lucide="log-out" style="width: 20px; height: 20px;"></i> Keluar
-                        </a>
-                    </li>
-                </ul>
-            </div>
+            <h1 class="text-2xl font-bold tracking-wider">Smart<span class="text-safety">Road</span></h1>
+        </div>
+        <div class="px-6 py-4 text-xs uppercase text-gray-500 font-bold tracking-wider">
+            Command Center
+        </div>
+        
+        <nav class="flex-1 px-4 space-y-2 overflow-y-auto" id="sidebar-nav">
+            <a href="#" data-target="view-overview" class="nav-link nav-active flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200">
+                <i class="fa-solid fa-chart-pie w-5 text-center transition-colors"></i>
+                Overview
+            </a>
+            <a href="#" data-target="view-laporan" class="nav-link nav-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 group">
+                <i class="fa-solid fa-file-lines w-5 text-center transition-colors"></i>
+                Laporan Masuk
+                <span class="ml-auto bg-safety/20 text-safety py-0.5 px-2 rounded-full text-xs font-bold group-hover:bg-safety group-hover:text-white transition-colors">12</span>
+            </a>
+            <a href="#" data-target="view-heatmap" class="nav-link nav-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200">
+                <i class="fa-solid fa-map-location-dot w-5 text-center transition-colors"></i>
+                Peta Heatmap
+            </a>
+            <a href="#" data-target="view-user" class="nav-link nav-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200">
+                <i class="fa-solid fa-users w-5 text-center transition-colors"></i>
+                Manajemen User
+            </a>
+            <a href="#" data-target="view-pengaturan" class="nav-link nav-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200">
+                <i class="fa-solid fa-gear w-5 text-center transition-colors"></i>
+                Pengaturan
+            </a>
         </nav>
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Top Navbar -->
-            <header class="top-navbar">
-                <button class="btn btn-light d-lg-none border" id="sidebarToggle">
-                    <i data-lucide="menu"></i>
-                </button>
-                <div class="ms-auto d-flex align-items-center gap-3">
-                    <div class="input-group d-none d-md-flex" style="width: 250px;">
-                        <input type="text" class="form-control bg-light border-0" placeholder="Cari ID Laporan...">
-                        <button class="btn btn-light border-0"><i data-lucide="search" style="width: 18px; height: 18px;" class="text-muted"></i></button>
+        <div class="p-4 border-t border-gray-800 bg-gray-900/50">
+            <div class="flex items-center gap-3 px-2 py-2">
+                <div class="w-10 h-10 rounded-full bg-gray-700 border-2 border-gray-600 flex items-center justify-center overflow-hidden">
+                    <img src="https://ui-avatars.com/api/?name=Admin+Pusat&background=FF6B00&color=fff" alt="Admin" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1 overflow-hidden">
+                    <p class="text-sm font-bold text-white truncate">Admin Pusat</p>
+                    <p class="text-xs text-gray-400 truncate">admin@smartroad.gov</p>
+                </div>
+            </div>
+            <button class="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm text-gray-400 hover:bg-red-500/10 hover:text-red-500 border border-transparent hover:border-red-500/20 transition-all">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                Keluar
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 h-full overflow-y-auto p-8 relative scroll-smooth bg-concrete">
+        
+        <!-- ================= VIEW: OVERVIEW ================= -->
+        <div id="view-overview" class="view-section block">
+            <!-- Header -->
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Overview Laporan</h2>
+                    <p class="text-gray-500 mt-1 text-sm">Pantau kondisi infrastruktur jalan raya secara real-time.</p>
+                </div>
+                <div class="flex items-center gap-4 w-full md:w-auto">
+                    <div class="relative w-full md:w-72">
+                        <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" placeholder="Cari laporan, ID, lokasi..." class="w-full pl-10 pr-4 py-2.5 bg-white rounded-xl border border-gray-200 focus:outline-none focus:border-safety focus:ring-4 focus:ring-safety/10 transition-all text-sm shadow-sm">
                     </div>
-                    <div class="position-relative">
-                        <button class="btn btn-light rounded-circle position-relative border">
-                            <i data-lucide="bell" class="text-muted" style="width: 20px; height: 20px;"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger shadow-sm">
-                                5+
-                            </span>
-                        </button>
-                    </div>
+                    <button class="relative p-3 bg-white border border-gray-200 rounded-xl text-gray-500 hover:text-safety hover:border-safety/30 hover:bg-orange-50 transition-all shadow-sm">
+                        <i class="fa-solid fa-bell text-lg"></i>
+                        <span class="absolute top-2 right-2.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white shadow-sm"></span>
+                    </button>
+                    <button class="md:hidden p-3 bg-white border border-gray-200 rounded-xl text-gray-500">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
                 </div>
             </header>
 
-            <!-- Dashboard Content -->
-            <div class="dashboard-content">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h4 class="fw-bold mb-1">Admin Panel</h4>
-                        <p class="text-muted mb-0">Ringkasan seluruh data pelaporan kota.</p>
-                    </div>
-                    <button class="btn btn-outline-primary d-none d-md-flex align-items-center gap-2">
-                        <i data-lucide="download" style="width: 16px; height: 16px;"></i> Export Data
-                    </button>
-                </div>
-
-                <!-- Stats -->
-                <div class="row gy-4 mb-4">
-                    <div class="col-md-3">
-                        <div class="dash-card p-3 d-flex align-items-center gap-3 border-start border-4 border-primary shadow-sm">
-                            <div class="dash-icon-box bg-primary-light text-primary">
-                                <i data-lucide="inbox"></i>
-                            </div>
-                            <div>
-                                <h4 class="fw-bold mb-0">1,254</h4>
-                                <p class="text-muted mb-0 small fw-medium">Total Laporan</p>
-                            </div>
+            <!-- Stat Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+                <!-- Card 1: Total Laporan -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-gray-50 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">Total Laporan</p>
+                            <h3 class="text-3xl font-extrabold text-gray-900">1,248</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-gray-100 rounded-xl text-gray-600 flex items-center justify-center group-hover:bg-gray-200 transition-colors">
+                            <i class="fa-solid fa-file-lines text-xl"></i>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="dash-card p-3 d-flex align-items-center gap-3 border-start border-4 border-warning shadow-sm">
-                            <div class="dash-icon-box bg-warning-light text-warning">
-                                <i data-lucide="clipboard-list"></i>
-                            </div>
-                            <div>
-                                <h4 class="fw-bold mb-0">142</h4>
-                                <p class="text-muted mb-0 small fw-medium">Perlu Verifikasi</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="dash-card p-3 d-flex align-items-center gap-3 border-start border-4 border-info shadow-sm">
-                            <div class="dash-icon-box text-info" style="background: rgba(13, 202, 240, 0.1);">
-                                <i data-lucide="hard-hat"></i>
-                            </div>
-                            <div>
-                                <h4 class="fw-bold mb-0">86</h4>
-                                <p class="text-muted mb-0 small fw-medium">Sedang Dikerjakan</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="dash-card p-3 d-flex align-items-center gap-3 border-start border-4 border-success shadow-sm">
-                            <div class="dash-icon-box bg-success-light text-success">
-                                <i data-lucide="check-circle-2"></i>
-                            </div>
-                            <div>
-                                <h4 class="fw-bold mb-0">1,026</h4>
-                                <p class="text-muted mb-0 small fw-medium">Laporan Selesai</p>
-                            </div>
-                        </div>
+                    <div class="mt-4 flex items-center gap-2">
+                        <span class="inline-flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-md">
+                            <i class="fa-solid fa-arrow-trend-up"></i> +12%
+                        </span>
+                        <span class="text-xs text-gray-400 font-medium">dari bulan lalu</span>
                     </div>
                 </div>
 
-                <div class="row gy-4 mb-4">
-                    <div class="col-12">
-                        <div class="dash-card shadow-sm border border-light">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="fw-bold mb-0 d-flex align-items-center"><i data-lucide="map-pinned" class="text-primary me-2" style="width: 18px; height: 18px;"></i>Peta Sebaran Laporan</h6>
-                                <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1"><i data-lucide="maximize" style="width: 14px; height: 14px;"></i> Layar Penuh</button>
-                            </div>
-                            <div class="shadow-sm rounded-md overflow-hidden border border-light">
-                                <div id="adminMap" style="height: 350px; width: 100%; z-index: 1;"></div>
-                            </div>
+                <!-- Card 2: Diproses -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-orange-50 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">Proses</p>
+                            <h3 class="text-3xl font-extrabold text-gray-900">342</h3>
                         </div>
+                        <div class="w-12 h-12 bg-orange-100 rounded-xl text-safety flex items-center justify-center group-hover:bg-safety group-hover:text-white transition-colors shadow-sm">
+                            <i class="fa-solid fa-person-digging text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center gap-2">
+                        <div class="w-full bg-gray-100 rounded-full h-1.5 mb-0.5">
+                            <div class="bg-safety h-1.5 rounded-full" style="width: 28%"></div>
+                        </div>
+                        <span class="text-xs text-gray-500 font-bold whitespace-nowrap">28% Total</span>
                     </div>
                 </div>
 
-                <div class="row gy-4">
-                    <!-- Table -->
-                    <div class="col-lg-12">
-                        <div class="dash-card shadow-sm border border-light">
-                            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
-                                <h6 class="fw-bold mb-0">Daftar Laporan Terbaru</h6>
-                                <div class="d-flex gap-2">
-                                    <select class="form-select form-select-sm" style="width: auto; cursor: pointer;">
-                                        <option value="">Semua Status</option>
-                                        <option value="Menunggu">Menunggu</option>
-                                        <option value="Diproses">Diproses</option>
-                                        <option value="Selesai">Selesai</option>
-                                    </select>
-                                    <select class="form-select form-select-sm" style="width: auto; cursor: pointer;">
-                                        <option value="">Terbaru</option>
-                                        <option value="">Terlama</option>
-                                    </select>
-                                </div>
+                <!-- Card 3: Selesai -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-green-50 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">Selesai</p>
+                            <h3 class="text-3xl font-extrabold text-gray-900">815</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-xl text-green-600 flex items-center justify-center group-hover:bg-green-500 group-hover:text-white transition-colors shadow-sm">
+                            <i class="fa-solid fa-check-double text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center gap-2">
+                        <div class="w-full bg-gray-100 rounded-full h-1.5 mb-0.5">
+                            <div class="bg-green-500 h-1.5 rounded-full" style="width: 65%"></div>
+                        </div>
+                        <span class="text-xs text-gray-500 font-bold whitespace-nowrap">65% Total</span>
+                    </div>
+                </div>
+
+                <!-- Card 4: Kritis -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-red-50 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">Kritis</p>
+                            <h3 class="text-3xl font-extrabold text-red-600">91</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-red-100 rounded-xl text-red-600 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-colors shadow-sm animate-pulse">
+                            <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center gap-2">
+                        <span class="inline-flex items-center gap-1 text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded-md">
+                            <i class="fa-solid fa-circle-exclamation"></i> Segera
+                        </span>
+                        <span class="text-xs text-gray-400 font-medium">Butuh tindakan</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- Line Chart -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">Tren Laporan Mingguan</h3>
+                            <p class="text-xs text-gray-500">Statistik laporan masuk 7 hari terakhir</p>
+                        </div>
+                        <select class="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-safety focus:border-safety block px-3 py-2 font-medium cursor-pointer">
+                            <option>7 Hari Terakhir</option>
+                            <option>Bulan Ini</option>
+                            <option>Tahun Ini</option>
+                        </select>
+                    </div>
+                    <div class="relative h-72 w-full">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Bar Chart -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">Kategori Kerusakan</h3>
+                            <p class="text-xs text-gray-500">Distribusi tipe kerusakan terbanyak</p>
+                        </div>
+                        <button class="w-8 h-8 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 flex items-center justify-center transition-colors">
+                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                        </button>
+                    </div>
+                    <div class="relative h-72 w-full">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Section: Table & Map -->
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+                
+                <!-- Recent Reports Table -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden xl:col-span-2 flex flex-col">
+                    <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">Laporan Terbaru</h3>
+                            <p class="text-xs text-gray-500 mt-1">Daftar laporan yang masuk hari ini</p>
+                        </div>
+                        <button class="text-sm text-safety hover:bg-orange-50 font-bold px-4 py-2 rounded-lg transition-colors border border-transparent hover:border-safety/20" onclick="document.querySelector('[data-target=\'view-laporan\']').click()">
+                            Lihat Semua
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="bg-gray-50/50 text-gray-500 uppercase text-xs font-bold tracking-wider">
+                                <tr>
+                                    <th class="px-6 py-4 border-b border-gray-100">ID Laporan</th>
+                                    <th class="px-6 py-4 border-b border-gray-100">Pelapor</th>
+                                    <th class="px-6 py-4 border-b border-gray-100">Lokasi</th>
+                                    <th class="px-6 py-4 border-b border-gray-100">Status</th>
+                                    <th class="px-6 py-4 border-b border-gray-100 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr class="hover:bg-gray-50/80 transition-colors group">
+                                    <td class="px-6 py-4 font-bold text-gray-900">#RPT-8421</td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <img src="https://ui-avatars.com/api/?name=Budi+Wibowo&background=E0F2FE&color=0284C7" alt="Avatar" class="w-8 h-8 rounded-full">
+                                            <div>
+                                                <p class="font-bold text-gray-800">Budi Wibowo</p>
+                                                <p class="text-[11px] text-gray-500 uppercase font-semibold">Warga</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <p class="font-medium text-gray-800">Jl. Sudirman, Jaksel</p>
+                                        <p class="text-xs text-gray-500 truncate max-w-[150px]">Lubang besar di lajur kiri</p>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold bg-red-50 text-red-700 border border-red-100">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Kritis
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <button class="text-gray-400 hover:text-safety bg-white border border-gray-200 hover:border-safety/30 hover:bg-orange-50 w-8 h-8 rounded-lg transition-all shadow-sm flex items-center justify-center mx-auto">
+                                            <i class="fa-solid fa-arrow-right"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50/80 transition-colors group">
+                                    <td class="px-6 py-4 font-bold text-gray-900">#RPT-8420</td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <img src="https://ui-avatars.com/api/?name=Siti+Rahma&background=F3E8FF&color=7E22CE" alt="Avatar" class="w-8 h-8 rounded-full">
+                                            <div>
+                                                <p class="font-bold text-gray-800">Siti Rahma</p>
+                                                <p class="text-[11px] text-safety uppercase font-semibold">Petugas Dishub</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <p class="font-medium text-gray-800">Jl. Gatot Subroto</p>
+                                        <p class="text-xs text-gray-500 truncate max-w-[150px]">Aspal bergelombang</p>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold bg-orange-50 text-safety border border-orange-100">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-safety"></span> Proses
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <button class="text-gray-400 hover:text-safety bg-white border border-gray-200 hover:border-safety/30 hover:bg-orange-50 w-8 h-8 rounded-lg transition-all shadow-sm flex items-center justify-center mx-auto">
+                                            <i class="fa-solid fa-arrow-right"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Map Preview (Leaflet) -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col overflow-hidden h-full min-h-[400px] xl:min-h-0 relative">
+                    <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-white z-20 relative shadow-sm">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">Peta Kepadatan</h3>
+                            <p class="text-xs text-gray-500 mt-1">Titik insiden terkini</p>
+                        </div>
+                        <button class="w-8 h-8 rounded-lg text-gray-400 hover:text-safety hover:bg-orange-50 flex items-center justify-center transition-colors border border-transparent hover:border-safety/20" onclick="document.querySelector('[data-target=\'view-heatmap\']').click()">
+                            <i class="fa-solid fa-expand"></i>
+                        </button>
+                    </div>
+                    <div class="relative flex-1 bg-gray-200 overflow-hidden" id="overviewMapContainer">
+                        <!-- Leaflet map instance renders here -->
+                        
+                        <!-- Floating Legend Overlay -->
+                        <div class="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-3.5 rounded-xl shadow-lg border border-gray-100/50 flex justify-between items-center z-[1000]">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-red-600 shadow-sm shadow-red-500/50"></span> 
+                                <span class="text-[10px] font-bold text-gray-700">Kritis</span>
                             </div>
-                            <div class="table-responsive">
-                                <table class="table table-modern align-middle">
-                                    <thead>
-                                        <tr>
-                                            <th>ID Laporan</th>
-                                            <th>Pelapor</th>
-                                            <th>Kategori</th>
-                                            <th>Lokasi</th>
-                                            <th>Tanggal</th>
-                                            <th>Status</th>
-                                            <th>Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td class="fw-bold text-primary">#RPT-0105</td>
-                                            <td>
-                                                <div class="d-flex align-items-center gap-2">
-                                                    <img src="https://randomuser.me/api/portraits/men/22.jpg" alt="User" class="rounded-circle" width="30" height="30">
-                                                    <span class="fw-medium">Agus Setiawan</span>
-                                                </div>
-                                            </td>
-                                            <td><div class="d-flex align-items-center"><i data-lucide="cone" class="text-muted me-2" style="width: 16px; height: 16px;"></i> Jalan Berlubang</div></td>
-                                            <td class="text-muted">Jl. Merdeka Raya Km 2</td>
-                                            <td class="text-muted">Hari ini, 09:30</td>
-                                            <td><span class="badge badge-menunggu">Menunggu</span></td>
-                                            <td>
-                                                <div class="dropdown">
-                                                    <button class="btn btn-sm btn-light border dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                                        Tindakan
-                                                    </button>
-                                                    <ul class="dropdown-menu shadow-sm border-0">
-                                                        <li><a class="dropdown-item py-2 d-flex align-items-center" href="detail-laporan.html"><i data-lucide="eye" class="me-2 text-primary" style="width: 16px; height: 16px;"></i> Detail & Peta</a></li>
-                                                        <li><a class="dropdown-item py-2 d-flex align-items-center" href="#"><i data-lucide="check" class="me-2 text-success" style="width: 16px; height: 16px;"></i> Verifikasi</a></li>
-                                                        <li><hr class="dropdown-divider"></li>
-                                                        <li><a class="dropdown-item py-2 text-danger d-flex align-items-center" href="#"><i data-lucide="trash-2" class="me-2" style="width: 16px; height: 16px;"></i> Tolak Laporan</a></li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-bold text-primary">#RPT-0104</td>
-                                            <td>
-                                                <div class="d-flex align-items-center gap-2">
-                                                    <img src="https://randomuser.me/api/portraits/women/12.jpg" alt="User" class="rounded-circle" width="30" height="30">
-                                                    <span class="fw-medium">Diana Putri</span>
-                                                </div>
-                                            </td>
-                                            <td><div class="d-flex align-items-center"><i data-lucide="tree-deciduous" class="text-muted me-2" style="width: 16px; height: 16px;"></i> Pohon Tumbang</div></td>
-                                            <td class="text-muted">Jl. Sudirman (Dekat Taman)</td>
-                                            <td class="text-muted">Kemarin, 15:45</td>
-                                            <td><span class="badge badge-diproses">Diproses</span></td>
-                                            <td>
-                                                <div class="dropdown">
-                                                    <button class="btn btn-sm btn-light border dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                                        Tindakan
-                                                    </button>
-                                                    <ul class="dropdown-menu shadow-sm border-0">
-                                                        <li><a class="dropdown-item py-2 d-flex align-items-center" href="detail-laporan.html"><i data-lucide="eye" class="me-2 text-primary" style="width: 16px; height: 16px;"></i> Detail & Peta</a></li>
-                                                        <li><a class="dropdown-item py-2 d-flex align-items-center" href="#"><i data-lucide="check-check" class="me-2 text-success" style="width: 16px; height: 16px;"></i> Tandai Selesai</a></li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-safety shadow-sm shadow-safety/50"></span> 
+                                <span class="text-[10px] font-bold text-gray-700">Proses</span>
                             </div>
-                            
-                            <!-- Pagination -->
-                            <nav aria-label="Page navigation" class="mt-4">
-                                <ul class="pagination justify-content-center mb-0">
-                                    <li class="page-item disabled"><a class="page-link" href="#">Sebelumnya</a></li>
-                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">Selanjutnya</a></li>
-                                </ul>
-                            </nav>
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-green-500 shadow-sm shadow-green-500/50"></span> 
+                                <span class="text-[10px] font-bold text-gray-700">Selesai</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <!-- ================= VIEW: LAPORAN MASUK ================= -->
+        <div id="view-laporan" class="view-section hidden h-full flex-col">
+            <header class="flex justify-between items-center mb-8 shrink-0">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Laporan Masuk</h2>
+                    <p class="text-gray-500 mt-1 text-sm">Kelola dan tindak lanjuti laporan kerusakan dari warga.</p>
+                </div>
+                <button class="px-4 py-2 bg-safety text-white rounded-xl shadow-md shadow-safety/30 hover:bg-orange-600 transition-colors font-medium flex items-center gap-2">
+                    <i class="fa-solid fa-file-export"></i> Export Data
+                </button>
+            </header>
+            <div class="flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center">
+                <div class="text-center p-8">
+                    <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-100">
+                        <i class="fa-solid fa-file-signature text-3xl text-gray-300"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-700">Halaman Laporan Masuk</h3>
+                    <p class="text-gray-500 text-sm mt-2 max-w-sm mx-auto">Fitur manajemen tabel lengkap dengan filtering, sorting, dan detail aksi akan ditampilkan di halaman ini.</p>
+                </div>
+            </div>
+        </div>
 
-    <!-- Custom JS -->
-    <script src="js/script.js"></script>
-    
-    <!-- Map Initialization Script -->
+        <!-- ================= VIEW: PETA HEATMAP ================= -->
+        <div id="view-heatmap" class="view-section hidden h-full flex-col">
+            <header class="flex justify-between items-center mb-6 shrink-0">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Peta Heatmap Interaktif</h2>
+                    <p class="text-gray-500 mt-1 text-sm">Visualisasi kepadatan pelaporan kerusakan infrastruktur jalan di berbagai area.</p>
+                </div>
+                <div class="flex gap-2">
+                    <select class="bg-white border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-safety focus:border-safety px-4 py-2 font-medium shadow-sm cursor-pointer">
+                        <option>Semua Kategori</option>
+                        <option>Jalan Berlubang</option>
+                        <option>Lampu Mati</option>
+                    </select>
+                </div>
+            </header>
+            <div class="flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
+                <div id="heatmapMap" class="w-full h-full z-10"></div>
+                
+                <div class="absolute top-4 right-4 bg-white/95 backdrop-blur-md p-4 rounded-xl shadow-lg border border-gray-100 z-[1000] w-48">
+                    <h4 class="text-xs font-bold text-gray-800 uppercase tracking-wider mb-3">Intensitas</h4>
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-xs text-gray-500 font-medium">Tinggi</span>
+                        <span class="w-4 h-4 rounded-full bg-red-600"></span>
+                    </div>
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-xs text-gray-500 font-medium">Sedang</span>
+                        <span class="w-4 h-4 rounded-full bg-yellow-400"></span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500 font-medium">Rendah</span>
+                        <span class="w-4 h-4 rounded-full bg-blue-500"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= VIEW: MANAJEMEN USER ================= -->
+        <div id="view-user" class="view-section hidden h-full flex-col">
+            <header class="flex justify-between items-center mb-8 shrink-0">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Manajemen User</h2>
+                    <p class="text-gray-500 mt-1 text-sm">Kelola peran dan hak akses pengguna sistem.</p>
+                </div>
+                <button class="px-4 py-2 bg-safety text-white rounded-xl shadow-md shadow-safety/30 hover:bg-orange-600 transition-colors font-medium flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Tambah User
+                </button>
+            </header>
+            <div class="flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center">
+                <div class="text-center p-8">
+                    <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-100">
+                        <i class="fa-solid fa-users-gear text-3xl text-gray-300"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-700">Halaman Manajemen User</h3>
+                    <p class="text-gray-500 text-sm mt-2 max-w-sm mx-auto">Daftar Admin, Petugas Lapangan, dan pengaturan RBAC (Role-Based Access Control) akan ditempatkan di sini.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= VIEW: PENGATURAN ================= -->
+        <div id="view-pengaturan" class="view-section hidden h-full flex-col">
+            <header class="flex justify-between items-center mb-8 shrink-0">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Pengaturan Sistem</h2>
+                    <p class="text-gray-500 mt-1 text-sm">Konfigurasi Command Center dan preferensi aplikasi.</p>
+                </div>
+            </header>
+            <div class="flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center">
+                <div class="text-center p-8">
+                    <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-100">
+                        <i class="fa-solid fa-sliders text-3xl text-gray-300"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-700">Halaman Pengaturan</h3>
+                    <p class="text-gray-500 text-sm mt-2 max-w-sm mx-auto">Pengaturan notifikasi, integrasi API eksternal, dan preferensi tampilan (tema) dapat diakses dari halaman ini.</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Navigation & Map Scripts -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Coordinate (Jakarta)
-            const lat = -6.2088;
-            const lng = 106.8456;
-            
-            // Initialize Leaflet Map
-            const map = L.map('adminMap').setView([lat, lng], 13);
-            
-            // Set OpenStreetMap tiles
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
+        // --- 1. Tab Navigation Logic ---
+        const navLinks = document.querySelectorAll('.nav-link');
+        const viewSections = document.querySelectorAll('.view-section');
 
-            // Add Markers for dummy reports
-            L.marker([-6.2088, 106.8456]).addTo(map)
-                .bindPopup('<b>#RPT-0105</b><br>Jalan Berlubang<br><span class="badge bg-warning text-dark mt-1">Menunggu</span>');
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
                 
-            L.marker([-6.2188, 106.8356]).addTo(map)
-                .bindPopup('<b>#RPT-0104</b><br>Pohon Tumbang<br><span class="badge bg-primary text-white mt-1">Diproses</span>');
+                // Toggle active states in sidebar
+                navLinks.forEach(l => {
+                    l.classList.remove('nav-active');
+                    l.classList.add('nav-inactive');
+                });
+                link.classList.remove('nav-inactive');
+                link.classList.add('nav-active');
                 
-            // Fix map rendering issue
-            setTimeout(function(){ map.invalidateSize()}, 500);
+                // Hide all sections
+                viewSections.forEach(view => {
+                    view.classList.remove('flex', 'block');
+                    view.classList.add('hidden');
+                });
+                
+                // Show target section
+                const targetId = link.getAttribute('data-target');
+                const targetView = document.getElementById(targetId);
+                
+                if (targetView) {
+                    targetView.classList.remove('hidden');
+                    
+                    // Some sections need flex-col to occupy full height
+                    if(targetId === 'view-overview') {
+                        targetView.classList.add('block');
+                    } else {
+                        targetView.classList.add('flex');
+                    }
+                    
+                    // Critical: Trigger Leaflet map resize when its container becomes visible
+                    if (targetId === 'view-heatmap' && typeof heatmapMap !== 'undefined') {
+                        setTimeout(() => heatmapMap.invalidateSize(), 100);
+                    } else if (targetId === 'view-overview' && typeof overviewMap !== 'undefined') {
+                        setTimeout(() => overviewMap.invalidateSize(), 100);
+                    }
+                }
+            });
+        });
+
+        // --- 2. Leaflet Map Initialization ---
+        // Coordinates for Jakarta Center
+        const jktCoords = [-6.2088, 106.8456];
+        
+        // A. Overview Map (Small Map on Overview Tab)
+        const overviewMap = L.map('overviewMapContainer', {
+            zoomControl: false,
+            attributionControl: false
+        }).setView(jktCoords, 11);
+        
+        // Using a dark CartoDB basemap for better contrast with brand colors
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19
+        }).addTo(overviewMap);
+
+        // Add some dummy incident markers to overview
+        const incidents = [
+            { pos: [-6.2088, 106.8456], color: "#ef4444" }, // Kritis (Red)
+            { pos: [-6.2150, 106.8250], color: "#FF6B00" }, // Proses (Safety)
+            { pos: [-6.1850, 106.8350], color: "#ef4444" }, // Kritis (Red)
+            { pos: [-6.2250, 106.8150], color: "#22c55e" }, // Selesai (Green)
+            { pos: [-6.1950, 106.8650], color: "#FF6B00" }  // Proses (Safety)
+        ];
+        
+        incidents.forEach(item => {
+            L.circleMarker(item.pos, {
+                radius: 6,
+                fillColor: item.color,
+                color: "#fff",
+                weight: 1.5,
+                opacity: 1,
+                fillOpacity: 0.9
+            }).addTo(overviewMap);
+        });
+
+        // B. Heatmap Map (Large Map on Peta Heatmap Tab)
+        const heatmapMap = L.map('heatmapMap').setView([-6.22, 106.83], 12);
+        
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
+        }).addTo(heatmapMap);
+
+        // Generate dense dummy data for heatmap
+        const heatData = [];
+        for (let i = 0; i < 400; i++) {
+            // Randomly scatter around central Jakarta
+            const lat = -6.22 + (Math.random() - 0.5) * 0.15;
+            const lng = 106.83 + (Math.random() - 0.5) * 0.15;
+            // Higher intensity closer to center
+            const intensity = Math.random() * (1 - Math.sqrt(Math.pow(lat+6.22, 2) + Math.pow(lng-106.83, 2))*5);
+            if(intensity > 0) heatData.push([lat, lng, intensity]);
+        }
+        
+        // Add Leaflet.heat layer
+        const heatLayer = L.heatLayer(heatData, {
+            radius: 25,
+            blur: 15,
+            maxZoom: 13,
+            gradient: {
+                0.2: 'blue', 
+                0.4: 'cyan', 
+                0.6: 'lime', 
+                0.8: 'yellow', 
+                1.0: 'red'
+            }
+        }).addTo(heatmapMap);
+
+        // --- 3. Chart.js Initialization (Overview Tab) ---
+        Chart.defaults.font.family = "'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+        Chart.defaults.color = '#9ca3af';
+        
+        // Trend Chart
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        const gradient = trendCtx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(255, 107, 0, 0.25)');   
+        gradient.addColorStop(1, 'rgba(255, 107, 0, 0.0)');
+
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
+                datasets: [{
+                    label: 'Jumlah Laporan',
+                    data: [45, 62, 38, 75, 82, 42, 31],
+                    borderColor: '#FF6B00',
+                    backgroundColor: gradient,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: '#FF6B00',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#121416',
+                        titleFont: { size: 13, weight: 'bold' },
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f3f4f6', drawBorder: false, borderDash: [5, 5] },
+                        border: { display: false }
+                    },
+                    x: {
+                        grid: { display: false },
+                        border: { display: false },
+                        ticks: { font: { weight: '600' }, color: '#6b7280' }
+                    }
+                }
+            }
+        });
+
+        // Category Chart
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        new Chart(categoryCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Berlubang', 'Retak', 'Lampu Mati', 'Rambu', 'Genangan'],
+                datasets: [{
+                    data: [320, 210, 150, 85, 110],
+                    backgroundColor: ['#FF6B00', '#121416', '#9ca3af', '#d1d5db', '#e5e7eb'],
+                    borderRadius: 6,
+                    barThickness: 24
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#121416',
+                        titleFont: { size: 13, weight: 'bold' },
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f3f4f6', drawBorder: false, borderDash: [5, 5] },
+                        border: { display: false }
+                    },
+                    x: {
+                        grid: { display: false },
+                        border: { display: false },
+                        ticks: { font: { weight: '600' }, color: '#4b5563' }
+                    }
+                }
+            }
         });
     </script>
 </body>

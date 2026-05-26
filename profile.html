@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengaturan Akun - SmartRoad</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-body: #F8FAFC;
+            --bg-card: #FFFFFF;
+            --bg-input: #FFFFFF;
+            
+            --border-light: #E2E8F0;
+            --border-hover: #CBD5E1;
+            --brand-primary: #FF6B00;
+            --brand-primary-hover: #E05E00;
+            
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --text-muted: #94A3B8;
+            
+            --danger: #EF4444;
+            --danger-bg: #FEF2F2;
+            --danger-border: #FEE2E2;
+            --success: #10B981;
+
+            --shadow-subtle: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+            --shadow-card: 0 10px 15px -3px rgba(15, 23, 42, 0.04), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+            --shadow-input: 0 0 0 3px rgba(255, 107, 0, 0.12);
+            
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --radius-md: 10px;
+            --radius-lg: 14px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            padding: 2rem 1.5rem;
+        }
+
+        /* Standalone Settings Layout */
+        .settings-container {
+            width: 100%;
+            max-width: 960px;
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 2.5rem;
+            align-items: start;
+            position: relative;
+        }
+
+        /* Floating/Absolute Back Button (Icon Only) */
+        .btn-back-floating {
+            position: absolute;
+            left: -60px;
+            top: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-light);
+            color: var(--text-secondary);
+            text-decoration: none;
+            box-shadow: var(--shadow-subtle);
+            transition: var(--transition);
+            z-index: 10;
+        }
+
+        .btn-back-floating:hover {
+            color: var(--brand-primary);
+            border-color: var(--brand-primary);
+            background-color: #FAFAFA;
+            transform: scale(1.05);
+        }
+
+        /* Sidebar Navigation Area */
+        .settings-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar-brand {
+            padding: 0.5rem 0;
+        }
+
+        .sidebar-brand h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .sidebar-brand span {
+            color: var(--brand-primary);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 0.85rem;
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .menu-item:hover {
+            background-color: rgba(15, 23, 42, 0.03);
+            color: var(--text-primary);
+        }
+
+        .menu-item.active {
+            background-color: rgba(255, 107, 0, 0.08);
+            color: var(--brand-primary);
+            font-weight: 600;
+        }
+
+        /* Main Form Area */
+        .settings-main {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .profile-hero {
+            padding: 2rem 2.5rem;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            background-color: #FCFDFE;
+        }
+
+        .avatar-uploader {
+            position: relative;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #FFFFFF;
+        }
+
+        .avatar-edit-badge {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 26px;
+            height: 26px;
+            background-color: var(--brand-primary);
+            border: 2px solid #FFFFFF;
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .avatar-edit-badge:hover {
+            background-color: var(--brand-primary-hover);
+            transform: scale(1.1);
+        }
+
+        .profile-hero-info h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.15rem;
+        }
+
+        .profile-hero-info p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .settings-form {
+            padding: 2.5rem;
+        }
+
+        .section-header {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 0.5rem;
+        }
+
+        .section-header i {
+            color: var(--brand-primary);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .form-grid.single {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        .form-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 0.95rem;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-input:focus {
+            border-color: var(--brand-primary);
+            box-shadow: var(--shadow-input);
+        }
+
+        /* Danger Zone Panel */
+        .danger-panel {
+            border: 1px solid var(--danger-border);
+            background-color: var(--danger-bg);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .danger-text h4 {
+            color: var(--danger);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .danger-text p {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+
+        .btn-danger {
+            background-color: transparent;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: var(--danger);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .btn-danger:hover {
+            background-color: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        /* Form Footer Actions */
+        .form-actions {
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.7rem 1.4rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: none;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background-color: var(--brand-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--brand-primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--border-light);
+            color: var(--text-secondary);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--border-hover);
+            color: var(--text-primary);
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1080px) {
+            /* Move back button inside container on narrower screens */
+            .settings-container {
+                grid-template-columns: 220px 1fr;
+            }
+            .btn-back-floating {
+                position: static;
+                margin-bottom: 1rem;
+            }
+        }
+
+        @media (max-width: 900px) {
+            body {
+                padding: 1rem;
+            }
+            .settings-container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            .btn-back-floating {
+                position: static;
+                margin-bottom: 0.5rem;
+            }
+            .sidebar-menu {
+                flex-direction: row;
+                overflow-x: auto;
+                padding-bottom: 0.25rem;
+                scrollbar-width: none; /* Firefox */
+            }
+            .sidebar-menu::-webkit-scrollbar {
+                display: none; /* Chrome/Safari */
+            }
+            .menu-item {
+                white-space: nowrap;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+            .profile-hero {
+                padding: 1.5rem;
+                flex-direction: column;
+                text-align: center;
+            }
+            .settings-form {
+                padding: 1.5rem;
+            }
+            .danger-panel {
+                flex-direction: column;
+                text-align: center;
+            }
+            .form-actions {
+                flex-direction: column-reverse;
+                gap: 0.75rem;
+            }
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Main Container -->
+    <div class="settings-container">
+        
+        <!-- Absolute/Floating Back Button (Icon Only) -->
+        <a href="dashboard.html" class="btn-back-floating" title="Kembali ke Dashboard">
+            <i data-lucide="arrow-left" style="width: 20px; height: 20px;"></i>
+        </a>
+
+        <!-- Left Menu Sidebar -->
+        <aside class="settings-sidebar">
+            <div class="sidebar-brand">
+                <h2>Smart<span>Road</span></h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="menu-item active">
+                    <i data-lucide="user" style="width: 16px; height: 16px;"></i> Akun & Profil
+                </li>
+                <li class="menu-item" onclick="alert('Fitur notifikasi akan segera hadir.')">
+                    <i data-lucide="bell" style="width: 16px; height: 16px;"></i> Notifikasi
+                </li>
+                <li class="menu-item" onclick="window.location.href='riwayat.html'">
+                    <i data-lucide="history" style="width: 16px; height: 16px;"></i> Riwayat Laporan
+                </li>
+                <li class="menu-item" style="color: var(--danger);" onclick="window.location.href='login.html'">
+                    <i data-lucide="log-out" style="width: 16px; height: 16px;"></i> Keluar
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Form Panel -->
+        <main class="settings-main">
+            <!-- Profile Info Hero Header -->
+            <div class="profile-hero">
+                <div class="avatar-uploader">
+                    <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Fiqry" class="avatar-img">
+                    <button type="button" class="avatar-edit-badge" aria-label="Ubah Foto">
+                        <i data-lucide="camera" style="width: 12px; height: 12px;"></i>
+                    </button>
+                </div>
+                <div class="profile-hero-info">
+                    <h3>Fiqry Ramadhan</h3>
+                    <p>Warga Terdaftar • Bergabung Mei 2026</p>
+                </div>
+            </div>
+
+            <!-- Form -->
+            <form class="settings-form" onsubmit="event.preventDefault(); triggerSaveEffect();">
+                
+                <!-- Section 1 -->
+                <div class="section-header">
+                    <i data-lucide="contact" style="width: 14px; height: 14px;"></i> Profil Utama
+                </div>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label class="form-label">Nama Lengkap</label>
+                        <input type="text" class="form-input" value="Fiqry Ramadhan" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Alamat Email</label>
+                        <input type="email" class="form-input" value="fiqry@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nomor WhatsApp</label>
+                        <input type="tel" class="form-input" value="081234567890" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="form-label">Alamat Lengkap</label>
+                        <input type="text" class="form-input" value="Jl. Mawar No. 12, Kec. Sukomanunggal, Surabaya">
+                    </div>
+                </div>
+
+                <!-- Section 2 -->
+                <div class="section-header">
+                    <i data-lucide="lock" style="width: 14px; height: 14px;"></i> Kata Sandi
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Kata Sandi Baru</label>
+                        <input type="password" class="form-input" placeholder="Masukkan kata sandi baru...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Konfirmasi Kata Sandi</label>
+                        <input type="password" class="form-input" placeholder="Ulangi kata sandi...">
+                    </div>
+                </div>
+
+                <!-- Section 3 -->
+                <div class="section-header" style="border-color: rgba(239, 68, 68, 0.15);">
+                    <i data-lucide="alert-triangle" style="width: 14px; height: 14px; color: var(--danger);"></i> Zona Bahaya
+                </div>
+                <div class="danger-panel">
+                    <div class="danger-text">
+                        <h4>Hapus Akun Anda</h4>
+                        <p>Setelah Anda menghapus akun, data profil dan laporan Anda akan terhapus secara permanen.</p>
+                    </div>
+                    <button type="button" class="btn-danger" onclick="confirm('Apakah Anda yakin ingin menghapus akun permanen?')">Hapus Akun</button>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="window.location.href='dashboard.html'">Batal</button>
+                    <button type="submit" class="btn btn-primary" id="btnSave">
+                        <i data-lucide="save" style="width: 15px; height: 15px;"></i> Simpan
+                    </button>
+                </div>
+
+            </form>
+        </main>
+    </div>
+
+    <!-- Scripting for Lucide icons and animations -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        lucide.createIcons();
+
+        function triggerSaveEffect() {
+            const btn = document.getElementById('btnSave');
+            const originalHTML = btn.innerHTML;
+            
+            btn.innerHTML = `<i data-lucide="check" style="width: 15px; height: 15px;"></i> Berhasil`;
+            btn.style.backgroundColor = 'var(--success)';
+            btn.style.pointerEvents = 'none';
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.style.backgroundColor = '';
+                btn.style.pointerEvents = 'auto';
+                lucide.createIcons();
+            }, 2000);
+        }
+    </script>
+</body>
+
+</html>

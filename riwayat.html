@@ -6,27 +6,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Riwayat Laporan - SmartRoad</title>
 
+    <!-- Google Fonts: Inter (UI/Body) & Montserrat (Heavy Headings) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
 
+    <!-- Unified Stylesheet with exact dashboard.html Sync -->
     <style>
         :root {
+            /* Branding Colors - Professional, Industrial & Engineering */
             --asphalt-dark: #121416;
             --asphalt-medium: #181B1E;
+            --asphalt-light: #202428;
             --asphalt-border: #262B30;
+
             --safety-orange: #FF6B00;
             --safety-orange-hover: #E05E00;
+            --safety-orange-glow: rgba(255, 107, 0, 0.15);
+
             --concrete-gray: #F8F9FA;
+            --concrete-dark: #E9ECEF;
             --concrete-border: #E2E5E8;
+
             --text-dark: #1F2226;
             --text-muted: #5A626A;
+            --text-light: #B9C2CB;
             --text-white: #FFFFFF;
-            --border-radius: 12px;
+
+            --danger-red: #E63946;
+            --success-green: #2A9D8F;
+
+            /* Interactive Themed Status Accents */
+            --yellow-accent: #FFB000;
+            --yellow-accent-glow: rgba(255, 176, 0, 0.12);
+            --blue-accent: #3B82F6;
+            --blue-accent-glow: rgba(59, 130, 246, 0.12);
+            --green-accent: #10B981;
+            --green-accent-glow: rgba(16, 185, 129, 0.12);
+
+            /* Sharp, Minimalist Tokens */
+            --border-radius: 4px;
             --transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            --shadow-sm: 0 4px 15px rgba(0, 0, 0, 0.03);
+            --shadow-md: 0 8px 25px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.12);
+            --shadow-glow: 0 10px 30px rgba(255, 107, 0, 0.2);
         }
 
-        * {
+        /* Basic Resets */
+        *,
+        *::before,
+        *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
@@ -34,60 +64,151 @@
 
         html {
             scroll-behavior: smooth;
-            font-family: 'Inter', sans-serif;
-            background: var(--concrete-gray);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             color: var(--text-dark);
+            background-color: var(--concrete-gray);
         }
 
         body {
-            min-height: 100vh;
+            line-height: 1.5;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        ::selection {
+            background-color: var(--safety-orange);
+            color: var(--text-white);
         }
 
         a {
-            color: inherit;
             text-decoration: none;
+            color: inherit;
+            transition: var(--transition);
         }
 
+        /* Grid System */
         .container {
             width: 100%;
-            max-width: 1140px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 0 1.5rem;
         }
 
+        /* Buttons (Minimal, Sharp) */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.6rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1.5px solid transparent;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background-color: var(--safety-orange);
+            color: var(--text-white);
+            border-color: var(--safety-orange);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--safety-orange-hover);
+            border-color: var(--safety-orange-hover);
+            transform: translateY(-1.5px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .btn-outline-primary {
+            background-color: transparent;
+            border: 1.5px solid var(--safety-orange);
+            color: var(--safety-orange);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--safety-orange);
+            color: var(--text-white);
+            transform: translateY(-1.5px);
+        }
+
+        .btn-outline-orange {
+            background-color: transparent;
+            border: 1.5px solid var(--safety-orange);
+            color: var(--safety-orange);
+        }
+
+        .btn-outline-orange:hover {
+            background-color: var(--safety-orange);
+            color: var(--text-white);
+            transform: translateY(-1.5px);
+            box-shadow: 0 6px 20px var(--safety-orange-glow);
+        }
+
+        .btn-secondary {
+            background-color: var(--concrete-dark);
+            color: var(--text-dark);
+            border: 1.5px solid var(--concrete-border);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--concrete-border);
+            color: var(--asphalt-dark);
+            transform: translateY(-1.5px);
+        }
+
+        /* 1. Floating Header (EXACT COPY of dashboard.html) */
         .header {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             z-index: 1000;
-            padding: 1.2rem 0;
-            background: rgba(255, 255, 255, 0.96);
-            border-bottom: 1px solid rgba(18, 20, 22, 0.08);
+            padding: 1.25rem 0;
             transition: var(--transition);
             display: flex;
             align-items: center;
-            backdrop-filter: blur(14px);
+        }
+
+        .header.scrolled {
+            background-color: rgba(18, 20, 22, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--asphalt-border);
+            padding: 0.85rem 0;
         }
 
         .header .container {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: relative;
+            overflow: visible;
         }
 
         .logo {
             font-family: 'Montserrat', sans-serif;
-            font-weight: 900;
-            color: var(--asphalt-dark);
             font-size: 1.35rem;
+            font-weight: 900;
+            color: var(--text-white);
+            letter-spacing: -0.03em;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            letter-spacing: -0.03em;
             text-transform: uppercase;
+        }
+
+        .logo i {
+            color: var(--safety-orange);
+            display: flex;
         }
 
         .logo span {
@@ -96,35 +217,43 @@
 
         .nav-menu {
             display: flex;
-            gap: 1.5rem;
-            list-style: none;
             align-items: center;
+            gap: 2rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
         }
 
         .nav-link {
-            color: var(--text-dark);
-            font-size: 0.88rem;
+            color: var(--text-light);
+            font-size: 0.75rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.08em;
+            padding: 0.4rem 0;
             position: relative;
-            transition: var(--transition);
+            cursor: pointer;
         }
 
         .nav-link:hover,
         .nav-link.active {
-            color: var(--safety-orange);
+            color: var(--text-white);
         }
 
-        .nav-link.active::after {
+        .nav-link::after {
             content: '';
             position: absolute;
+            bottom: 0;
             left: 0;
-            bottom: -6px;
+            width: 0%;
+            height: 1.5px;
+            background-color: var(--safety-orange);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
             width: 100%;
-            height: 3px;
-            background: var(--safety-orange);
-            border-radius: 999px;
         }
 
         .header-actions {
@@ -137,7 +266,7 @@
             position: relative;
             background: none;
             border: none;
-            color: var(--text-dark);
+            color: var(--text-white);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -177,7 +306,7 @@
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            border: 1.5px solid var(--concrete-border);
+            border: 1.5px solid var(--asphalt-border);
             object-fit: cover;
         }
 
@@ -186,7 +315,7 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            color: var(--text-dark);
+            color: var(--text-white);
             transition: var(--transition);
         }
 
@@ -208,10 +337,10 @@
             right: 0;
             width: 320px;
             max-width: calc(100vw - 2rem);
-            background-color: white;
+            background-color: var(--text-white);
             border: 1px solid var(--concrete-border);
             border-radius: 18px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            box-shadow: var(--shadow-lg);
             opacity: 0;
             visibility: hidden;
             transform: translateY(-8px);
@@ -309,27 +438,14 @@
             margin-bottom: 0.3rem;
             text-transform: uppercase;
             letter-spacing: 0.08em;
-        }
-
-        .profile-detail strong {
-            font-size: 0.9rem;
-            color: var(--asphalt-dark);
+            font-size: 0.68rem;
+            color: var(--text-muted);
         }
 
         .panel-actions {
             display: flex;
             gap: 0.75rem;
-        }
-
-        .btn-outline-primary {
-            background-color: transparent;
-            border-color: var(--safety-orange);
-            color: var(--safety-orange);
-        }
-
-        .btn-outline-primary:hover {
-            background-color: var(--safety-orange);
-            color: white;
+            flex-wrap: wrap;
         }
 
         /* Mobile specific layout inside sliding drawer */
@@ -344,222 +460,594 @@
             align-items: center;
             gap: 0.75rem;
             padding: 1rem 0;
-            border-top: 1px solid var(--concrete-border);
+            border-top: 1px solid var(--asphalt-border);
             width: 100%;
         }
 
         .user-profile-mobile .user-name {
-            color: var(--text-dark);
+            color: var(--text-white);
         }
 
         .menu-toggle {
             display: none;
-            border: none;
             background: none;
+            border: none;
+            color: var(--text-white);
             font-size: 1.35rem;
             cursor: pointer;
+            z-index: 1010;
+            outline: none;
         }
 
+        /* Screen overlay active when drawer is open */
         .drawer-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.55);
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
             opacity: 0;
-            visibility: hidden;
+            pointer-events: none;
             transition: var(--transition);
-            z-index: 100;
         }
 
         .drawer-overlay.active {
             opacity: 1;
-            visibility: visible;
+            pointer-events: auto;
         }
 
-        .hero-section {
-            padding: 7rem 0 3rem;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 249, 250, 0.95));
+        /* 2. Premium Dark Hero Section (Aligned with dashboard.html theme) */
+        .hero {
+            height: 55vh;
+            min-height: 420px;
+            position: relative;
+            background: url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=2560') no-repeat center center/cover;
+            display: flex;
+            align-items: center;
+            color: var(--text-white);
+            overflow: hidden;
         }
 
-        .section-header {
-            text-align: center;
-            margin-bottom: 3rem;
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(18, 20, 22, 0.96) 0%, rgba(18, 20, 22, 0.85) 50%, rgba(18, 20, 22, 0.5) 100%);
+            z-index: 1;
         }
 
-        .section-badge {
+        .hero-content {
+            position: relative;
+            z-index: 3;
+            max-width: 800px;
+            margin-top: 4rem;
+        }
+
+        .hero-badge {
             display: inline-flex;
             align-items: center;
             gap: 0.4rem;
-            background: var(--safety-orange);
-            color: white;
-            padding: 0.5rem 0.9rem;
-            border-radius: 999px;
+            background-color: var(--safety-orange);
+            color: var(--text-white);
             font-size: 0.7rem;
-            letter-spacing: 0.14em;
+            font-weight: 700;
             text-transform: uppercase;
-            margin-bottom: 1rem;
+            letter-spacing: 0.15em;
+            padding: 0.4rem 0.8rem;
+            border-radius: 2px;
+            margin-bottom: 1.25rem;
         }
 
-        .section-title {
+        .hero-headline {
             font-family: 'Montserrat', sans-serif;
-            font-size: clamp(2rem, 3vw, 3.2rem);
+            font-size: clamp(2rem, 4.5vw, 3.2rem);
             font-weight: 900;
+            line-height: 1.15;
+            text-transform: uppercase;
             letter-spacing: -0.02em;
             margin-bottom: 1rem;
         }
 
-        .section-desc {
-            max-width: 680px;
-            margin: 0 auto;
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            line-height: 1.75;
+        .hero-headline span {
+            color: var(--safety-orange);
         }
 
-        .report-history-section {
-            padding: 0 0 6rem;
+        .hero-desc {
+            font-size: clamp(0.9rem, 1.8vw, 1rem);
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            font-weight: 400;
+            max-width: 650px;
         }
 
-        .history-grid {
+        /* 3. Floating Stats Widgets Overlap */
+        .stats-overlap {
+            margin-top: -3.5rem;
+            position: relative;
+            z-index: 10;
+            margin-bottom: 3.5rem;
+        }
+
+        .stats-grid {
             display: grid;
-            grid-template-columns: repeat(3, minmax(260px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 1.5rem;
         }
 
-        .history-card {
-            background: white;
+        .stat-card {
+            background-color: var(--text-white);
             border: 1px solid var(--concrete-border);
-            border-radius: 22px;
+            border-radius: 8px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            position: relative;
             overflow: hidden;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.04);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(255, 107, 0, 0.15);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+            transition: var(--transition);
+        }
+
+        .stat-info {
             display: flex;
             flex-direction: column;
-            transition: transform var(--transition);
+        }
+
+        .stat-value {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--asphalt-dark);
+            line-height: 1.1;
+            margin-bottom: 0.15rem;
+        }
+
+        .stat-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-indicator {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            border-radius: 4px 0 0 4px;
+        }
+
+        /* Color variations for stats */
+        .stat-card.stat-pending {
+            border-left: 1px solid var(--concrete-border);
+        }
+        .stat-pending .stat-icon {
+            background-color: var(--yellow-accent-glow);
+            color: var(--yellow-accent);
+        }
+        .stat-pending .stat-indicator {
+            background-color: var(--yellow-accent);
+        }
+
+        .stat-card.stat-processing {}
+        .stat-processing .stat-icon {
+            background-color: var(--blue-accent-glow);
+            color: var(--blue-accent);
+        }
+        .stat-processing .stat-indicator {
+            background-color: var(--blue-accent);
+        }
+
+        .stat-card.stat-done {}
+        .stat-done .stat-icon {
+            background-color: var(--green-accent-glow);
+            color: var(--green-accent);
+        }
+        .stat-done .stat-indicator {
+            background-color: var(--green-accent);
+        }
+
+        /* 4. Filter and Search Bar Section */
+        .report-history-section {
+            padding-bottom: 6rem;
+            flex: 1;
+        }
+
+        .filter-wrapper {
+            background-color: var(--text-white);
+            border: 1px solid var(--concrete-border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+        }
+
+        .filter-title-group {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 1.25rem;
+            border-bottom: 1px solid var(--concrete-dark);
+            padding-bottom: 0.75rem;
+        }
+
+        .filter-title-icon {
+            color: var(--safety-orange);
+            width: 1.15rem;
+            height: 1.15rem;
+        }
+
+        .filter-wrapper h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--asphalt-dark);
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 1.25rem;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 280px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            width: 1.1rem;
+            height: 1.1rem;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.6rem;
+            border: 1.5px solid var(--concrete-border);
+            border-radius: var(--border-radius);
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 500;
+            outline: none;
+            transition: var(--transition);
+            background-color: var(--concrete-gray);
+        }
+
+        .search-box input:focus {
+            border-color: var(--safety-orange);
+            background-color: var(--text-white);
+            box-shadow: 0 0 0 3px var(--safety-orange-glow);
+        }
+
+        .filter-select-group {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .select-wrapper {
+            position: relative;
+            min-width: 170px;
+        }
+
+        .select-wrapper select {
+            width: 100%;
+            padding: 0.75rem 2.5rem 0.75rem 1rem;
+            border: 1.5px solid var(--concrete-border);
+            border-radius: var(--border-radius);
+            background-color: var(--text-white);
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            transition: var(--transition);
+        }
+
+        .select-wrapper select:focus {
+            border-color: var(--safety-orange);
+            box-shadow: 0 0 0 3px var(--safety-orange-glow);
+        }
+
+        .select-icon {
+            position: absolute;
+            right: 0.9rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+            width: 1rem;
+            height: 1rem;
+            transition: var(--transition);
+        }
+
+        .select-wrapper select:focus + .select-icon {
+            color: var(--safety-orange);
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        /* 5. Elegant Card Listing Redesign */
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .history-card {
+            background-color: var(--text-white);
+            border: 1px solid var(--concrete-border);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .history-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: transparent;
+            transition: var(--transition);
+            z-index: 5;
         }
 
         .history-card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--concrete-border);
+        }
+
+        .history-card[data-status="Menunggu Verifikasi"]:hover::before {
+            background: var(--yellow-accent);
+        }
+
+        .history-card[data-status="Sedang Diproses"]:hover::before {
+            background: var(--blue-accent);
+        }
+
+        .history-card[data-status="Selesai"]:hover::before {
+            background: var(--green-accent);
+        }
+
+        .card-img-container {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+            background-color: var(--asphalt-dark);
         }
 
         .history-img {
             width: 100%;
-            height: 220px;
+            height: 100%;
             object-fit: cover;
             display: block;
+            transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .history-card:hover .history-img {
+            transform: scale(1.06);
+            opacity: 0.9;
+        }
+
+        .badge-overlay {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.68rem;
+            font-weight: 800;
+            border-radius: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            color: var(--text-white);
+            z-index: 3;
+        }
+
+        .badge-pending {
+            background-color: var(--yellow-accent);
+        }
+
+        .badge-processing {
+            background-color: var(--blue-accent);
+        }
+
+        .badge-done {
+            background-color: var(--green-accent);
         }
 
         .history-body {
             padding: 1.5rem;
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 0.75rem;
             flex: 1;
         }
 
         .history-date {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--text-muted);
-            letter-spacing: 0.02em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .history-date i {
+            width: 0.9rem;
+            height: 0.9rem;
+            color: var(--safety-orange);
         }
 
         .history-card-title {
             font-family: 'Montserrat', sans-serif;
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
+            font-size: 1.05rem;
+            font-weight: 800;
             color: var(--asphalt-dark);
+            line-height: 1.35;
+            text-transform: uppercase;
+            letter-spacing: -0.01em;
+            margin-bottom: 0.25rem;
+            transition: var(--transition);
+        }
+
+        .history-card:hover .history-card-title {
+            color: var(--safety-orange);
         }
 
         .history-address {
             display: flex;
-            align-items: center;
-            gap: 0.65rem;
-            color: var(--text-muted);
-            font-size: 0.92rem;
-            line-height: 1.6;
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 0.45rem;
-            padding: 0.45rem 0.9rem;
-            font-size: 0.75rem;
-            font-weight: 700;
-            border-radius: 999px;
-            text-transform: uppercase;
+            color: var(--text-dark);
+            font-size: 0.82rem;
+            font-weight: 600;
+            line-height: 1.4;
         }
 
-        .badge-pending {
-            background: #fef9c3;
-            color: #78350f;
+        .history-address i {
+            color: var(--safety-orange);
+            width: 0.95rem;
+            height: 0.95rem;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
         }
 
-        .badge-processing {
-            background: #dbeafe;
-            color: #1d4ed8;
+        .history-desc-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 0.25rem;
         }
 
-        .badge-done {
-            background: #d1fae5;
-            color: #166534;
+        .card-divider {
+            height: 1px;
+            background-color: var(--concrete-dark);
+            margin: 0.5rem 0;
         }
 
         .history-actions {
             display: flex;
-            flex-wrap: wrap;
             gap: 0.75rem;
             margin-top: auto;
+            align-items: center;
         }
 
-        .btn {
-            display: inline-flex;
+        .history-actions .btn {
+            flex: 1;
+            padding: 0.65rem 1rem;
+            font-size: 0.72rem;
+        }
+
+        .action-contact {
+            max-width: 44px;
+            min-width: 44px;
+            height: 38px;
+            padding: 0 !important;
+            display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.45rem;
-            padding: 0.85rem 1.25rem;
-            border-radius: 999px;
-            border: 1.5px solid transparent;
-            font-weight: 700;
-            font-size: 0.82rem;
-            cursor: pointer;
-            transition: var(--transition);
         }
 
-        .btn-primary {
-            background: var(--safety-orange);
-            color: white;
-            border-color: var(--safety-orange);
+        .action-contact i {
+            width: 1.05rem;
+            height: 1.05rem;
         }
 
-        .btn-primary:hover {
-            background: var(--safety-orange-hover);
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 5rem 2rem;
+            background-color: var(--text-white);
+            border: 1px solid var(--concrete-border);
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 600px;
+            margin: 2rem auto 0;
         }
 
-        .btn-outline-primary {
-            background: transparent;
-            color: var(--safety-orange);
-            border-color: var(--safety-orange);
+        .empty-icon {
+            width: 4.5rem;
+            height: 4.5rem;
+            color: var(--concrete-dark);
+            margin-bottom: 1.5rem;
         }
 
-        .btn-outline-primary:hover {
-            background: rgba(255, 107, 0, 0.1);
-        }
-
-        .btn-secondary {
-            background: #f8fafc;
+        .empty-state h4 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+            text-transform: uppercase;
             color: var(--asphalt-dark);
-            border-color: #e2e8f0;
+            margin-bottom: 0.5rem;
         }
 
-        .btn-secondary:hover {
-            background: #e2e8f0;
+        .empty-state p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1.75rem;
+            max-width: 420px;
+            line-height: 1.6;
         }
 
+        /* 6. Dual Column Premium Detail Modal */
         .detail-modal {
             position: fixed;
             inset: 0;
             display: grid;
             place-items: center;
             background: rgba(18, 20, 22, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             padding: 1.5rem;
             opacity: 0;
             visibility: hidden;
@@ -575,36 +1063,58 @@
         }
 
         .detail-card {
-            width: min(760px, 100%);
-            background: white;
-            border-radius: 24px;
+            width: min(840px, 100%);
+            background: var(--text-white);
+            border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--concrete-border);
+            transform: scale(0.96);
+            transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .detail-modal.active .detail-card {
+            transform: scale(1);
         }
 
         .detail-card-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            gap: 1rem;
-            padding: 1.5rem 1.75rem;
+            gap: 1.5rem;
+            padding: 1.5rem 2rem;
             border-bottom: 1px solid var(--concrete-border);
+            background-color: var(--concrete-gray);
+        }
+
+        .detail-title-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
 
         .detail-title-group h3 {
-            margin-bottom: 0.75rem;
-            font-size: 1.5rem;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 900;
             color: var(--asphalt-dark);
+            text-transform: uppercase;
+            letter-spacing: -0.01em;
+            line-height: 1.3;
         }
 
         .detail-status {
             display: inline-flex;
-            padding: 0.45rem 0.9rem;
-            border-radius: 999px;
-            background: #f8fafc;
-            color: var(--text-dark);
-            font-size: 0.82rem;
-            font-weight: 700;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 2px;
+            color: var(--text-white);
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            align-self: flex-start;
         }
 
         .detail-close {
@@ -614,137 +1124,452 @@
             cursor: pointer;
             color: var(--text-muted);
             line-height: 1;
+            transition: var(--transition);
+            outline: none;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
         }
 
-        .detail-body {
-            padding: 1.5rem 1.75rem 0;
+        .detail-close:hover {
+            color: var(--danger-red);
+            background-color: var(--concrete-dark);
+        }
+
+        /* Dual Column Layout */
+        .detail-grid-layout {
             display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            border-bottom: 1px solid var(--concrete-border);
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .detail-info-pane {
+            padding: 2rem;
+            border-right: 1px solid var(--concrete-border);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .detail-info-row {
+            display: flex;
             gap: 1rem;
+            align-items: center;
+            border-bottom: 1px solid var(--concrete-gray);
+            padding-bottom: 1rem;
         }
 
-        .detail-meta,
-        .detail-date,
-        .detail-description,
-        .detail-note {
-            line-height: 1.7;
-            color: var(--text-dark);
+        .detail-info-row.align-start {
+            align-items: flex-start;
         }
 
-        .detail-images {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 1rem;
+        .detail-info-row.border-none {
+            border-bottom: none;
+            padding-bottom: 0;
         }
 
-        .detail-image {
-            border: 1px solid var(--concrete-border);
-            border-radius: 18px;
-            overflow: hidden;
-            background: #f8fafc;
+        .info-icon {
+            color: var(--safety-orange);
+            width: 1.25rem;
+            height: 1.25rem;
+            flex-shrink: 0;
         }
 
-        .detail-image img {
+        .mt-1 {
+            margin-top: 0.15rem;
+        }
+
+        .info-label {
+            display: block;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 0.2rem;
+        }
+
+        .info-value {
+            font-size: 0.9rem;
+            color: var(--asphalt-dark);
+            font-weight: 700;
+        }
+
+        .info-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .note-box {
+            background-color: var(--concrete-gray);
+            border-left: 3.5px solid var(--safety-orange);
+            padding: 0.85rem 1rem;
+            border-radius: 2px;
+            font-style: italic;
+        }
+
+        .detail-photos-pane {
+            padding: 2rem;
+            background-color: var(--concrete-gray);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .photo-box {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .photo-title-badge {
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            border-left: 2px solid var(--text-muted);
+            padding-left: 0.45rem;
+        }
+
+        .photo-title-badge.success {
+            color: var(--success-green);
+            border-left-color: var(--success-green);
+        }
+
+        .photo-frame {
             width: 100%;
-            height: 220px;
+            height: 180px;
+            border: 1px solid var(--concrete-border);
+            border-radius: 4px;
+            overflow: hidden;
+            background-color: var(--asphalt-dark);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .photo-frame img {
+            width: 100%;
+            height: 100%;
             object-fit: cover;
             display: block;
+            transition: var(--transition);
         }
 
-        .detail-image p {
-            margin: 0;
-            padding: 0.85rem 1rem;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            background: white;
+        .photo-frame img:hover {
+            transform: scale(1.05);
         }
 
         .detail-footer {
-            padding: 1.5rem 1.75rem 1.75rem;
-            border-top: 1px solid var(--concrete-border);
+            padding: 1.25rem 2rem;
             display: flex;
             justify-content: flex-end;
+            background-color: var(--concrete-gray);
         }
 
+        .detail-footer .btn {
+            font-size: 0.75rem;
+            padding: 0.7rem 1.5rem;
+        }
+
+        /* 8. Professional Footer Section (EXACT COPY of dashboard.html) */
         .footer {
-            background: #0b1220;
-            color: white;
-            padding: 3rem 0 2rem;
+            background-color: var(--asphalt-dark);
+            color: var(--text-white);
+            padding: 4rem 0 2rem;
+            border-top: 1px solid var(--asphalt-border);
+            margin-top: auto;
         }
 
         .footer-grid {
             display: grid;
-            grid-template-columns: 1.4fr 1fr 1fr 1.4fr;
-            gap: 1.75rem;
+            grid-template-columns: 2fr 1fr 1.2fr 1.8fr;
+            gap: 2.5rem;
+            margin-bottom: 3rem;
         }
 
-        .footer-title,
-        .footer-desc,
-        .footer-links a,
-        .footer-contact span {
-            color: #cbd5e1;
+        .footer-logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            text-transform: uppercase;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer-logo i {
+            color: var(--safety-orange);
+        }
+
+        .footer-logo span {
+            color: var(--safety-orange);
+        }
+
+        .footer-desc {
+            color: var(--text-light);
+            font-size: 0.85rem;
+            margin-bottom: 1.25rem;
+            line-height: 1.5;
+            max-width: 280px;
+        }
+
+        .footer-socials {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .social-link {
+            width: 2.25rem;
+            height: 2.25rem;
+            background-color: var(--asphalt-medium);
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--asphalt-border);
+            font-size: 0.95rem;
+        }
+
+        .social-link:hover {
+            background-color: var(--safety-orange);
+            color: var(--text-white);
+            border-color: var(--safety-orange);
+            transform: translateY(-2px);
         }
 
         .footer-title {
-            margin-bottom: 1rem;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 800;
             text-transform: uppercase;
-            font-size: 0.82rem;
-            letter-spacing: 0.12em;
+            letter-spacing: 0.1em;
+            color: var(--text-white);
+            margin-bottom: 1.25rem;
+            position: relative;
+            padding-bottom: 0.4rem;
+        }
+
+        .footer-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 1.5rem;
+            height: 1.5px;
+            background-color: var(--safety-orange);
         }
 
         .footer-links {
             list-style: none;
-            padding: 0;
         }
 
         .footer-links li {
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .footer-links a {
+            color: var(--text-light);
+            font-size: 0.8rem;
+            font-weight: 500;
         }
 
         .footer-links a:hover {
-            color: white;
+            color: var(--safety-orange);
+            padding-left: 4px;
+        }
+
+        .footer-contact li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            color: var(--text-light);
+            font-size: 0.8rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .footer-contact i {
+            color: var(--safety-orange);
+            margin-top: 0.15rem;
+            flex-shrink: 0;
+            font-size: 0.9rem;
+        }
+
+        .footer-newsletter p {
+            color: var(--text-light);
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .newsletter-form {
+            display: flex;
+            border: 1px solid var(--asphalt-border);
+            background-color: var(--asphalt-medium);
+            padding: 0.25rem;
+            border-radius: var(--border-radius);
+        }
+
+        .newsletter-input {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 0.5rem 0.75rem;
+            color: var(--text-white);
+            font-family: inherit;
+            font-size: 0.8rem;
+            outline: none;
+        }
+
+        .newsletter-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .newsletter-btn {
+            background-color: var(--safety-orange);
+            color: var(--text-white);
+            border: none;
+            width: 2.25rem;
+            height: 2.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .newsletter-btn:hover {
+            background-color: var(--safety-orange-hover);
         }
 
         .footer-bottom {
-            padding-top: 1.75rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid var(--asphalt-border);
+            padding-top: 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 1rem;
-            font-size: 0.85rem;
-            color: #94a3b8;
+        }
+
+        .footer-copy {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .footer-legal {
+            display: flex;
+            gap: 1.25rem;
+            list-style: none;
+        }
+
+        .footer-legal a {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .footer-legal a:hover {
+            color: var(--safety-orange);
+        }
+
+        /* Custom Scrollbar for premium feel */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--concrete-gray);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--concrete-dark);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* RESPONSIVE LAYOUT & MOBILE HAMBURGER MENU */
+        @media (max-width: 1024px) {
+            .stats-grid {
+                gap: 1rem;
+            }
+
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 2rem;
+            }
         }
 
         @media (max-width: 992px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+
+            .stats-overlap {
+                margin-top: -2rem;
+                margin-bottom: 2rem;
+            }
+
             .history-grid {
                 grid-template-columns: 1fr 1fr;
             }
 
-            .detail-images {
+            .detail-grid-layout {
                 grid-template-columns: 1fr;
+                max-height: 70vh;
             }
 
-            .footer-grid {
-                grid-template-columns: 1fr 1fr;
+            .detail-info-pane {
+                border-right: none;
+                border-bottom: 1px solid var(--concrete-border);
+                padding: 1.5rem;
+            }
+
+            .detail-photos-pane {
+                padding: 1.5rem;
+            }
+
+            .notification-panel,
+            .profile-menu {
+                right: 0;
+                width: 100%;
+                max-width: 100vw;
             }
         }
 
         @media (max-width: 768px) {
+            /* FIXED MOBILE NAVIGATION & DRAWER */
             .nav-menu {
+                display: flex;
+                flex-direction: column;
                 position: fixed;
                 top: 0;
                 right: -100%;
                 width: 280px;
                 height: 100vh;
-                background: #121416;
-                flex-direction: column;
-                padding: 6rem 1.5rem 1.5rem;
-                gap: 1.5rem;
-                transition: right var(--transition);
-                border-left: 1px solid rgba(255, 255, 255, 0.08);
-                z-index: 1050;
-                color: white;
+                background-color: #121416 !important;
+                border-left: 1px solid var(--asphalt-border);
+                padding: 6rem 2rem 2rem;
+                gap: 1.75rem;
+                align-items: center;
+                text-align: center;
+                transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+                z-index: 1005;
+                box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
             }
 
             .nav-menu.active {
@@ -752,17 +1577,64 @@
             }
 
             .nav-link {
-                font-size: 0.95rem;
-                color: white;
+                font-size: 0.9rem;
+                width: 100%;
+                display: block;
+                border-bottom: 1px solid var(--asphalt-border);
+                padding-bottom: 0.75rem;
+                text-align: center;
+            }
+
+            .nav-link::after {
+                display: none;
+            }
+
+            .user-profile-desktop {
+                display: none;
+            }
+
+            .menu-user-item {
+                display: block;
             }
 
             .menu-toggle {
                 display: block;
-                color: var(--text-dark);
             }
 
-            .header {
-                padding: 1rem 0;
+            .hero {
+                min-height: 100vh;
+                height: auto;
+                padding: 7rem 0 4rem;
+                display: flex;
+                align-items: center;
+            }
+
+            .hero-content {
+                margin-top: 0;
+            }
+
+            .hero-headline {
+                font-size: 2.25rem;
+                line-height: 1.2;
+            }
+
+            .filter-wrapper {
+                padding: 1rem;
+            }
+
+            .filter-controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+
+            .filter-select-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .select-wrapper {
+                min-width: 100%;
             }
 
             .history-grid {
@@ -771,47 +1643,70 @@
 
             .footer-grid {
                 grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .detail-card-header {
+                padding: 1.25rem 1.5rem;
+            }
+
+            .detail-grid-layout {
+                max-height: 60vh;
             }
         }
     </style>
 </head>
 
 <body>
+
+    <!-- Drawer Overlay for Mobile Navbar (EXACT COPY of dashboard.html) -->
     <div class="drawer-overlay" id="drawerOverlay"></div>
 
+    <!-- 1. FLOATING HEADER (100% Identical to dashboard.html) -->
     <header class="header" id="navbar">
         <div class="container">
-            <a href="dashboard.html" class="logo"><i data-lucide="shield-alert"></i>Smart<span>Road</span></a>
+            <a href="dashboard.html" class="logo">
+                <i data-lucide="shield-alert"></i>Smart<span>Road</span>
+            </a>
+
             <ul class="nav-menu" id="navMenu">
                 <li><a href="dashboard.html" class="nav-link">Beranda</a></li>
                 <li><a href="dashboard.html#fitur" class="nav-link">Tentang</a></li>
                 <li><a href="laporan.html" class="nav-link">Buat Laporan</a></li>
                 <li><a href="riwayat.html" class="nav-link active">Riwayat Laporan</a></li>
-                
-                <!-- Mobile Only User Info inside drawer menu -->
+
+                <!-- Mobile Only User Info inside drawer menu (Centered & non-duplicating) -->
                 <li class="menu-user-item">
-                    <div class="user-profile-mobile" onclick="window.location.href='dashboard-user.html'">
+                    <div class="user-profile-mobile" onclick="window.location.href='profile.html'">
                         <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Fiqry" class="avatar-img">
                         <span class="user-name">Fiqry</span>
                     </div>
                 </li>
             </ul>
-            
+
             <div class="header-actions">
                 <button class="notification-btn" aria-label="Notifikasi">
                     <i data-lucide="bell"></i>
                     <span class="notification-badge"></span>
                 </button>
-                
-                <!-- Desktop Only Profile section -->
+
+                <!-- Desktop Only Profile section (Aligned perfectly in a single row) -->
                 <div class="user-profile-desktop">
                     <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Fiqry" class="avatar-img">
                     <span class="user-name">Fiqry</span>
                 </div>
-                
-                <button class="menu-toggle" id="menuToggle" aria-label="Toggle Menu"><i data-lucide="menu"></i></button>
+
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle Menu">
+                    <i data-lucide="menu"></i>
+                </button>
             </div>
-            
+
             <div class="header-dropdowns">
                 <div class="notification-panel" id="notificationPanel" aria-hidden="true">
                     <div class="panel-card">
@@ -839,7 +1734,7 @@
                             <strong>fiqry@example.com</strong>
                         </div>
                         <div class="panel-actions">
-                            <a href="dashboard-user.html" class="btn btn-outline-primary">Lihat Profil</a>
+                            <a href="profile.html" class="btn btn-outline-primary">Lihat Profil</a>
                             <a href="#" class="btn btn-secondary">Keluar</a>
                         </div>
                     </div>
@@ -848,65 +1743,162 @@
         </div>
     </header>
 
-    <section class="hero-section">
+    <!-- 2. Dark Industrial Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-overlay"></div>
         <div class="container">
-            <div class="section-header">
-                <span class="section-badge">Riwayat Laporan</span>
-                <h1 class="section-title">Catatan dan Foto Hasil Perbaikan</h1>
-                <p class="section-desc">Lihat laporan Anda yang sudah dikirim, pantau status terakhir, dan buka foto perbaikan untuk laporan yang telah selesai.</p>
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i data-lucide="history" style="width: 12px; height: 12px;"></i> Portal Resmi Warga
+                </div>
+                <h1 class="hero-headline">Riwayat Laporan<br><span>SmartRoad</span></h1>
+                <p class="hero-desc">Pantau status penanganan aduan infrastruktur jalan raya yang telah Anda kirimkan. Semua perubahan status diverifikasi secara transparan oleh petugas dinas konstruksi terkait kota secara real-time.</p>
             </div>
         </div>
     </section>
 
+    <!-- 3. Floating Stats Widgets Overlap -->
+    <div class="stats-overlap">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card stat-pending">
+                    <div class="stat-icon"><i data-lucide="clock"></i></div>
+                    <div class="stat-info">
+                        <h4 class="stat-value" id="countPending">1</h4>
+                        <p class="stat-label">Menunggu</p>
+                    </div>
+                    <div class="stat-indicator"></div>
+                </div>
+                <div class="stat-card stat-processing">
+                    <div class="stat-icon"><i data-lucide="loader"></i></div>
+                    <div class="stat-info">
+                        <h4 class="stat-value" id="countProcessing">1</h4>
+                        <p class="stat-label">Diproses</p>
+                    </div>
+                    <div class="stat-indicator"></div>
+                </div>
+                <div class="stat-card stat-done">
+                    <div class="stat-icon"><i data-lucide="check-circle"></i></div>
+                    <div class="stat-info">
+                        <h4 class="stat-value" id="countDone">1</h4>
+                        <p class="stat-label">Selesai</p>
+                    </div>
+                    <div class="stat-indicator"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Filter & Card Grid Listing Section -->
     <section class="report-history-section">
         <div class="container">
-            <div class="history-grid">
-                <article class="history-card">
-                    <img src="https://images.unsplash.com/photo-1526481280690-9f10f80d63b2?auto=format&fit=crop&w=900&q=80" alt="Jalan rusak" class="history-img">
+            <!-- Search & Filters -->
+            <div class="filter-wrapper">
+                <div class="filter-title-group">
+                    <i data-lucide="sliders-horizontal" class="filter-title-icon"></i>
+                    <h3>Filter & Pencarian Laporan</h3>
+                </div>
+                <div class="filter-controls">
+                    <div class="search-box">
+                        <i data-lucide="search" class="search-icon"></i>
+                        <input type="text" id="searchInput" placeholder="Cari berdasarkan judul atau wilayah kecamatan..." aria-label="Cari Laporan" />
+                    </div>
+                    <div class="filter-select-group">
+                        <div class="select-wrapper">
+                            <select id="statusFilter" aria-label="Filter Status">
+                                <option value="all">Semua Status</option>
+                                <option value="Menunggu Verifikasi">Menunggu Verifikasi</option>
+                                <option value="Sedang Diproses">Sedang Diproses</option>
+                                <option value="Selesai">Selesai</option>
+                            </select>
+                            <i data-lucide="chevron-down" class="select-icon"></i>
+                        </div>
+                        <div class="select-wrapper">
+                            <select id="sortOrder" aria-label="Urutan Laporan">
+                                <option value="newest">Laporan Terbaru</option>
+                                <option value="oldest">Laporan Terlama</option>
+                            </select>
+                            <i data-lucide="chevron-down" class="select-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- List Grid -->
+            <div class="history-grid" id="historyGrid">
+                <!-- Card 1 -->
+                <article class="history-card" data-status="Menunggu Verifikasi" data-title="Lubang Besar di Jalan Sudirman" data-date="2026-05-22">
+                    <div class="card-img-container">
+                        <img src="https://images.unsplash.com/photo-1526481280690-9f10f80d63b2?auto=format&fit=crop&w=900&q=80" alt="Jalan rusak" class="history-img">
+                        <span class="badge-overlay badge-pending"><i data-lucide="clock"></i> Menunggu</span>
+                    </div>
                     <div class="history-body">
-                        <div class="history-date">22 Mei 2026 • 10:15 WIB</div>
+                        <div class="history-date"><i data-lucide="calendar"></i> 22 Mei 2026 • 10:15 WIB</div>
                         <h3 class="history-card-title">Lubang Besar di Jalan Sudirman</h3>
                         <div class="history-address"><i data-lucide="map-pin"></i> Jl. Sudirman, Kecamatan Tegalsari</div>
-                        <span class="badge badge-pending"><i data-lucide="clock"></i> Menunggu Verifikasi</span>
+                        <p class="history-desc-text">Jalan berlubang besar di tengah lajur utama yang membahayakan kendaraan dan pejalan kaki.</p>
+                        <div class="card-divider"></div>
                         <div class="history-actions">
-                            <button class="btn btn-outline-primary detail-button" data-report='{"id":1,"title":"Lubang Besar di Jalan Sudirman","location":"Jl. Sudirman, Kecamatan Tegalsari","date":"22 Mei 2026","status":"Menunggu Verifikasi","description":"Jalan berlubang besar di tengah lajur utama yang membahayakan kendaraan dan pejalan kaki.","admin":"pengaduan@smartroad.go.id","photoOriginal":"https://images.unsplash.com/photo-1526481280690-9f10f80d63b2?auto=format&fit=crop&w=900&q=80","photoRepair":""}'>Lihat Detail</button>
-                            <a href="mailto:pengaduan@smartroad.go.id?subject=Laporan%20ID%201" class="btn btn-secondary">Hubungi Admin</a>
+                            <button class="btn btn-outline-orange detail-button" data-report='{"id":1,"title":"Lubang Besar di Jalan Sudirman","location":"Jl. Sudirman, Kecamatan Tegalsari","date":"22 Mei 2026","status":"Menunggu Verifikasi","description":"Jalan berlubang besar di tengah lajur utama yang membahayakan kendaraan dan pejalan kaki.","admin":"pengaduan@smartroad.go.id","photoOriginal":"https://images.unsplash.com/photo-1526481280690-9f10f80d63b2?auto=format&fit=crop&w=900&q=80","photoRepair":"","note":"Laporan Anda telah berhasil terkirim ke dalam basis data sistem kota. Saat ini sistem sedang menunggu petugas verifikasi administrasi di Dinas Pekerjaan Umum Bina Marga untuk memvalidasi kelayakan visual dan lokasi aduan Anda sebelum diturunkan surat tugas lapangan."}'>Lihat Detail</button>
+                            <a href="mailto:pengaduan@smartroad.go.id?subject=Tanya%20Status%20Laporan%20ID%201" class="btn btn-secondary action-contact" title="Hubungi Admin">
+                                <i data-lucide="mail"></i>
+                            </a>
                         </div>
                     </div>
                 </article>
 
-                <article class="history-card">
-                    <img src="https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=900&q=80" alt="Drainase tersumbat" class="history-img">
+                <!-- Card 2 -->
+                <article class="history-card" data-status="Sedang Diproses" data-title="Drainase Tersumbat di Perempatan" data-date="2026-05-19">
+                    <div class="card-img-container">
+                        <img src="https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=900&q=80" alt="Drainase tersumbat" class="history-img">
+                        <span class="badge-overlay badge-processing"><i data-lucide="loader"></i> Diproses</span>
+                    </div>
                     <div class="history-body">
-                        <div class="history-date">19 Mei 2026 • 08:45 WIB</div>
+                        <div class="history-date"><i data-lucide="calendar"></i> 19 Mei 2026 • 08:45 WIB</div>
                         <h3 class="history-card-title">Drainase Tersumbat di Perempatan</h3>
                         <div class="history-address"><i data-lucide="map-pin"></i> Perempatan Gunungsari, Kecamatan Wonokromo</div>
-                        <span class="badge badge-processing"><i data-lucide="loader"></i> Sedang Diproses</span>
+                        <p class="history-desc-text">Drainase utama tersumbat sampah dan endapan sehingga rawan banjir saat hujan deras.</p>
+                        <div class="card-divider"></div>
                         <div class="history-actions">
-                            <button class="btn btn-outline-primary detail-button" data-report='{"id":2,"title":"Drainase Tersumbat di Perempatan","location":"Perempatan Gunungsari, Kecamatan Wonokromo","date":"19 Mei 2026","status":"Sedang Diproses","description":"Drainase utama tersumbat sampah dan endapan sehingga rawan banjir saat hujan deras.","admin":"pengaduan@smartroad.go.id","photoOriginal":"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=900&q=80","photoRepair":""}'>Lihat Detail</button>
-                            <a href="mailto:pengaduan@smartroad.go.id?subject=Laporan%20ID%202" class="btn btn-secondary">Hubungi Admin</a>
+                            <button class="btn btn-outline-orange detail-button" data-report='{"id":2,"title":"Drainase Tersumbat di Perempatan","location":"Perempatan Gunungsari, Kecamatan Wonokromo","date":"19 Mei 2026","status":"Sedang Diproses","description":"Drainase utama tersumbat sampah dan endapan sehingga rawan banjir saat hujan deras.","admin":"pengaduan@smartroad.go.id","photoOriginal":"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=900&q=80","photoRepair":"","note":"Petugas lapangan dari Seksi Drainase Kota telah ditugaskan dan saat ini sedang berada di lokasi untuk melakukan pengerukan lumpur sedimen serta pengangkutan sumbatan sampah. Pengerjaan diperkirakan selesai sore hari ini."}'>Lihat Detail</button>
+                            <a href="mailto:pengaduan@smartroad.go.id?subject=Tanya%20Status%20Laporan%20ID%202" class="btn btn-secondary action-contact" title="Hubungi Admin">
+                                <i data-lucide="mail"></i>
+                            </a>
                         </div>
                     </div>
                 </article>
 
-                <article class="history-card">
-                    <img src="https://images.unsplash.com/photo-1509395176047-4a66953fd231?auto=format&fit=crop&w=900&q=80" alt="Jalan diperbaiki" class="history-img">
+                <!-- Card 3 -->
+                <article class="history-card" data-status="Selesai" data-title="Penerangan Jalan Mati di Perumahan" data-date="2026-05-12">
+                    <div class="card-img-container">
+                        <img src="https://images.unsplash.com/photo-1509395176047-4a66953fd231?auto=format&fit=crop&w=900&q=80" alt="Jalan diperbaiki" class="history-img">
+                        <span class="badge-overlay badge-done"><i data-lucide="check-circle"></i> Selesai</span>
+                    </div>
                     <div class="history-body">
-                        <div class="history-date">12 Mei 2026 • 09:00 WIB</div>
+                        <div class="history-date"><i data-lucide="calendar"></i> 12 Mei 2026 • 09:00 WIB</div>
                         <h3 class="history-card-title">Penerangan Jalan Mati di Perumahan</h3>
                         <div class="history-address"><i data-lucide="map-pin"></i> Perumahan Graha Mulyo, Kecamatan Karangpilang</div>
-                        <span class="badge badge-done"><i data-lucide="check-circle"></i> Selesai</span>
+                        <p class="history-desc-text">Lampu jalan sepanjang komplek tidak menyala hingga larut malam, membahayakan pejalan kaki.</p>
+                        <div class="card-divider"></div>
                         <div class="history-actions">
-                            <button class="btn btn-outline-primary detail-button" data-report='{"id":3,"title":"Penerangan Jalan Mati di Perumahan","location":"Perumahan Graha Mulyo, Kecamatan Karangpilang","date":"12 Mei 2026","status":"Selesai","description":"Lampu jalan sepanjang komplek tidak menyala hingga larut malam, membahayakan pejalan kaki.","admin":"pengaduan@smartroad.go.id","photoOriginal":"https://images.unsplash.com/photo-1509395176047-4a66953fd231?auto=format&fit=crop&w=900&q=80","photoRepair":"https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80"}'>Lihat Detail</button>
-                            <button class="btn btn-secondary repair-button" data-report='{"id":3,"title":"Penerangan Jalan Mati di Perumahan","location":"Perumahan Graha Mulyo, Kecamatan Karangpilang","date":"12 Mei 2026","status":"Selesai","description":"Lampu jalan sepanjang komplek tidak menyala hingga larut malam, membahayakan pejalan kaki.","admin":"pengaduan@smartroad.go.id","photoOriginal":"https://images.unsplash.com/photo-1509395176047-4a66953fd231?auto=format&fit=crop&w=900&q=80","photoRepair":"https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80"}'>Foto Perbaikan</button>
-                            <a href="mailto:pengaduan@smartroad.go.id?subject=Laporan%20ID%203" class="btn btn-secondary">Hubungi Admin</a>
+                            <button class="btn btn-outline-orange detail-button" data-report='{"id":3,"title":"Penerangan Jalan Mati di Perumahan","location":"Perumahan Graha Mulyo, Kecamatan Karangpilang","date":"12 Mei 2026","status":"Selesai","description":"Lampu jalan sepanjang komplek tidak menyala hingga larut malam, membahayakan pejalan kaki.","admin":"pengaduan@smartroad.go.id","photoOriginal":"https://images.unsplash.com/photo-1509395176047-4a66953fd231?auto=format&fit=crop&w=900&q=80","photoRepair":"https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80","note":"Petugas teknis kelistrikan kota dari Dinas Perhubungan telah menyelesaikan penggantian bohlam LED Mercury yang rusak dan memperbaiki sekering utama gardu perumahan. Lampu jalan kini menyala normal dan jalanan kembali terang benderang."}'>Lihat Detail</button>
+                            <button class="btn btn-primary repair-button" data-report='{"id":3,"title":"Penerangan Jalan Mati di Perumahan","location":"Perumahan Graha Mulyo, Kecamatan Karangpilang","date":"12 Mei 2026","status":"Selesai","description":"Lampu jalan sepanjang komplek tidak menyala hingga larut malam, membahayakan pejalan kaki.","admin":"pengaduan@smartroad.go.id","photoOriginal":"https://images.unsplash.com/photo-1509395176047-4a66953fd231?auto=format&fit=crop&w=900&q=80","photoRepair":"https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80","note":"Petugas teknis kelistrikan kota dari Dinas Perhubungan telah menyelesaikan penggantian bohlam LED Mercury yang rusak dan memperbaiki sekering utama gardu perumahan. Lampu jalan kini menyala normal dan jalanan kembali terang benderang."}'>Perbaikan</button>
                         </div>
                     </div>
                 </article>
             </div>
+
+            <!-- Empty State Container -->
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <i data-lucide="folder-open" class="empty-icon"></i>
+                <h4>Laporan Tidak Ditemukan</h4>
+                <p>Tidak ada laporan aduan yang cocok dengan pencarian kata kunci atau kategori filter status yang Anda pilih saat ini.</p>
+                <button id="resetFilters" class="btn btn-primary">Atur Ulang Filter</button>
+            </div>
         </div>
     </section>
 
+    <!-- 5. Dual Column Detail Modal Redesign -->
     <div class="detail-modal" id="detailModal" aria-hidden="true">
         <div class="detail-card">
             <div class="detail-card-header">
@@ -916,68 +1908,168 @@
                 </div>
                 <button type="button" class="detail-close" id="detailCloseBtn" aria-label="Tutup detail">×</button>
             </div>
-            <div class="detail-body">
-                <p class="detail-meta" id="detailLocation"></p>
-                <p class="detail-date" id="detailDate"></p>
-                <p class="detail-description" id="detailDescription"></p>
-                <div class="detail-images">
-                    <div class="detail-image">
-                        <img id="detailOriginalPhoto" src="" alt="Foto awal laporan">
-                        <p>Foto Awal</p>
+            
+            <div class="detail-grid-layout">
+                <!-- Left Column: Details -->
+                <div class="detail-info-pane">
+                    <div class="detail-info-row">
+                        <i data-lucide="map-pin" class="info-icon"></i>
+                        <div>
+                            <span class="info-label">Lokasi Kejadian</span>
+                            <strong id="detailLocation" class="info-value">Jl. Sudirman, Kecamatan Tegalsari</strong>
+                        </div>
                     </div>
-                    <div class="detail-image" id="detailRepairContainer">
-                        <img id="detailRepairPhoto" src="" alt="Foto hasil perbaikan">
-                        <p>Foto Hasil Perbaikan</p>
+                    
+                    <div class="detail-info-row">
+                        <i data-lucide="calendar" class="info-icon"></i>
+                        <div>
+                            <span class="info-label">Tanggal Pelaporan</span>
+                            <strong id="detailDate" class="info-value">22 Mei 2026</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-info-row align-start">
+                        <i data-lucide="file-text" class="info-icon mt-1"></i>
+                        <div>
+                            <span class="info-label">Deskripsi Masalah</span>
+                            <p id="detailDescription" class="info-desc">Jalan berlubang besar di tengah lajur utama yang membahayakan kendaraan dan pejalan kaki.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-info-row align-start border-none">
+                        <i data-lucide="message-square" class="info-icon mt-1"></i>
+                        <div>
+                            <span class="info-label">Catatan Dinas / Petugas</span>
+                            <p id="detailNote" class="info-desc note-box">Laporan Anda telah berhasil terkirim ke dalam basis data sistem kota. Saat ini sistem sedang menunggu petugas verifikasi administrasi.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Photos -->
+                <div class="detail-photos-pane">
+                    <div class="photo-box">
+                        <span class="photo-title-badge">Foto Awal Kerusakan</span>
+                        <div class="photo-frame">
+                            <img id="detailOriginalPhoto" src="" alt="Foto awal laporan">
+                        </div>
+                    </div>
+                    <div class="photo-box" id="detailRepairContainer">
+                        <span class="photo-title-badge success">Hasil Penambalan / Perbaikan</span>
+                        <div class="photo-frame">
+                            <img id="detailRepairPhoto" src="" alt="Foto hasil perbaikan">
+                        </div>
                     </div>
                 </div>
             </div>
+            
             <div class="detail-footer">
-                <a id="detailContactLink" href="#" class="btn btn-primary">Hubungi Admin</a>
+                <a id="detailContactLink" href="#" class="btn btn-primary">
+                    <i data-lucide="mail"></i> Hubungi Penanggung Jawab
+                </a>
             </div>
         </div>
     </div>
 
+    <!-- 6. Professional Footer Section (100% Identical to dashboard.html) -->
     <footer class="footer">
         <div class="container">
             <div class="footer-grid">
+
+                <!-- Col 1: Brand Info -->
                 <div>
-                    <h4 class="footer-title">SmartRoad</h4>
-                    <p class="footer-desc">Riwayat laporan kerusakan jalan, status penanganan, dan bukti perbaikan untuk memastikan transparansi publik.</p>
+                    <a href="#" class="footer-logo">
+                        <i data-lucide="shield-alert"></i>Smart<span>Road</span>
+                    </a>
+                    <p class="footer-desc">Pusat penanganan pelaporan aduan kerusakan jalan raya berbasis transparansi publik dan pemetaan geospasial real-time.</p>
+                    <div class="footer-socials">
+                        <a href="#" class="social-link" aria-label="Facebook"><i data-lucide="facebook"></i></a>
+                        <a href="#" class="social-link" aria-label="Twitter"><i data-lucide="twitter"></i></a>
+                        <a href="#" class="social-link" aria-label="Instagram"><i data-lucide="instagram"></i></a>
+                        <a href="#" class="social-link" aria-label="Linkedin"><i data-lucide="linkedin"></i></a>
+                    </div>
                 </div>
+
+                <!-- Col 2: Navigation Links -->
                 <div>
-                    <h4 class="footer-title">Tautan Cepat</h4>
+                    <h4 class="footer-title">Tautan</h4>
                     <ul class="footer-links">
                         <li><a href="dashboard.html">Beranda</a></li>
-                        <li><a href="laporan.html">Buat Laporan</a></li>
-                        <li><a href="riwayat.html">Riwayat Laporan</a></li>
+                        <li><a href="dashboard.html#fitur">Tentang Layanan</a></li>
+                        <li><a href="laporan.html">Lapor Kerusakan</a></li>
+                        <li><a href="profile.html">Dashboard Profil</a></li>
                     </ul>
                 </div>
+
+                <!-- Col 3: Assistance Hotlines -->
                 <div>
-                    <h4 class="footer-title">Bantuan</h4>
-                    <ul class="footer-links">
-                        <li><a href="mailto:pengaduan@smartroad.go.id">pengaduan@smartroad.go.id</a></li>
-                        <li><a href="tel:+62315550199">(031) 555-0199</a></li>
+                    <h4 class="footer-title">Pusat Bantuan</h4>
+                    <ul class="footer-contact">
+                        <li>
+                            <i data-lucide="map-pin"></i>
+                            <span>Jl. Dinas Pekerjaan Umum No. 45, Gedung Bina Marga, Kota Surabaya</span>
+                        </li>
+                        <li>
+                            <i data-lucide="phone"></i>
+                            <span>(031) 555-0199 / 555-0200</span>
+                        </li>
+                        <li>
+                            <i data-lucide="mail"></i>
+                            <span>pengaduan@smartroad.go.id</span>
+                        </li>
                     </ul>
                 </div>
+
+                <!-- Col 4: Newsletter -->
                 <div>
-                    <h4 class="footer-title">Alamat</h4>
-                    <p class="footer-desc">Jl. Dinas Pekerjaan Umum No.45, Gedung Bina Marga, Kota Surabaya.</p>
+                    <h4 class="footer-title">Buletin Kota</h4>
+                    <p class="footer-newsletter">Menerima informasi bulanan rekapitulasi penambalan jalan rusak kota dan peningkatan platform SmartRoad.</p>
+                    <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Terima kasih telah bergabung dengan newsletter kami!');">
+                        <input type="email" class="newsletter-input" placeholder="Masukkan email Anda..." required>
+                        <button type="submit" class="newsletter-btn" aria-label="Berlangganan">
+                            <i data-lucide="arrow-right"></i>
+                        </button>
+                    </form>
                 </div>
+
             </div>
+
+            <!-- Footer Bottom legal info -->
             <div class="footer-bottom">
-                <span>&copy; 2026 SmartRoad City Initiative</span>
-                <span>Seluruh Hak Cipta Dilindungi Undang-Undang</span>
+                <p class="footer-copy">&copy; 2026 SmartRoad City Initiative. Seluruh Hak Cipta Dilindungi Undang-Undang.</p>
+                <ul class="footer-legal">
+                    <li><a href="#">Kebijakan Privasi</a></li>
+                    <li><a href="#">Syarat Penggunaan</a></li>
+                    <li><a href="#">Dinas Bina Marga</a></li>
+                </ul>
             </div>
         </div>
     </footer>
 
+    <!-- Lucide Icons Bundle -->
     <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Unified Event Handlers, Dynamic Searching/Filtering & Modals -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Lucide Icons
             if (window.lucide) {
                 window.lucide.createIcons();
             }
 
+            // 1. Sticky Translucent Header (Identical to dashboard.html scroll behavior)
+            const navbar = document.getElementById('navbar');
+            const handleScroll = () => {
+                if (window.scrollY > 40) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            };
+
+            window.addEventListener('scroll', handleScroll);
+            handleScroll(); // Trigger immediately at startup
+
+            // 2. FIXED MOBILE NAVIGATION HAMBURGER DRAWER MENU
             const menuToggle = document.getElementById('menuToggle');
             const navMenu = document.getElementById('navMenu');
             const drawerOverlay = document.getElementById('drawerOverlay');
@@ -985,10 +2077,12 @@
             const toggleMobileMenu = () => {
                 navMenu.classList.toggle('active');
                 drawerOverlay.classList.toggle('active');
+
+                // Toggle Lucide Menu/X icons
                 const icon = menuToggle.querySelector('i');
                 if (navMenu.classList.contains('active')) {
                     icon.setAttribute('data-lucide', 'x');
-                    document.body.style.overflow = 'hidden';
+                    document.body.style.overflow = 'hidden'; // Prevent background scrolling
                 } else {
                     icon.setAttribute('data-lucide', 'menu');
                     document.body.style.overflow = '';
@@ -1004,6 +2098,7 @@
                     toggleMobileMenu();
                 });
 
+                // Close menu clicking overlay
                 drawerOverlay.addEventListener('click', () => {
                     navMenu.classList.remove('active');
                     drawerOverlay.classList.remove('active');
@@ -1015,6 +2110,7 @@
                     }
                 });
 
+                // Close menu when clicking link items
                 const navLinks = document.querySelectorAll('.nav-link');
                 navLinks.forEach(link => {
                     link.addEventListener('click', () => {
@@ -1030,7 +2126,7 @@
                 });
             }
 
-            // Notification and Profile Panels
+            // 3. Header Dropdown Panels (Notification Panel & User Profile Panel)
             const notificationBtn = document.querySelector('.notification-btn');
             const profileDesktop = document.querySelector('.user-profile-desktop');
             const notificationPanel = document.getElementById('notificationPanel');
@@ -1053,12 +2149,121 @@
                 profileMenu?.classList.toggle('active');
             });
 
+            // Click outside to close panels
             document.addEventListener('click', (event) => {
-                if (!event.target.closest('.header-actions') && !event.target.closest('.header-dropdowns')) {
-                    closePanels();
+                if (!event.target.closest('.notification-panel') && !event.target.closest('.notification-btn')) {
+                    notificationPanel?.classList.remove('active');
+                }
+                if (!event.target.closest('.profile-menu') && !event.target.closest('.user-profile-desktop')) {
+                    profileMenu?.classList.remove('active');
                 }
             });
 
+            // 4. Interactive Searching, Filtering, and Sorting of Cards
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            const sortOrder = document.getElementById('sortOrder');
+            const historyGrid = document.getElementById('historyGrid');
+            const cards = Array.from(historyGrid.querySelectorAll('.history-card'));
+            const emptyState = document.getElementById('emptyState');
+            const resetFiltersBtn = document.getElementById('resetFilters');
+
+            // Count summary references
+            const countPending = document.getElementById('countPending');
+            const countProcessing = document.getElementById('countProcessing');
+            const countDone = document.getElementById('countDone');
+
+            // Update stats summary on load (calculates counts from initial list of items)
+            const updateStats = () => {
+                let pending = 0;
+                let processing = 0;
+                let done = 0;
+
+                cards.forEach(card => {
+                    const status = card.dataset.status;
+                    if (status === 'Menunggu Verifikasi') pending++;
+                    else if (status === 'Sedang Diproses') processing++;
+                    else if (status === 'Selesai') done++;
+                });
+
+                if (countPending) countPending.textContent = pending;
+                if (countProcessing) countProcessing.textContent = processing;
+                if (countDone) countDone.textContent = done;
+            };
+
+            updateStats();
+
+            // Core filtering process
+            const filterReports = () => {
+                const query = searchInput.value.toLowerCase().trim();
+                const selectedStatus = statusFilter.value;
+                let visibleCount = 0;
+
+                cards.forEach(card => {
+                    const title = card.dataset.title.toLowerCase();
+                    const address = card.querySelector('.history-address').textContent.toLowerCase();
+                    const status = card.dataset.status;
+
+                    const matchesSearch = title.includes(query) || address.includes(query);
+                    const matchesStatus = (selectedStatus === 'all') || (status === selectedStatus);
+
+                    if (matchesSearch && matchesStatus) {
+                        card.style.display = 'flex';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                // Display empty state if no matches are found
+                if (visibleCount === 0) {
+                    historyGrid.style.display = 'none';
+                    emptyState.style.display = 'flex';
+                } else {
+                    historyGrid.style.display = 'grid';
+                    emptyState.style.display = 'none';
+                }
+            };
+
+            // Sorting logic
+            const sortReports = () => {
+                const selectedOrder = sortOrder.value;
+
+                cards.sort((a, b) => {
+                    const dateA = new Date(a.dataset.date);
+                    const dateB = new Date(b.dataset.date);
+
+                    if (selectedOrder === 'newest') {
+                        return dateB - dateA;
+                    } else {
+                        return dateA - dateB;
+                    }
+                });
+
+                // Re-append sorted cards in order
+                cards.forEach(card => {
+                    historyGrid.appendChild(card);
+                });
+            };
+
+            // Attach search & filter inputs
+            searchInput.addEventListener('input', filterReports);
+            statusFilter.addEventListener('change', filterReports);
+            sortOrder.addEventListener('change', () => {
+                sortReports();
+                filterReports(); // Re-apply display status
+            });
+
+            // Reset filters click handler
+            resetFiltersBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                statusFilter.value = 'all';
+                sortOrder.value = 'newest';
+                sortReports();
+                filterReports();
+            });
+
+            // 5. Dual Column Detail Modal Activation
             const detailModal = document.getElementById('detailModal');
             const detailCloseBtn = document.getElementById('detailCloseBtn');
             const detailStatus = document.getElementById('detailStatus');
@@ -1070,27 +2275,50 @@
             const detailRepairContainer = document.getElementById('detailRepairContainer');
             const detailRepairPhoto = document.getElementById('detailRepairPhoto');
             const detailContactLink = document.getElementById('detailContactLink');
+            const detailNote = document.getElementById('detailNote');
 
             const openDetailModal = (report) => {
-                detailStatus.textContent = report.status;
+                // Populate data fields
                 detailTitle.textContent = report.title;
                 detailLocation.textContent = report.location;
-                detailDate.textContent = `Tanggal: ${report.date}`;
+                detailDate.textContent = report.date;
                 detailDescription.textContent = report.description;
                 detailOriginalPhoto.src = report.photoOriginal;
-                detailContactLink.href = `mailto:${report.admin}?subject=${encodeURIComponent('Detail Laporan ID ' + report.id)}`;
+                detailContactLink.href = `mailto:${report.admin}?subject=${encodeURIComponent('Pertanyaan Detail Laporan ID ' + report.id)}`;
 
+                // Apply status text & badges matching initial accent systems
+                detailStatus.textContent = report.status;
+                detailStatus.className = 'detail-status'; // Reset classes
+                
+                if (report.status === 'Menunggu Verifikasi') {
+                    detailStatus.classList.add('badge-pending');
+                } else if (report.status === 'Sedang Diproses') {
+                    detailStatus.classList.add('badge-processing');
+                } else if (report.status === 'Selesai') {
+                    detailStatus.classList.add('badge-done');
+                }
+
+                // Custom handling for administrative dynamic notes
+                if (detailNote) {
+                    detailNote.textContent = report.note || 'Laporan Anda telah berhasil terdaftar dan berada dalam antrean penelaahan berkas administrasi.';
+                }
+
+                // Comparative photo handling
                 if (report.photoRepair) {
-                    detailRepairContainer.style.display = 'block';
+                    detailRepairContainer.style.display = 'flex';
                     detailRepairPhoto.src = report.photoRepair;
                 } else {
                     detailRepairContainer.style.display = 'none';
+                    detailRepairPhoto.src = '';
                 }
 
+                // Show modal window with active state transitions
                 detailModal.classList.add('active');
                 detailModal.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden'; // Keep scroll inside the modal window only
             };
 
+            // Setup buttons
             document.querySelectorAll('.detail-button').forEach(button => {
                 button.addEventListener('click', () => {
                     const report = JSON.parse(button.dataset.report);
@@ -1105,15 +2333,25 @@
                 });
             });
 
-            detailCloseBtn.addEventListener('click', () => {
+            // Close modal handlers
+            const closeModal = () => {
                 detailModal.classList.remove('active');
                 detailModal.setAttribute('aria-hidden', 'true');
-            });
+                document.body.style.overflow = '';
+            };
+
+            detailCloseBtn.addEventListener('click', closeModal);
 
             detailModal.addEventListener('click', (event) => {
                 if (event.target === detailModal) {
-                    detailModal.classList.remove('active');
-                    detailModal.setAttribute('aria-hidden', 'true');
+                    closeModal();
+                }
+            });
+
+            // Close on escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && detailModal.classList.contains('active')) {
+                    closeModal();
                 }
             });
         });

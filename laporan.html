@@ -9,57 +9,50 @@
     <!-- Google Fonts: Inter (UI/Body) & Montserrat (Heavy Headings) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
 
-    <!-- Leaflet.js Map Library CSS -->
+    <!-- Leaflet.js Map Library CSS (Clean mapping assets) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 
-    <!-- Integrated Industrial Design CSS matching index.html perfectly -->
+    <!-- Unified Stylesheet with exact dashboard.html Sync -->
     <style>
         :root {
             /* Branding Colors - Professional, Industrial & Engineering */
             --asphalt-dark: #121416;
-            /* Deep dark carbon asphalt background */
             --asphalt-medium: #181B1E;
-            /* Slightly lighter dark background */
             --asphalt-light: #202428;
-            /* Cards in dark mode */
             --asphalt-border: #262B30;
-            /* Thin clean dark border */
 
             --safety-orange: #FF6B00;
-            /* Safety high-vis orange */
             --safety-orange-hover: #E05E00;
-            /* Rich orange hover state */
             --safety-orange-glow: rgba(255, 107, 0, 0.15);
 
             --concrete-gray: #F8F9FA;
-            /* Readability light sections */
             --concrete-dark: #E9ECEF;
-            /* Darker grey dividers */
             --concrete-border: #E2E5E8;
-            /* Very light clean borders */
 
             --text-dark: #1F2226;
-            /* High contrast dark text */
             --text-muted: #5A626A;
-            /* Slate grey body text */
             --text-light: #B9C2CB;
-            /* Light grey text for dark themes */
             --text-white: #FFFFFF;
 
             --danger-red: #E63946;
-            /* Hazard indicator */
             --success-green: #2A9D8F;
-            /* Resolved indicator */
+
+            /* Interactive Status Accents */
+            --yellow-accent: #FFB000;
+            --yellow-accent-glow: rgba(255, 176, 0, 0.12);
+            --blue-accent: #3B82F6;
+            --blue-accent-glow: rgba(59, 130, 246, 0.12);
 
             /* Sharp, Minimalist Tokens */
             --border-radius: 4px;
-            /* Sharp, minimal industrial round */
             --transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            --shadow-sm: 0 4px 15px rgba(0, 0, 0, 0.03);
+            --shadow-md: 0 8px 25px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.12);
+            --shadow-glow: 0 10px 30px rgba(255, 107, 0, 0.2);
         }
 
         /* Basic Resets */
@@ -82,6 +75,9 @@
             line-height: 1.5;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         ::selection {
@@ -103,50 +99,6 @@
             padding: 0 1.5rem;
         }
 
-        /* Common Section Headers */
-        .section-header {
-            margin-bottom: 3rem;
-            text-align: center;
-        }
-
-        .section-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background-color: var(--asphalt-dark);
-            color: var(--safety-orange);
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            padding: 0.4rem 0.8rem;
-            border-left: 2px solid var(--safety-orange);
-            margin-bottom: 0.75rem;
-            border-radius: 2px;
-        }
-
-        .section-header.light-bg .section-badge {
-            background-color: var(--concrete-dark);
-        }
-
-        .section-title {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--asphalt-dark);
-            text-transform: uppercase;
-            letter-spacing: -0.02em;
-            margin-bottom: 0.75rem;
-        }
-
-        .section-desc {
-            max-width: 600px;
-            margin: 0 auto;
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            font-weight: 400;
-        }
-
         /* Buttons (Minimal, Sharp) */
         .btn {
             display: inline-flex;
@@ -162,32 +114,35 @@
             cursor: pointer;
             transition: var(--transition);
             border: 1.5px solid transparent;
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
         .btn-primary {
             background-color: var(--safety-orange);
             color: var(--text-white);
+            border-color: var(--safety-orange);
         }
 
         .btn-primary:hover {
             background-color: var(--safety-orange-hover);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(255, 107, 0, 0.25);
+            border-color: var(--safety-orange-hover);
+            transform: translateY(-1.5px);
+            box-shadow: var(--shadow-glow);
         }
 
         .btn-secondary {
             background-color: var(--concrete-dark);
-            color: var(--asphalt-dark);
-            border-color: var(--concrete-border);
+            color: var(--text-dark);
+            border: 1.5px solid var(--concrete-border);
         }
 
         .btn-secondary:hover {
             background-color: var(--concrete-border);
-            transform: translateY(-1px);
+            color: var(--asphalt-dark);
+            transform: translateY(-1.5px);
         }
 
-        /* 1. Floating Header (EXACT COPY and Alignment refinement) */
+        /* 1. Floating Header (EXACT COPY of dashboard.html) */
         .header {
             position: fixed;
             top: 0;
@@ -212,6 +167,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: relative;
+            overflow: visible;
         }
 
         .logo {
@@ -276,7 +233,6 @@
             width: 100%;
         }
 
-        /* Profile Alignment Refinements */
         .header-actions {
             display: flex;
             align-items: center;
@@ -361,7 +317,7 @@
             background-color: var(--text-white);
             border: 1px solid var(--concrete-border);
             border-radius: 18px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            box-shadow: var(--shadow-lg);
             opacity: 0;
             visibility: hidden;
             transform: translateY(-8px);
@@ -459,6 +415,8 @@
             margin-bottom: 0.3rem;
             text-transform: uppercase;
             letter-spacing: 0.08em;
+            font-size: 0.68rem;
+            color: var(--text-muted);
         }
 
         .profile-detail strong {
@@ -469,17 +427,7 @@
         .panel-actions {
             display: flex;
             gap: 0.75rem;
-        }
-
-        .btn-outline-primary {
-            background-color: transparent;
-            border-color: var(--safety-orange);
-            color: var(--safety-orange);
-        }
-
-        .btn-outline-primary:hover {
-            background-color: var(--safety-orange);
-            color: var(--text-white);
+            flex-wrap: wrap;
         }
 
         /* Mobile specific layout inside sliding drawer */
@@ -530,82 +478,114 @@
             pointer-events: auto;
         }
 
-        /* 2. Main Content Wrapper Section */
-        .main-content-section {
-            background-color: var(--concrete-gray);
-            padding: 8rem 0 6rem;
-            min-height: calc(100vh - 400px);
-        }
-
-        /* Sleek Modern Tabs Controls */
-        .tabs-nav {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            margin-bottom: 3rem;
-            border-bottom: 2px solid var(--concrete-dark);
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .tab-trigger {
-            background: none;
-            border: none;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--text-muted);
-            padding: 1rem 1.75rem;
-            cursor: pointer;
+        /* 2. Premium Dark Hero Section (Aligned with dashboard.html theme) */
+        .hero {
+            height: 55vh;
+            min-height: 420px;
             position: relative;
-            transition: var(--transition);
-            outline: none;
+            background: url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=2560') no-repeat center center/cover;
+            display: flex;
+            align-items: center;
+            color: var(--text-white);
+            overflow: hidden;
         }
 
-        .tab-trigger:hover,
-        .tab-trigger.active {
-            color: var(--asphalt-dark);
-        }
-
-        .tab-trigger::after {
-            content: '';
+        .hero-overlay {
             position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0%;
-            height: 3px;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(18, 20, 22, 0.96) 0%, rgba(18, 20, 22, 0.85) 50%, rgba(18, 20, 22, 0.5) 100%);
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 3;
+            max-width: 800px;
+            margin-top: 4rem;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
             background-color: var(--safety-orange);
-            transition: var(--transition);
+            color: var(--text-white);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            padding: 0.4rem 0.8rem;
+            border-radius: 2px;
+            margin-bottom: 1.25rem;
         }
 
-        .tab-trigger.active::after {
-            width: 100%;
+        .hero-headline {
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(2rem, 4.5vw, 3.2rem);
+            font-weight: 900;
+            line-height: 1.15;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
         }
 
-        /* Views Toggle */
-        .tab-view {
-            display: none;
+        .hero-headline span {
+            color: var(--safety-orange);
         }
 
-        .tab-view.active {
-            display: block;
+        .hero-desc {
+            font-size: clamp(0.9rem, 1.8vw, 1rem);
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            font-weight: 400;
+            max-width: 650px;
         }
 
-        /* TAB 1: FORM STYLES */
+        /* 3. Main Form Overlap Section */
+        .main-form-section {
+            padding-bottom: 6rem;
+            position: relative;
+            z-index: 10;
+            margin-top: -3.5rem;
+            flex: 1;
+        }
+
         .form-card {
             background-color: var(--text-white);
             border: 1px solid var(--concrete-border);
-            border-radius: var(--border-radius);
+            border-radius: 8px;
             padding: 2.5rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+            box-shadow: var(--shadow-md);
+        }
+
+        .form-title-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1.5px solid var(--concrete-dark);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-title-bar i {
+            color: var(--safety-orange);
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        .form-title-bar h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--asphalt-dark);
         }
 
         .form-grid {
             display: grid;
-            grid-template-columns: 1.2fr 1fr;
+            grid-template-columns: 1.1fr 0.9fr;
             gap: 2.5rem;
         }
 
@@ -618,11 +598,8 @@
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .form-group.full-width {
-            grid-column: span 2;
+            gap: 0.55rem;
+            position: relative;
         }
 
         .form-row {
@@ -634,11 +611,27 @@
         .form-label {
             display: block;
             font-family: 'Montserrat', sans-serif;
-            font-size: 0.75rem;
-            font-weight: 800;
+            font-size: 0.72rem;
+            font-weight: 850;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.08em;
             color: var(--text-dark);
+        }
+
+        .input-with-icon {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            color: var(--text-muted);
+            width: 1.1rem;
+            height: 1.1rem;
+            pointer-events: none;
+            transition: var(--transition);
         }
 
         .form-input,
@@ -650,10 +643,16 @@
             border-radius: var(--border-radius);
             padding: 0.8rem 1rem;
             font-family: inherit;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
+            font-weight: 500;
             color: var(--text-dark);
             outline: none;
             transition: var(--transition);
+        }
+
+        .input-with-icon .form-input,
+        .input-with-icon .form-select {
+            padding-left: 2.6rem;
         }
 
         .form-input:focus,
@@ -661,15 +660,21 @@
         .form-textarea:focus {
             border-color: var(--safety-orange);
             background-color: var(--text-white);
-            box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.15);
+            box-shadow: 0 0 0 3px var(--safety-orange-glow);
+        }
+
+        .input-with-icon .form-input:focus ~ .input-icon,
+        .input-with-icon .form-select:focus ~ .input-icon {
+            color: var(--safety-orange);
         }
 
         .form-textarea {
             resize: vertical;
-            min-height: 120px;
+            min-height: 130px;
+            line-height: 1.6;
         }
 
-        /* Drag & Drop Visual Box */
+        /* Drag & Drop Visual Box Upload */
         .upload-drag-box {
             border: 2px dashed var(--concrete-border);
             border-radius: var(--border-radius);
@@ -687,38 +692,42 @@
         .upload-drag-box:hover,
         .upload-drag-box.drag-over {
             border-color: var(--safety-orange);
-            background-color: rgba(255, 107, 0, 0.02);
+            background-color: rgba(255, 107, 0, 0.015);
         }
 
         .upload-icon-circle {
-            width: 3.5rem;
-            height: 3.5rem;
+            width: 3rem;
+            height: 3rem;
             border-radius: 50%;
             background-color: var(--concrete-dark);
             color: var(--text-muted);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             transition: var(--transition);
         }
 
         .upload-drag-box:hover .upload-icon-circle {
             background-color: var(--safety-orange);
             color: var(--text-white);
+            transform: scale(1.08) rotate(3deg);
+            box-shadow: 0 4px 12px rgba(255, 107, 0, 0.25);
         }
 
         .upload-title {
             font-family: 'Montserrat', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 800;
+            font-size: 0.78rem;
+            font-weight: 850;
             color: var(--text-dark);
             text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .upload-desc {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: var(--text-muted);
+            font-weight: 500;
         }
 
         .file-input {
@@ -727,37 +736,49 @@
 
         .upload-preview-container {
             display: none;
-            margin-top: 1rem;
-            border: 1px solid var(--concrete-border);
+            border: 1.5px solid var(--concrete-border);
             border-radius: var(--border-radius);
-            padding: 0.75rem;
+            padding: 0.75rem 1rem;
             background-color: var(--concrete-gray);
             align-items: center;
             justify-content: space-between;
+            box-shadow: var(--shadow-sm);
         }
 
         .upload-preview-info {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.85rem;
         }
 
         .upload-preview-img {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             object-fit: cover;
-            border-radius: 2px;
+            border-radius: 4px;
             border: 1px solid var(--concrete-border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .upload-preview-details {
+            display: flex;
+            flex-direction: column;
         }
 
         .upload-preview-name {
-            font-size: 0.75rem;
-            font-weight: 600;
+            font-size: 0.78rem;
+            font-weight: 700;
             color: var(--text-dark);
-            max-width: 150px;
+            max-width: 180px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+        }
+
+        .upload-preview-size {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            font-weight: 600;
         }
 
         .upload-remove-btn {
@@ -765,31 +786,41 @@
             border: none;
             color: var(--danger-red);
             cursor: pointer;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             display: flex;
             align-items: center;
-            padding: 0.25rem;
+            justify-content: center;
+            padding: 0.4rem;
+            border-radius: 50%;
+            transition: var(--transition);
+            outline: none;
         }
 
-        /* Map and Geolocation Box */
+        .upload-remove-btn:hover {
+            background-color: rgba(230, 57, 70, 0.08);
+            transform: scale(1.05);
+        }
+
+        /* Leaflet Map Styling */
         .map-wrapper {
             border: 1.5px solid var(--concrete-border);
             border-radius: var(--border-radius);
             overflow: hidden;
             background-color: var(--concrete-gray);
             position: relative;
+            box-shadow: var(--shadow-sm);
         }
 
         .map-element {
-            height: 220px;
+            height: 235px;
             width: 100%;
             z-index: 10;
         }
 
         .location-actions {
-            padding: 0.75rem;
-            background-color: var(--text-white);
-            border-top: 1.5px solid var(--concrete-border);
+            padding: 0.85rem 1rem;
+            background-color: var(--asphalt-dark);
+            border-top: 1px solid var(--asphalt-border);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -798,25 +829,41 @@
 
         .coordinate-info {
             font-family: monospace;
-            font-size: 0.75rem;
-            color: var(--text-muted);
+            font-size: 0.72rem;
+            color: var(--text-light);
             display: flex;
-            gap: 0.5rem;
+            gap: 0.85rem;
+            font-weight: 600;
+        }
+
+        .coordinate-info span {
+            background-color: var(--asphalt-medium);
+            padding: 0.35rem 0.65rem;
+            border-radius: 2px;
+            border: 1px solid var(--asphalt-border);
+        }
+
+        .coordinate-info strong {
+            color: var(--safety-orange);
+            font-weight: 700;
         }
 
         .btn-location-gps {
             padding: 0.5rem 1rem;
             font-size: 0.7rem;
             font-weight: 700;
-            background-color: var(--asphalt-dark);
+            background-color: var(--safety-orange);
             color: var(--text-white);
-            border: 1px solid var(--asphalt-border);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
         }
 
         .btn-location-gps:hover {
-            background-color: var(--safety-orange);
-            color: var(--text-white);
-            border-color: var(--safety-orange);
+            background-color: var(--safety-orange-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(255, 107, 0, 0.25);
         }
 
         .form-actions {
@@ -824,111 +871,22 @@
             justify-content: flex-end;
             gap: 1rem;
             margin-top: 1.5rem;
+            border-top: 1.5px solid var(--concrete-dark);
+            padding-top: 1.75rem;
         }
 
-        /* TAB 2: HISTORY CARD LAYOUT (Modern vertical cards, no tables) */
-        .history-wrapper {
-            max-width: 800px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
+        .form-actions .btn {
+            font-size: 0.78rem;
+            padding: 0.75rem 1.75rem;
         }
 
-        .history-card {
-            background-color: var(--text-white);
-            border: 1px solid var(--concrete-border);
-            border-radius: var(--border-radius);
-            padding: 1.5rem;
-            display: flex;
-            gap: 1.5rem;
-            align-items: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.01);
-            transition: var(--transition);
-        }
-
-        .history-card:hover {
-            border-color: var(--safety-orange);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
-        }
-
-        .history-img {
-            width: 100px;
-            height: 100px;
-            border-radius: var(--border-radius);
-            object-fit: cover;
-            border: 1px solid var(--concrete-border);
-            flex-shrink: 0;
-        }
-
-        .history-content-box {
-            flex: 1;
-        }
-
-        .history-date {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.35rem;
-        }
-
-        .history-card-title {
-            font-size: 1.05rem;
-            font-weight: 800;
-            color: var(--text-dark);
-            margin-bottom: 0.35rem;
-            font-family: 'Montserrat', sans-serif;
-            text-transform: uppercase;
-        }
-
-        .history-address {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-bottom: 0.75rem;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        .history-address i {
-            color: var(--safety-orange);
-            width: 14px;
-            height: 14px;
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            padding: 0.35rem 0.75rem;
-            border-radius: var(--border-radius);
-            font-size: 0.65rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .badge-processing {
-            border: 1.5px solid var(--safety-orange);
-            color: var(--safety-orange);
-            background-color: transparent;
-        }
-
-        .badge-done {
-            border: 1.5px solid var(--success-green);
-            color: var(--success-green);
-            background-color: transparent;
-        }
-
-        /* 8. Professional Footer Section (EXACT COPY of index.html) */
+        /* 8. Professional Footer Section (EXACT COPY of dashboard.html) */
         .footer {
             background-color: var(--asphalt-dark);
             color: var(--text-white);
             padding: 4rem 0 2rem;
             border-top: 1px solid var(--asphalt-border);
+            margin-top: auto;
         }
 
         .footer-grid {
@@ -1128,11 +1086,38 @@
             color: var(--safety-orange);
         }
 
+        /* Loading / Animation utilities */
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spin-icon {
+            animation: spin 1.5s linear infinite;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--concrete-gray);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--concrete-dark);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
         /* RESPONSIVE LAYOUT & MOBILE HAMBURGER MENU */
         @media (max-width: 1024px) {
             .form-grid {
                 grid-template-columns: 1fr;
-                gap: 2.5rem;
+                gap: 2rem;
             }
 
             .footer-grid {
@@ -1142,15 +1127,7 @@
         }
 
         @media (max-width: 768px) {
-            .section-header {
-                margin-bottom: 2rem;
-            }
-
-            .section-title {
-                font-size: 1.65rem;
-            }
-
-            /* FIXED MOBILE NAVIGATION & SOLID HAMBURGER DRAWER */
+            /* FIXED MOBILE NAVIGATION & HAMBURGER DRAWER */
             .nav-menu {
                 display: flex;
                 flex-direction: column;
@@ -1160,16 +1137,13 @@
                 width: 280px;
                 height: 100vh;
                 background-color: #121416 !important;
-                /* Solid Asphalt Dark, 100% Opacity */
                 border-left: 1px solid var(--asphalt-border);
                 padding: 6rem 2rem 2rem;
                 gap: 1.75rem;
                 align-items: center;
-                /* Centered Navigation links */
                 text-align: center;
                 transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
                 z-index: 1005;
-                /* High z-index */
                 box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
             }
 
@@ -1192,38 +1166,57 @@
 
             .user-profile-desktop {
                 display: none;
-                /* Hide desktop version on mobile */
             }
 
             .menu-user-item {
                 display: block;
-                /* Show user in mobile menu drawer */
             }
 
             .menu-toggle {
                 display: block;
             }
 
-            .main-content-section {
-                padding: 6rem 0 4rem;
+            .hero {
+                min-height: 100vh;
+                height: auto;
+                padding: 7rem 0 4rem;
+                display: flex;
+                align-items: center;
+            }
+
+            .hero-content {
+                margin-top: 0;
+            }
+
+            .hero-headline {
+                font-size: 2.25rem;
+                line-height: 1.2;
             }
 
             .form-card {
                 padding: 1.5rem;
             }
 
-            .history-card {
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .coordinate-info {
                 flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
+                gap: 0.35rem;
             }
 
-            .history-img {
-                width: 100%;
-                height: 150px;
+            .location-actions {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.75rem;
             }
 
-            /* Footer grid mobile collapse */
+            .btn-location-gps {
+                justify-content: center;
+            }
+
             .footer-grid {
                 grid-template-columns: 1fr;
                 gap: 2rem;
@@ -1240,10 +1233,10 @@
 
 <body>
 
-    <!-- Drawer Overlay for Mobile Navbar -->
+    <!-- Drawer Overlay for Mobile Navbar (EXACT COPY of dashboard.html) -->
     <div class="drawer-overlay" id="drawerOverlay"></div>
 
-    <!-- 1. FLOATING HEADER (Refined structure to match index.html exactly) -->
+    <!-- 1. FLOATING HEADER (100% Identical to dashboard.html) -->
     <header class="header" id="navbar">
         <div class="container">
             <a href="dashboard.html" class="logo">
@@ -1258,9 +1251,8 @@
 
                 <!-- Mobile Only User Info inside drawer menu (Centered & non-duplicating) -->
                 <li class="menu-user-item">
-                    <div class="user-profile-mobile" onclick="window.location.href='dashboard-user.html'">
-                        <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Fiqry"
-                            class="avatar-img">
+                    <div class="user-profile-mobile" onclick="window.location.href='profile.html'">
+                        <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Fiqry" class="avatar-img">
                         <span class="user-name">Fiqry</span>
                     </div>
                 </li>
@@ -1273,9 +1265,8 @@
                 </button>
 
                 <!-- Desktop Only Profile section (Aligned perfectly in a single row) -->
-                <div class="user-profile-desktop" onclick="window.location.href='dashboard-user.html'">
-                    <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Fiqry"
-                        class="avatar-img">
+                <div class="user-profile-desktop">
+                    <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Fiqry" class="avatar-img">
                     <span class="user-name">Fiqry</span>
                 </div>
 
@@ -1311,7 +1302,7 @@
                             <strong>fiqry@example.com</strong>
                         </div>
                         <div class="panel-actions">
-                            <a href="dashboard-user.html" class="btn btn-outline-primary">Lihat Profil</a>
+                            <a href="profile.html" class="btn btn-outline-primary">Lihat Profil</a>
                             <a href="#" class="btn btn-secondary">Keluar</a>
                         </div>
                     </div>
@@ -1320,139 +1311,175 @@
         </div>
     </header>
 
-    <!-- 2. Main Content Wrapper Section -->
-    <section class="main-content-section">
+    <!-- 2. Dark Industrial Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-overlay"></div>
         <div class="container">
-
-            <div class="section-header">
-                <span class="section-badge">Panel Pelayanan Publik</span>
-                <h1 class="section-title">Layanan Pengaduan Jalan</h1>
-                <p class="section-desc">Laporkan kerusakan prasarana jalan secara presisi untuk diproses instan oleh
-                    dinas tata kota setempat.</p>
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i data-lucide="megaphone" style="width: 12px; height: 12px;"></i> Pelayanan Pengaduan Publik
+                </div>
+                <h1 class="hero-headline">Laporkan Kerusakan<br><span>Prasarana Jalan</span></h1>
+                <p class="hero-desc">Bantu tim dinas pekerjaan umum kota mendeteksi retakan jalan, jalan berlubang, lampu penerangan mati, atau drainase mampet di sekitar Anda secara cepat, transparan, dan presisi.</p>
             </div>
+        </div>
+    </section>
 
-            <div class="tabs-nav">
-                <button class="tab-trigger active" id="tabCreateTrigger">Tambah Laporan</button>
-                <a class="tab-trigger" href="riwayat.html">Riwayat Laporan</a>
-            </div>
+    <!-- 3. Overlapping Card Form Section -->
+    <section class="main-form-section">
+        <div class="container">
+            <form class="form-card" id="laporanForm" onsubmit="event.preventDefault(); handleFormSubmit();">
+                <div class="form-title-bar">
+                    <i data-lucide="file-edit"></i>
+                    <h2>Formulir Pelaporan Aduan</h2>
+                </div>
 
-            <!-- VIEW 1: TAMBAH LAPORAN (FORM view) -->
-            <div class="tab-view active" id="tabCreateView">
-                <form class="form-card" id="laporanForm" onsubmit="event.preventDefault(); handleFormSubmit();">
-                    <div class="form-grid">
-
-                        <!-- Left Column: Input Text Fields -->
-                        <div class="form-column">
-
-                            <div class="form-group">
-                                <label for="judulLaporan" class="form-label">Judul Laporan</label>
-                                <input type="text" id="judulLaporan" class="form-input"
-                                    placeholder="Contoh: Lubang Jalan Besar di Tengah Lajur Cepat" required>
+                <div class="form-grid">
+                    <!-- Left Column: Input Text Fields -->
+                    <div class="form-column">
+                        <div class="form-group">
+                            <label for="judulLaporan" class="form-label">Judul Pelaporan</label>
+                            <div class="input-with-icon">
+                                <input type="text" id="judulLaporan" class="form-input" placeholder="Contoh: Lubang Jalan Besar di Lajur Kanan Sudirman" required>
+                                <i data-lucide="edit-2" class="input-icon"></i>
                             </div>
+                        </div>
 
-                            <div class="form-group">
-                                <label for="alamatLengkap" class="form-label">Alamat Lengkap Jalan yang Rusak</label>
-                                <input type="text" id="alamatLengkap" class="form-input"
-                                    placeholder="Masukkan nama jalan, nomor, RT/RW, kelurahan, atau ciri penanda sekitar..."
-                                    required>
+                        <div class="form-group">
+                            <label for="alamatLengkap" class="form-label">Alamat Lengkap Lokasi</label>
+                            <div class="input-with-icon">
+                                <input type="text" id="alamatLengkap" class="form-input" placeholder="Nama jalan, nomor, RT/RW, atau penanda dekat lokasi..." required>
+                                <i data-lucide="map-pin" class="input-icon"></i>
                             </div>
+                        </div>
 
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="kategoriKerusakan" class="form-label">Kategori Kerusakan</label>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="kategoriKerusakan" class="form-label">Kategori Aduan</label>
+                                <div class="input-with-icon">
                                     <select id="kategoriKerusakan" class="form-select" required>
                                         <option value="" disabled selected>Pilih Kategori...</option>
                                         <option value="Jalan Berlubang">Jalan Berlubang</option>
                                         <option value="Retak Struktural">Retak Struktural</option>
                                         <option value="Jalan Bergelombang">Jalan Bergelombang</option>
-                                        <option value="Amblas/Sinking">Jalan Amblas</option>
-                                        <option value="PJU Mati">Lampu PJU Mati</option>
+                                        <option value="Jalan Amblas">Jalan Amblas</option>
+                                        <option value="Lampu PJU Mati">Lampu PJU Mati</option>
+                                        <option value="Drainase Tersumbat">Drainase Tersumbat</option>
                                     </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="tingkatKeparahan" class="form-label">Tingkat Keparahan</label>
-                                    <select id="tingkatKeparahan" class="form-select" required>
-                                        <option value="" disabled selected>Pilih Keparahan...</option>
-                                        <option value="Rendah">Rendah (Mengganggu kenyamanan)</option>
-                                        <option value="Sedang">Sedang (Berpotensi merusak ban/velg)</option>
-                                        <option value="Tinggi">Tinggi (Sangat berbahaya, rawan kecelakaan)</option>
-                                    </select>
+                                    <i data-lucide="layers" class="input-icon"></i>
                                 </div>
                             </div>
-
                             <div class="form-group">
-                                <label for="deskripsiKerusakan" class="form-label">Deskripsi Kerusakan secara
-                                    Detail</label>
-                                <textarea id="deskripsiKerusakan" class="form-textarea"
-                                    placeholder="Jelaskan ukuran perkiraan lubang, kedalaman, dan sejak kapan terjadi kerusakan..."
-                                    required></textarea>
+                                <label for="kecamatanWilayah" class="form-label">Wilayah Kecamatan (Surabaya)</label>
+                                <div class="input-with-icon">
+                                    <select id="kecamatanWilayah" class="form-select" required>
+                                        <option value="" disabled selected>Pilih Kecamatan...</option>
+                                        <option value="Tegalsari">Kec. Tegalsari</option>
+                                        <option value="Wonokromo">Kec. Wonokromo</option>
+                                        <option value="Karangpilang">Kec. Karangpilang</option>
+                                        <option value="Genteng">Kec. Genteng</option>
+                                        <option value="Gubeng">Kec. Gubeng</option>
+                                        <option value="Gayungan">Kec. Gayungan</option>
+                                        <option value="Sukolilo">Kec. Sukolilo</option>
+                                        <option value="Rungkut">Kec. Rungkut</option>
+                                    </select>
+                                    <i data-lucide="navigation" class="input-icon"></i>
+                                </div>
                             </div>
-
                         </div>
 
-                        <!-- Right Column: Visual Box Upload & Geo-coordinates Map -->
-                        <div class="form-column">
-
+                        <div class="form-row">
                             <div class="form-group">
-                                <label class="form-label">Bukti Foto (Visual Uploads)</label>
-                                <div class="upload-drag-box" id="uploadBox">
-                                    <div class="upload-icon-circle">
-                                        <i data-lucide="camera"></i>
-                                    </div>
-                                    <div class="upload-title">Seret & Jatuhkan Foto di Sini</div>
-                                    <div class="upload-desc">Atau klik untuk memilih berkas dari folder (Format JPG, PNG
-                                        maks. 5MB)</div>
-                                    <input type="file" id="fileInput" class="file-input" accept="image/*" required>
+                                <label for="tingkatKeparahan" class="form-label">Tingkat Keparahan / Hazard</label>
+                                <div class="input-with-icon">
+                                    <select id="tingkatKeparahan" class="form-select" required>
+                                        <option value="" disabled selected>Pilih Dampak...</option>
+                                        <option value="Rendah">Rendah (Sedikit mengganggu kenyamanan)</option>
+                                        <option value="Sedang">Sedang (Bisa merusak velg/kendaraan lambat)</option>
+                                        <option value="Tinggi">Tinggi (Sangat rawan kecelakaan fatal)</option>
+                                    </select>
+                                    <i data-lucide="shield-alert" class="input-icon"></i>
                                 </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="estimasiUkuran" class="form-label">Estimasi Dimensi Kerusakan</label>
+                                <div class="input-with-icon">
+                                    <select id="estimasiUkuran" class="form-select" required>
+                                        <option value="" disabled selected>Pilih Dimensi...</option>
+                                        <option value="Kecil">Kecil (< 30 cm / lubang dangkal)</option>
+                                        <option value="Sedang">Sedang (30 cm - 1 meter / kedalaman sedang)</option>
+                                        <option value="Besar">Besar (> 1 meter / lubang dalam/amblas lebar)</option>
+                                    </select>
+                                    <i data-lucide="maximize-2" class="input-icon"></i>
+                                </div>
+                            </div>
+                        </div>
 
-                                <div class="upload-preview-container" id="uploadPreview">
-                                    <div class="upload-preview-info">
-                                        <img src="" alt="Pratinjau" class="upload-preview-img" id="previewImg">
-                                        <span class="upload-preview-name" id="previewName">nama_file.jpg</span>
+                        <div class="form-group">
+                            <label for="deskripsiKerusakan" class="form-label">Rincian Deskripsi Masalah</label>
+                            <textarea id="deskripsiKerusakan" class="form-textarea" placeholder="Tulis rincian mendalam mengenai kedalaman lubang, waktu terjadinya kerusakan, penanda darurat darurat yang dipasang warga, atau bahaya spesifik sekitar..." required></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Visual Box Upload & Geo-coordinates Map -->
+                    <div class="form-column">
+                        <div class="form-group">
+                            <label class="form-label">Dokumentasi Bukti Foto Visual</label>
+                            <div class="upload-drag-box" id="uploadBox">
+                                <div class="upload-icon-circle">
+                                    <i data-lucide="camera"></i>
+                                </div>
+                                <div class="upload-title">Tarik & Lepaskan File Di Sini</div>
+                                <div class="upload-desc">Atau klik langsung untuk menelusuri file folder (Format JPG, PNG maks. 5MB)</div>
+                                <input type="file" id="fileInput" class="file-input" accept="image/*" required>
+                            </div>
+
+                            <div class="upload-preview-container" id="uploadPreview">
+                                <div class="upload-preview-info">
+                                    <img src="" alt="Pratinjau" class="upload-preview-img" id="previewImg">
+                                    <div class="upload-preview-details">
+                                        <span class="upload-preview-name" id="previewName">nama_berkas.jpg</span>
+                                        <span class="upload-preview-size" id="previewSize">1.2 MB</span>
                                     </div>
-                                    <button type="button" class="upload-remove-btn" id="removeUploadBtn"
-                                        aria-label="Hapus Unggahan">
-                                        <i data-lucide="trash-2"></i>
+                                </div>
+                                <button type="button" class="upload-remove-btn" id="removeUploadBtn" aria-label="Batal Unggah">
+                                    <i data-lucide="x"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Titik Lokasi Peta (Geo-Location GPS)</label>
+                            <div class="map-wrapper">
+                                <!-- Leaflet Map Container -->
+                                <div id="map" class="map-element"></div>
+
+                                <div class="location-actions">
+                                    <div class="coordinate-info">
+                                        <span>Lat: <strong id="valLat">-7.257500</strong></span>
+                                        <span>Lng: <strong id="valLng">112.752100</strong></span>
+                                    </div>
+                                    <button type="button" class="btn btn-location-gps" id="btnGps">
+                                        <i data-lucide="crosshair"></i> GPS Aktif
                                     </button>
                                 </div>
                             </div>
-
-                            <div class="form-group">
-                                <label class="form-label">Titik Lokasi (Sesuai GPS / Peta Digital)</label>
-                                <div class="map-wrapper">
-
-                                    <!-- Light themed Leaflet Map container with border -->
-                                    <div id="map" class="map-element"></div>
-
-                                    <div class="location-actions">
-                                        <div class="coordinate-info">
-                                            <span>Lat: <strong id="valLat">-7.2575</strong></span>
-                                            <span>Lng: <strong id="valLng">112.7521</strong></span>
-                                        </div>
-                                        <button type="button" class="btn btn-location-gps" id="btnGps">
-                                            <i data-lucide="crosshair"></i> Deteksi GPS
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Buttons Actions Inside Card -->
-                            <div class="form-actions">
-                                <button type="button" class="btn btn-secondary"
-                                    onclick="window.location.href='dashboard.html'">Batal</button>
-                                <button type="submit" class="btn btn-primary">Kirim Laporan</button>
-                            </div>
-
                         </div>
 
+                        <!-- Buttons Row inside Card Columns -->
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="window.location.href='dashboard.html'">Batal</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i data-lucide="send" style="width: 14px; height: 14px;"></i> Kirim Aduan
+                            </button>
+                        </div>
                     </div>
-                </form>
-            </div>
-
+                </div>
+            </form>
         </div>
     </section>
 
-    <!-- 8. Professional Footer Section (EXACT COPY of index.html) -->
+    <!-- 4. Professional Footer Section (100% Identical to dashboard.html) -->
     <footer class="footer">
         <div class="container">
             <div class="footer-grid">
@@ -1462,8 +1489,7 @@
                     <a href="#" class="footer-logo">
                         <i data-lucide="shield-alert"></i>Smart<span>Road</span>
                     </a>
-                    <p class="footer-desc">Pusat penanganan pelaporan aduan kerusakan jalan raya berbasis transparansi
-                        publik dan pemetaan geospasial real-time.</p>
+                    <p class="footer-desc">Pusat penanganan pelaporan aduan kerusakan jalan raya berbasis transparansi publik dan pemetaan geospasial real-time.</p>
                     <div class="footer-socials">
                         <a href="#" class="social-link" aria-label="Facebook"><i data-lucide="facebook"></i></a>
                         <a href="#" class="social-link" aria-label="Twitter"><i data-lucide="twitter"></i></a>
@@ -1479,7 +1505,7 @@
                         <li><a href="dashboard.html">Beranda</a></li>
                         <li><a href="dashboard.html#fitur">Tentang Layanan</a></li>
                         <li><a href="laporan.html">Lapor Kerusakan</a></li>
-                        <li><a href="dashboard-user.html">Dashboard Profil</a></li>
+                        <li><a href="profile.html">Dashboard Profil</a></li>
                     </ul>
                 </div>
 
@@ -1505,10 +1531,8 @@
                 <!-- Col 4: Newsletter -->
                 <div>
                     <h4 class="footer-title">Buletin Kota</h4>
-                    <p class="footer-newsletter">Menerima informasi bulanan rekapitulasi penambalan jalan rusak kota dan
-                        peningkatan platform SmartRoad.</p>
-                    <form class="newsletter-form"
-                        onsubmit="event.preventDefault(); alert('Terima kasih telah bergabung dengan newsletter kami!');">
+                    <p class="footer-newsletter">Menerima informasi bulanan rekapitulasi penambalan jalan rusak kota dan peningkatan platform SmartRoad.</p>
+                    <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Terima kasih telah bergabung dengan newsletter kami!');">
                         <input type="email" class="newsletter-input" placeholder="Masukkan email Anda..." required>
                         <button type="submit" class="newsletter-btn" aria-label="Berlangganan">
                             <i data-lucide="arrow-right"></i>
@@ -1520,8 +1544,7 @@
 
             <!-- Footer Bottom legal info -->
             <div class="footer-bottom">
-                <p class="footer-copy">&copy; 2026 SmartRoad City Initiative. Seluruh Hak Cipta Dilindungi
-                    Undang-Undang.</p>
+                <p class="footer-copy">&copy; 2026 SmartRoad City Initiative. Seluruh Hak Cipta Dilindungi Undang-Undang.</p>
                 <ul class="footer-legal">
                     <li><a href="#">Kebijakan Privasi</a></li>
                     <li><a href="#">Syarat Penggunaan</a></li>
@@ -1530,15 +1553,6 @@
             </div>
         </div>
     </footer>
-
-    <!-- Spin animation for loader badge -->
-    <style>
-        @keyframes spin {
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-    </style>
 
     <!-- Lucide Icons Bundle -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -1555,7 +1569,7 @@
                 window.lucide.createIcons();
             }
 
-            // 1. Sticky Translucent Header Scrolled Mode
+            // 1. Sticky Translucent Header Scrolled Mode (Exact Copy from dashboard.html)
             const navbar = document.getElementById('navbar');
             const handleScroll = () => {
                 if (window.scrollY > 40) {
@@ -1623,7 +1637,7 @@
                 });
             }
 
-            // Notification and Profile Panels
+            // Notification and Profile Dropdown Panels
             const notificationBtn = document.querySelector('.notification-btn');
             const profileDesktop = document.querySelector('.user-profile-desktop');
             const notificationPanel = document.getElementById('notificationPanel');
@@ -1652,21 +1666,13 @@
                 }
             });
 
-            // 3. Tab switching is simplified because riwayat laporan sekarang di halaman terpisah.
-            const tabCreateTrigger = document.getElementById('tabCreateTrigger');
-            const tabCreateView = document.getElementById('tabCreateView');
-
-            tabCreateTrigger.addEventListener('click', () => {
-                tabCreateTrigger.classList.add('active');
-                tabCreateView.classList.add('active');
-            });
-
-            // 4. Drag & Drop Visual Box Upload Logic
+            // 3. Drag & Drop Visual Box Upload Logic
             const uploadBox = document.getElementById('uploadBox');
             const fileInput = document.getElementById('fileInput');
             const uploadPreview = document.getElementById('uploadPreview');
             const previewImg = document.getElementById('previewImg');
             const previewName = document.getElementById('previewName');
+            const previewSize = document.getElementById('previewSize');
             const removeUploadBtn = document.getElementById('removeUploadBtn');
 
             uploadBox.addEventListener('click', () => {
@@ -1703,6 +1709,15 @@
                     reader.onload = (e) => {
                         previewImg.src = e.target.result;
                         previewName.textContent = file.name;
+                        
+                        // Human-readable sizes
+                        const sizeKB = (file.size / 1024).toFixed(1);
+                        if (sizeKB > 1024) {
+                            previewSize.textContent = `${(sizeKB / 1024).toFixed(1)} MB`;
+                        } else {
+                            previewSize.textContent = `${sizeKB} KB`;
+                        }
+
                         uploadPreview.style.display = 'flex';
                         uploadBox.style.display = 'none';
                     };
@@ -1716,11 +1731,12 @@
                 fileInput.value = '';
                 previewImg.src = '';
                 previewName.textContent = '';
+                previewSize.textContent = '';
                 uploadPreview.style.display = 'none';
                 uploadBox.style.display = 'flex';
             });
 
-            // 5. Leaflet Geolocation Map Integration (Light Theme tiles for supreme readability)
+            // 4. Leaflet Geolocation Map Integration
             // Centered in Surabaya / East Java standard region (-7.2575, 112.7521)
             const map = L.map('map', {
                 center: [-7.2575, 112.7521],
@@ -1731,7 +1747,7 @@
             // Clean, bright, highly legible light theme map tiles from OpenStreetMap
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> kontributor'
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
 
             // Safety Orange custom theme pin marker icon
@@ -1790,21 +1806,21 @@
                                 window.lucide.createIcons();
                             }
                             setTimeout(() => {
-                                btnGps.innerHTML = '<i data-lucide="crosshair"></i> Deteksi GPS';
+                                btnGps.innerHTML = '<i data-lucide="crosshair"></i> GPS Aktif';
                                 if (window.lucide) { window.lucide.createIcons(); }
                             }, 2000);
                         },
                         () => {
                             // Fallback simulation when permission is denied or failed
-                            alert("Akses lokasi ditolak atau tidak tersedia. Mensimulasikan koordinat Surabaya.");
-                            const simLat = -7.2625 + (Math.random() - 0.5) * 0.01;
-                            const simLng = 112.7485 + (Math.random() - 0.5) * 0.01;
+                            alert("Akses lokasi tidak diizinkan atau tidak tersedia. Menggunakan lokasi simulasi Surabaya.");
+                            const simLat = -7.2625 + (Math.random() - 0.5) * 0.015;
+                            const simLng = 112.7485 + (Math.random() - 0.5) * 0.015;
 
                             map.setView([simLat, simLng], 15);
                             marker.setLatLng([simLat, simLng]);
                             updateCoordsDisplay(simLat, simLng);
 
-                            btnGps.innerHTML = '<i data-lucide="crosshair"></i> Deteksi GPS';
+                            btnGps.innerHTML = '<i data-lucide="crosshair"></i> GPS Aktif';
                             if (window.lucide) {
                                 window.lucide.createIcons();
                             }
@@ -1812,65 +1828,28 @@
                     );
                 } else {
                     alert("Browser Anda tidak mendukung fitur Geolocation.");
-                    btnGps.innerHTML = '<i data-lucide="crosshair"></i> Deteksi GPS';
+                    btnGps.innerHTML = '<i data-lucide="crosshair"></i> GPS Aktif';
                     if (window.lucide) { window.lucide.createIcons(); }
                 }
             });
 
-            // 6. Handle Form Submission & Prepend to History dynamically
+            // 5. Handle Form Submission & Direct Success Redirect
             const handleFormSubmit = () => {
                 const title = document.getElementById('judulLaporan').value;
                 const address = document.getElementById('alamatLengkap').value;
                 const category = document.getElementById('kategoriKerusakan').value;
+                const district = document.getElementById('kecamatanWilayah').value;
                 const severity = document.getElementById('tingkatKeparahan').value;
+                const size = document.getElementById('estimasiUkuran').value;
                 const desc = document.getElementById('deskripsiKerusakan').value;
-                const imageSrc = previewImg.src || 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=150&q=80';
+                const lat = valLat.textContent;
+                const lng = valLng.textContent;
 
-                // Get dynamic formatting of Current Date
-                const now = new Date();
-                const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-                const formattedDate = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()} • ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')} WIB`;
-
-                // Add to list UI
-                const historyWrapper = document.getElementById('historyWrapper');
-                const newCard = document.createElement('div');
-                newCard.className = 'history-card';
-                newCard.innerHTML = `
-                    <img src="${imageSrc}" alt="${title}" class="history-img">
-                    <div class="history-content-box">
-                        <div class="history-date">${formattedDate}</div>
-                        <h3 class="history-card-title">${title}</h3>
-                        <div class="history-address">
-                            <i data-lucide="map-pin"></i> ${address}
-                        </div>
-                        <div class="badge badge-processing">
-                            <i data-lucide="loader" style="animation: spin 3s linear infinite;"></i> Diproses
-                        </div>
-                    </div>
-                `;
-
-                // Prepend to top of lists
-                historyWrapper.insertBefore(newCard, historyWrapper.firstChild);
-
-                if (window.lucide) {
-                    window.lucide.createIcons();
-                }
-
-                alert('Laporan Anda berhasil dikirim dan terdaftar pada sistem SmartRoad Kota!');
-
-                // Reset form fields
-                document.getElementById('laporanForm').reset();
-                fileInput.value = '';
-                previewImg.src = '';
-                previewName.textContent = '';
-                uploadPreview.style.display = 'none';
-                uploadBox.style.display = 'flex';
-
-                // Go to history tab
-                tabCreateTrigger.classList.remove('active');
-                tabHistoryTrigger.classList.add('active');
-                tabCreateView.classList.remove('active');
-                tabHistoryView.classList.add('active');
+                // Success alert confirmation
+                alert(`Pengaduan Berhasil Terkirim!\n\nLaporan "${title}" telah resmi masuk ke dalam sistem verifikasi Dinas Pekerjaan Umum Kota. Anda akan dialihkan langsung ke halaman Riwayat untuk meninjau status.`);
+                
+                // Direct redirect to riwayat.html
+                window.location.href = 'riwayat.html';
             };
 
             window.handleFormSubmit = handleFormSubmit;

@@ -702,95 +702,129 @@
             line-height: 1.5;
         }
 
-        /* 4. Action Banner (Light-themed matching aesthetic contrast) */
-        .action-banner {
-            background-color: var(--text-white);
-            padding: 6rem 0;
-            text-align: center;
+        /* 4. Professional Simple Action Banner */
+        .professional-cta {
+            background-color: var(--concrete-gray);
+            padding: 5rem 0;
             border-bottom: 1px solid var(--concrete-border);
         }
 
-        .action-banner-content {
-            max-width: 700px;
-            margin: 0 auto;
+        .cta-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
         }
 
-        .action-banner-text {
-            color: var(--text-dark);
-            font-size: clamp(1.2rem, 2.5vw, 1.6rem);
-            font-weight: 800;
-            line-height: 1.4;
-            margin-bottom: 2.5rem;
+        .cta-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .cta-heading {
             font-family: 'Montserrat', sans-serif;
+            font-size: clamp(2rem, 3vw, 2.5rem);
+            font-weight: 800;
+            color: var(--asphalt-dark);
+            line-height: 1.2;
+            letter-spacing: -0.02em;
             text-transform: uppercase;
-            letter-spacing: -0.01em;
         }
 
-        .btn-massive {
-            padding: 1.1rem 2.5rem;
+        .cta-heading span {
+            color: var(--safety-orange);
+        }
+
+        .cta-desc {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .cta-features {
+            display: grid;
+            gap: 1rem;
+            margin: 0.5rem 0 1.5rem;
+        }
+
+        .cta-feature-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-dark);
+            font-weight: 500;
             font-size: 0.95rem;
-            font-weight: 800;
-            letter-spacing: 0.08em;
+        }
+
+        .cta-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background-color: rgba(255, 107, 0, 0.1);
+            border-radius: 8px;
+            color: var(--safety-orange);
+        }
+
+        .btn-cta-solid {
+            align-self: flex-start;
+            padding: 1.1rem 2.25rem;
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
             background-color: var(--safety-orange);
             color: var(--text-white);
-            box-shadow: 0 4px 15px rgba(255, 107, 0, 0.3);
             border-radius: var(--border-radius);
-            transition: var(--transition);
-        }
-
-        .btn-massive:hover {
-            background-color: var(--safety-orange-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 107, 0, 0.45);
-        }
-
-        .action-banner-grid {
-            display: grid;
-            grid-template-columns: minmax(280px, 1.1fr) minmax(300px, 0.9fr);
-            align-items: center;
-            gap: 2rem;
-        }
-
-        .action-banner-info {
-            text-align: left;
-        }
-
-        .action-banner-info p {
-            margin-bottom: 1.5rem;
-            max-width: 620px;
-        }
-
-        .feature-list {
-            display: grid;
-            gap: 0.85rem;
-            margin-top: 1.5rem;
-        }
-
-        .feature-list span {
+            border: none;
             display: inline-flex;
             align-items: center;
-            gap: 0.65rem;
-            color: var(--text-dark);
-            font-size: 0.95rem;
+            gap: 0.75rem;
+            transition: var(--transition);
+            text-decoration: none;
         }
 
-        .feature-list i {
-            color: var(--safety-orange);
-            min-width: 1.2rem;
+        .btn-cta-solid:hover {
+            background-color: var(--safety-orange-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 107, 0, 0.25);
         }
 
-        .action-banner-image {
-            border-radius: 28px;
+        .cta-visual {
+            position: relative;
+        }
+
+        .cta-image-wrapper {
+            border-radius: 12px;
             overflow: hidden;
             box-shadow: var(--shadow-lg);
-            border: 1px solid rgba(0,0,0,.05);
         }
 
-        .action-banner-image img {
+        .cta-img {
             display: block;
             width: 100%;
             height: 100%;
             object-fit: cover;
+            aspect-ratio: 4/3;
+        }
+
+        @media (max-width: 992px) {
+            .cta-wrapper {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 2.5rem;
+            }
+            .cta-desc {
+                margin: 0 auto;
+            }
+            .btn-cta-solid {
+                align-self: center;
+            }
+            .cta-feature-item {
+                justify-content: center;
+            }
         }
 
         .reports-overview {
@@ -1366,7 +1400,7 @@
 
                 <!-- Mobile Only User Info inside drawer menu (Centered & non-duplicating) -->
                 <li class="menu-user-item">
-                    <div class="user-profile-mobile" onclick="window.location.href='dashboard-user.html'">
+                    <div class="user-profile-mobile" onclick="window.location.href='profile.html'">
                         <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Fiqry"
                             class="avatar-img">
                         <span class="user-name">Fiqry</span>
@@ -1419,7 +1453,7 @@
                             <strong>fiqry@example.com</strong>
                         </div>
                         <div class="panel-actions">
-                            <a href="dashboard-user.html" class="btn btn-outline-primary">Lihat Profil</a>
+                            <a href="profile.html" class="btn btn-outline-primary">Lihat Profil</a>
                             <a href="#" class="btn btn-secondary">Keluar</a>
                         </div>
                     </div>
@@ -1516,47 +1550,41 @@
         </div>
     </section>
 
-    <section class="reports-overview">
-        <div class="container">
-            <div class="section-header light-bg">
-                <span class="section-badge">Dashboard Laporan</span>
-                <h2 class="section-title">Kelola Laporan Anda</h2>
-                <p class="section-desc">Pilih opsi untuk membuat laporan baru atau lihat riwayat yang sudah dikirim secara terpisah agar manajemen laporan lebih rapi dan mudah dilacak.</p>
-            </div>
-            <div class="overview-grid">
-                <div class="overview-card">
-                    <div class="overview-icon"><i data-lucide="edit-3"></i></div>
-                    <h3>Buat Laporan Baru</h3>
-                    <p>Laporkan kerusakan infrastruktur dengan foto, deskripsi singkat, dan lokasi yang jelas agar tim penanganan dapat segera bertindak.</p>
-                    <a href="laporan.html" class="btn btn-primary">Buat Laporan</a>
-                </div>
-                <div class="overview-card">
-                    <div class="overview-icon"><i data-lucide="list-check"></i></div>
-                    <h3>Riwayat Laporan</h3>
-                    <p>Semua laporan Anda dipisahkan di sini sehingga Anda bisa memantau status, melihat detail isi laporan, dan menghubungi admin dengan cepat.</p>
-                    <a href="riwayat.html" class="btn btn-outline-primary">Lihat Riwayat</a>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- 4. Action Banner (Light background #F8F9FA, dark text, safety orange button) -->
-    <section class="action-banner">
+
+    <!-- 4. Professional Eyecatching Action Banner -->
+    <section class="professional-cta">
         <div class="container">
-            <div class="action-banner-grid">
-                <div class="action-banner-info">
-                    <p class="action-banner-text">Laporkan kerusakan infrastruktur jalan di sekitar Anda. Klik tombol di bawah untuk masuk ke panel pelaporan dan unggah foto langsung dari lokasi kerusakan.</p>
-                    <div class="feature-list">
-                        <span><i data-lucide="check-circle"></i> Unggah bukti foto jalan rusak</span>
-                        <span><i data-lucide="check-circle"></i> Terbitkan laporan dengan lokasi yang jelas</span>
-                        <span><i data-lucide="check-circle"></i> Dapatkan notifikasi saat status berubah</span>
+            <div class="cta-wrapper">
+                <div class="cta-content">
+                    <h2 class="cta-heading">Laporkan Kerusakan <span>Infrastruktur Jalan</span></h2>
+                    <p class="cta-desc">Klik tombol di bawah untuk masuk ke panel pelaporan dan unggah foto langsung dari lokasi kerusakan. Mari bersama wujudkan infrastruktur kota yang lebih baik dan aman.</p>
+                    
+                    <div class="cta-features">
+                        <div class="cta-feature-item">
+                            <div class="cta-icon"><i data-lucide="camera"></i></div>
+                            <span>Unggah Foto Bukti Cepat</span>
+                        </div>
+                        <div class="cta-feature-item">
+                            <div class="cta-icon"><i data-lucide="map-pin"></i></div>
+                            <span>Titik Lokasi Presisi GPS</span>
+                        </div>
+                        <div class="cta-feature-item">
+                            <div class="cta-icon"><i data-lucide="bell-ring"></i></div>
+                            <span>Pantau Notifikasi Status</span>
+                        </div>
                     </div>
-                    <a href="laporan.html" class="btn btn-primary btn-massive">
-                        <i data-lucide="megaphone" style="width: 16px; height: 16px;"></i> BUAT LAPORAN SEKARANG
+
+                    <a href="laporan.html" class="btn-cta-solid">
+                        <i data-lucide="zap" style="width:18px;height:18px;"></i> BUAT LAPORAN SEKARANG
                     </a>
                 </div>
-                <div class="action-banner-image">
-                    <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1200" alt="Ilustrasi Pelaporan Kerusakan Jalan" />
+                
+                <div class="cta-visual">
+                    <div class="cta-image-wrapper">
+                        <!-- Professional construction / road inspection photo -->
+                        <img src="https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?q=80&w=1200" alt="Inspeksi Infrastruktur Jalan" class="cta-img" />
+                    </div>
                 </div>
             </div>
         </div>
@@ -1589,7 +1617,7 @@
                         <li><a href="dashboard.html">Beranda</a></li>
                         <li><a href="#fitur">Tentang Layanan</a></li>
                         <li><a href="laporan.html">Lapor Kerusakan</a></li>
-                        <li><a href="dashboard-user.html">Dashboard Profil</a></li>
+                        <li><a href="profile.html">Dashboard Profil</a></li>
                     </ul>
                 </div>
 

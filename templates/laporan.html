@@ -9,7 +9,9 @@
     <!-- Google Fonts: Inter (UI/Body) & Montserrat (Heavy Headings) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap"
+        rel="stylesheet">
 
     <!-- Leaflet.js Map Library CSS (Clean mapping assets) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -663,8 +665,8 @@
             box-shadow: 0 0 0 3px var(--safety-orange-glow);
         }
 
-        .input-with-icon .form-input:focus ~ .input-icon,
-        .input-with-icon .form-select:focus ~ .input-icon {
+        .input-with-icon .form-input:focus~.input-icon,
+        .input-with-icon .form-select:focus~.input-icon {
             color: var(--safety-orange);
         }
 
@@ -1102,13 +1104,16 @@
             width: 8px;
             height: 8px;
         }
+
         ::-webkit-scrollbar-track {
             background: var(--concrete-gray);
         }
+
         ::-webkit-scrollbar-thumb {
             background: var(--concrete-dark);
             border-radius: 4px;
         }
+
         ::-webkit-scrollbar-thumb:hover {
             background: var(--text-muted);
         }
@@ -1127,6 +1132,7 @@
         }
 
         @media (max-width: 768px) {
+
             /* FIXED MOBILE NAVIGATION & HAMBURGER DRAWER */
             .nav-menu {
                 display: flex;
@@ -1252,7 +1258,8 @@
                 <!-- Mobile Only User Info inside drawer menu (Centered & non-duplicating) -->
                 <li class="menu-user-item">
                     <div class="user-profile-mobile" onclick="window.location.href='profile.html'">
-                        <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Fiqry" class="avatar-img">
+                        <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Fiqry"
+                            class="avatar-img">
                         <span class="user-name">Fiqry</span>
                     </div>
                 </li>
@@ -1261,12 +1268,13 @@
             <div class="header-actions">
                 <button class="notification-btn" aria-label="Notifikasi">
                     <i data-lucide="bell"></i>
-                    <span class="notification-badge"></span>
+                    <span class="notification-badge" id="notifDot" style="display: none;"></span>
                 </button>
 
                 <!-- Desktop Only Profile section (Aligned perfectly in a single row) -->
                 <div class="user-profile-desktop">
-                    <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Fiqry" class="avatar-img">
+                    <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Fiqry"
+                        class="avatar-img">
                     <span class="user-name">Fiqry</span>
                 </div>
 
@@ -1279,10 +1287,8 @@
                 <div class="notification-panel" id="notificationPanel" aria-hidden="true">
                     <div class="panel-card">
                         <div class="panel-title">Notifikasi Terbaru</div>
-                        <ul class="panel-list">
-                            <li><strong>23 Mei 2026</strong> - Laporan #002 sedang dalam penanganan tim lapangan.</li>
-                            <li><strong>20 Mei 2026</strong> - Laporan #001 berhasil ditutup dan ditindaklanjuti.</li>
-                            <li><strong>18 Mei 2026</strong> - Admin meminta detail tambahan untuk laporan Anda.</li>
+                        <ul class="panel-list" id="notifDropdown">
+                            <!-- Data akan diisi dari Javascript -->
                         </ul>
                         <a href="mailto:pengaduan@smartroad.go.id" class="panel-link">Hubungi Admin</a>
                     </div>
@@ -1291,15 +1297,16 @@
                     <div class="panel-card panel-profile-card">
                         <div class="panel-title">Profil Pengguna</div>
                         <div class="profile-summary">
-                            <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Avatar" class="profile-avatar">
+                            <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF"
+                                alt="Avatar" class="profile-avatar">
                             <div>
-                                <strong>Fiqry</strong>
+                                <strong id="popupName">Fiqry</strong>
                                 <p>Warga Terdaftar</p>
                             </div>
                         </div>
                         <div class="profile-detail">
                             <span>Email</span>
-                            <strong>fiqry@example.com</strong>
+                            <strong id="popupEmail">fiqry@example.com</strong>
                         </div>
                         <div class="panel-actions">
                             <a href="profile.html" class="btn btn-outline-primary">Lihat Profil</a>
@@ -1320,7 +1327,9 @@
                     <i data-lucide="megaphone" style="width: 12px; height: 12px;"></i> Pelayanan Pengaduan Publik
                 </div>
                 <h1 class="hero-headline">Laporkan Kerusakan<br><span>Prasarana Jalan</span></h1>
-                <p class="hero-desc">Bantu tim dinas pekerjaan umum kota mendeteksi retakan jalan, jalan berlubang, lampu penerangan mati, atau drainase mampet di sekitar Anda secara cepat, transparan, dan presisi.</p>
+                <p class="hero-desc">Bantu tim dinas pekerjaan umum kota mendeteksi retakan jalan, jalan berlubang,
+                    lampu penerangan mati, atau drainase mampet di sekitar Anda secara cepat, transparan, dan presisi.
+                </p>
             </div>
         </div>
     </section>
@@ -1340,7 +1349,8 @@
                         <div class="form-group">
                             <label for="judulLaporan" class="form-label">Judul Pelaporan</label>
                             <div class="input-with-icon">
-                                <input type="text" id="judulLaporan" class="form-input" placeholder="Contoh: Lubang Jalan Besar di Lajur Kanan Sudirman" required>
+                                <input type="text" id="judulLaporan" class="form-input"
+                                    placeholder="Contoh: Lubang Jalan Besar di Lajur Kanan Sudirman" required>
                                 <i data-lucide="edit-2" class="input-icon"></i>
                             </div>
                         </div>
@@ -1348,7 +1358,8 @@
                         <div class="form-group">
                             <label for="alamatLengkap" class="form-label">Alamat Lengkap Lokasi</label>
                             <div class="input-with-icon">
-                                <input type="text" id="alamatLengkap" class="form-input" placeholder="Nama jalan, nomor, RT/RW, atau penanda dekat lokasi..." required>
+                                <input type="text" id="alamatLengkap" class="form-input"
+                                    placeholder="Nama jalan, nomor, RT/RW, atau penanda dekat lokasi..." required>
                                 <i data-lucide="map-pin" class="input-icon"></i>
                             </div>
                         </div>
@@ -1417,7 +1428,9 @@
 
                         <div class="form-group">
                             <label for="deskripsiKerusakan" class="form-label">Rincian Deskripsi Masalah</label>
-                            <textarea id="deskripsiKerusakan" class="form-textarea" placeholder="Tulis rincian mendalam mengenai kedalaman lubang, waktu terjadinya kerusakan, penanda darurat darurat yang dipasang warga, atau bahaya spesifik sekitar..." required></textarea>
+                            <textarea id="deskripsiKerusakan" class="form-textarea"
+                                placeholder="Tulis rincian mendalam mengenai kedalaman lubang, waktu terjadinya kerusakan, penanda darurat darurat yang dipasang warga, atau bahaya spesifik sekitar..."
+                                required></textarea>
                         </div>
                     </div>
 
@@ -1430,7 +1443,8 @@
                                     <i data-lucide="camera"></i>
                                 </div>
                                 <div class="upload-title">Tarik & Lepaskan File Di Sini</div>
-                                <div class="upload-desc">Atau klik langsung untuk menelusuri file folder (Format JPG, PNG maks. 5MB)</div>
+                                <div class="upload-desc">Atau klik langsung untuk menelusuri file folder (Format JPG,
+                                    PNG maks. 5MB)</div>
                                 <input type="file" id="fileInput" class="file-input" accept="image/*" required>
                             </div>
 
@@ -1442,7 +1456,8 @@
                                         <span class="upload-preview-size" id="previewSize">1.2 MB</span>
                                     </div>
                                 </div>
-                                <button type="button" class="upload-remove-btn" id="removeUploadBtn" aria-label="Batal Unggah">
+                                <button type="button" class="upload-remove-btn" id="removeUploadBtn"
+                                    aria-label="Batal Unggah">
                                     <i data-lucide="x"></i>
                                 </button>
                             </div>
@@ -1468,7 +1483,8 @@
 
                         <!-- Buttons Row inside Card Columns -->
                         <div class="form-actions">
-                            <button type="button" class="btn btn-secondary" onclick="window.location.href='dashboard.html'">Batal</button>
+                            <button type="button" class="btn btn-secondary"
+                                onclick="window.location.href='dashboard.html'">Batal</button>
                             <button type="submit" class="btn btn-primary">
                                 <i data-lucide="send" style="width: 14px; height: 14px;"></i> Kirim Aduan
                             </button>
@@ -1489,7 +1505,8 @@
                     <a href="#" class="footer-logo">
                         <i data-lucide="shield-alert"></i>Smart<span>Road</span>
                     </a>
-                    <p class="footer-desc">Pusat penanganan pelaporan aduan kerusakan jalan raya berbasis transparansi publik dan pemetaan geospasial real-time.</p>
+                    <p class="footer-desc">Pusat penanganan pelaporan aduan kerusakan jalan raya berbasis transparansi
+                        publik dan pemetaan geospasial real-time.</p>
                     <div class="footer-socials">
                         <a href="#" class="social-link" aria-label="Facebook"><i data-lucide="facebook"></i></a>
                         <a href="#" class="social-link" aria-label="Twitter"><i data-lucide="twitter"></i></a>
@@ -1531,8 +1548,10 @@
                 <!-- Col 4: Newsletter -->
                 <div>
                     <h4 class="footer-title">Buletin Kota</h4>
-                    <p class="footer-newsletter">Menerima informasi bulanan rekapitulasi penambalan jalan rusak kota dan peningkatan platform SmartRoad.</p>
-                    <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Terima kasih telah bergabung dengan newsletter kami!');">
+                    <p class="footer-newsletter">Menerima informasi bulanan rekapitulasi penambalan jalan rusak kota dan
+                        peningkatan platform SmartRoad.</p>
+                    <form class="newsletter-form"
+                        onsubmit="event.preventDefault(); alert('Terima kasih telah bergabung dengan newsletter kami!');">
                         <input type="email" class="newsletter-input" placeholder="Masukkan email Anda..." required>
                         <button type="submit" class="newsletter-btn" aria-label="Berlangganan">
                             <i data-lucide="arrow-right"></i>
@@ -1544,7 +1563,8 @@
 
             <!-- Footer Bottom legal info -->
             <div class="footer-bottom">
-                <p class="footer-copy">&copy; 2026 SmartRoad City Initiative. Seluruh Hak Cipta Dilindungi Undang-Undang.</p>
+                <p class="footer-copy">&copy; 2026 SmartRoad City Initiative. Seluruh Hak Cipta Dilindungi
+                    Undang-Undang.</p>
                 <ul class="footer-legal">
                     <li><a href="#">Kebijakan Privasi</a></li>
                     <li><a href="#">Syarat Penggunaan</a></li>
@@ -1568,6 +1588,90 @@
             if (window.lucide) {
                 window.lucide.createIcons();
             }
+
+            // --- 0. DYNAMIC PROFILE & NOTIFICATION LOGIC ---
+            const initDynamicProfile = async () => {
+                const isLoggedIn = localStorage.getItem('isLoggedIn');
+                const userEmail = localStorage.getItem('userEmail');
+                const userName = localStorage.getItem('userName');
+
+                if (isLoggedIn !== 'true') {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // 1. Set Navbar Names (Looping multiple elements)
+                const userNames = document.querySelectorAll('.user-name');
+                userNames.forEach(el => {
+                    if (userName) el.textContent = userName;
+                });
+
+                // 2. Set Popup Info
+                const popupName = document.getElementById('popupName');
+                const popupEmail = document.getElementById('popupEmail');
+                if (popupName && userName) popupName.textContent = userName;
+                if (popupEmail && userEmail) popupEmail.textContent = userEmail;
+
+                // 3. Fetch Profile from Backend to determine Notifications
+                if (userEmail) {
+                    try {
+                        const response = await fetch(`http://127.0.0.1:5000/api/auth/api/profile/user-profile?email=${encodeURIComponent(userEmail)}`);
+                        const resData = await response.json();
+                        if (response.ok && resData.data) {
+                            const profile = resData.data;
+
+                            // Update Avatar
+                            const profilePic = profile.profile_pic === 'default-profile.png'
+                                ? `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.nama)}&background=FF6B00&color=FFFFFF`
+                                : `static/${profile.profile_pic}`;
+
+                            document.querySelectorAll('.avatar-img, .profile-avatar').forEach(img => {
+                                img.src = profilePic;
+                            });
+
+                            // Notification Logic
+                            const notifDot = document.getElementById('notifDot');
+                            const notifDropdown = document.getElementById('notifDropdown');
+
+                            if (!profile.telepon || !profile.alamat) {
+                                if (notifDot) notifDot.style.display = 'block';
+                                if (notifDropdown) {
+                                    notifDropdown.innerHTML = `
+                                        <li>
+                                            <div style="display: flex; gap: 0.5rem; align-items: start;">
+                                                <i data-lucide="alert-circle" style="color: var(--danger-red); width: 16px; margin-top: 2px;"></i>
+                                                <div>
+                                                    <strong style="color: var(--asphalt-dark);">Profil Belum Lengkap</strong><br>
+                                                    <span style="font-size: 0.8rem; color: var(--text-muted);">Silakan <a href="profile.html" style="color: var(--safety-orange); font-weight: 600;">lengkapi data diri Anda</a> (Opsional)</span>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    `;
+                                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                                }
+                            } else {
+                                if (notifDot) notifDot.style.display = 'none';
+                                if (notifDropdown) {
+                                    notifDropdown.innerHTML = `
+                                        <li>
+                                            <div style="text-align: center; padding: 1rem 0; color: var(--text-muted);">
+                                                <i data-lucide="check-circle" style="color: var(--success-green); width: 24px; margin-bottom: 0.5rem;"></i><br>
+                                                Tidak ada notifikasi baru
+                                            </div>
+                                        </li>
+                                    `;
+                                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Failed to fetch profile:', error);
+                    }
+                }
+            };
+
+            initDynamicProfile();
+
 
             // 1. Sticky Translucent Header Scrolled Mode (Exact Copy from dashboard.html)
             const navbar = document.getElementById('navbar');
@@ -1709,7 +1813,7 @@
                     reader.onload = (e) => {
                         previewImg.src = e.target.result;
                         previewName.textContent = file.name;
-                        
+
                         // Human-readable sizes
                         const sizeKB = (file.size / 1024).toFixed(1);
                         if (sizeKB > 1024) {
@@ -1847,7 +1951,7 @@
 
                 // Success alert confirmation
                 alert(`Pengaduan Berhasil Terkirim!\n\nLaporan "${title}" telah resmi masuk ke dalam sistem verifikasi Dinas Pekerjaan Umum Kota. Anda akan dialihkan langsung ke halaman Riwayat untuk meninjau status.`);
-                
+
                 // Direct redirect to riwayat.html
                 window.location.href = 'riwayat.html';
             };

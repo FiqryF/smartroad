@@ -1411,7 +1411,7 @@
             <div class="header-actions">
                 <button class="notification-btn" aria-label="Notifikasi">
                     <i data-lucide="bell"></i>
-                    <span class="notification-badge"></span>
+                    <span class="notification-badge" id="notifDot" style="display: none;"></span>
                 </button>
 
                 <!-- Desktop Only Profile section (Aligned perfectly in a single row) -->
@@ -1430,10 +1430,8 @@
                 <div class="notification-panel" id="notificationPanel" aria-hidden="true">
                     <div class="panel-card">
                         <div class="panel-title">Notifikasi Terbaru</div>
-                        <ul class="panel-list">
-                            <li><strong>23 Mei 2026</strong> - Laporan #002 sedang dalam penanganan tim lapangan.</li>
-                            <li><strong>20 Mei 2026</strong> - Laporan #001 berhasil ditutup dan ditindaklanjuti.</li>
-                            <li><strong>18 Mei 2026</strong> - Admin meminta detail tambahan untuk laporan Anda.</li>
+                        <ul class="panel-list" id="notifDropdown">
+                            <!-- Data akan diisi dari Javascript -->
                         </ul>
                         <a href="mailto:pengaduan@smartroad.go.id" class="panel-link">Hubungi Admin</a>
                     </div>
@@ -1444,13 +1442,13 @@
                         <div class="profile-summary">
                             <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Avatar" class="profile-avatar">
                             <div>
-                                <strong>Fiqry</strong>
+                                <strong id="popupName">Fiqry</strong>
                                 <p>Warga Terdaftar</p>
                             </div>
                         </div>
                         <div class="profile-detail">
                             <span>Email</span>
-                            <strong>fiqry@example.com</strong>
+                            <strong id="popupEmail">fiqry@example.com</strong>
                         </div>
                         <div class="panel-actions">
                             <a href="profile.html" class="btn btn-outline-primary">Lihat Profil</a>
@@ -1470,7 +1468,7 @@
                 <div class="hero-badge">
                     <i data-lucide="shield" style="width: 12px; height: 12px;"></i> Portal Resmi Warga
                 </div>
-                <h1 class="hero-headline">Selamat Datang,<br><span>Fiqry</span></h1>
+                <h1 class="hero-headline">Selamat Datang,<br><span id="heroName">Fiqry</span></h1>
                 <p class="hero-desc">Portal pelaporan infrastruktur aktif Anda. Laporkan jalan berlubang, retakan
                     struktural, atau fasilitas jalan kota yang rusak secara instan langsung ke dinas pekerjaan umum
                     terkait untuk mewujudkan kota cerdas yang aman.</p>

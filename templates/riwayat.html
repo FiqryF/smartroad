@@ -1693,7 +1693,7 @@
             <div class="header-actions">
                 <button class="notification-btn" aria-label="Notifikasi">
                     <i data-lucide="bell"></i>
-                    <span class="notification-badge"></span>
+                    <span class="notification-badge" id="notifDot" style="display: none;"></span>
                 </button>
 
                 <!-- Desktop Only Profile section (Aligned perfectly in a single row) -->
@@ -1711,10 +1711,8 @@
                 <div class="notification-panel" id="notificationPanel" aria-hidden="true">
                     <div class="panel-card">
                         <div class="panel-title">Notifikasi Terbaru</div>
-                        <ul class="panel-list">
-                            <li><strong>23 Mei 2026</strong> - Laporan #002 sedang dalam penanganan tim lapangan.</li>
-                            <li><strong>20 Mei 2026</strong> - Laporan #001 berhasil ditutup dan ditindaklanjuti.</li>
-                            <li><strong>18 Mei 2026</strong> - Admin meminta detail tambahan untuk laporan Anda.</li>
+                        <ul class="panel-list" id="notifDropdown">
+                            <!-- Data akan diisi dari Javascript -->
                         </ul>
                         <a href="mailto:pengaduan@smartroad.go.id" class="panel-link">Hubungi Admin</a>
                     </div>
@@ -1725,13 +1723,13 @@
                         <div class="profile-summary">
                             <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Avatar" class="profile-avatar">
                             <div>
-                                <strong>Fiqry</strong>
+                                <strong id="popupName">Fiqry</strong>
                                 <p>Warga Terdaftar</p>
                             </div>
                         </div>
                         <div class="profile-detail">
                             <span>Email</span>
-                            <strong>fiqry@example.com</strong>
+                            <strong id="popupEmail">fiqry@example.com</strong>
                         </div>
                         <div class="panel-actions">
                             <a href="profile.html" class="btn btn-outline-primary">Lihat Profil</a>
@@ -2055,6 +2053,89 @@
             if (window.lucide) {
                 window.lucide.createIcons();
             }
+
+            // --- 0. DYNAMIC PROFILE & NOTIFICATION LOGIC ---
+            const initDynamicProfile = async () => {
+                const isLoggedIn = localStorage.getItem('isLoggedIn');
+                const userEmail = localStorage.getItem('userEmail');
+                const userName = localStorage.getItem('userName');
+
+                if (isLoggedIn !== 'true') {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // 1. Set Navbar Names
+                const userNames = document.querySelectorAll('.user-name');
+                userNames.forEach(el => {
+                    if (userName) el.textContent = userName;
+                });
+
+                // 2. Set Popup Info
+                const popupName = document.getElementById('popupName');
+                const popupEmail = document.getElementById('popupEmail');
+                if (popupName && userName) popupName.textContent = userName;
+                if (popupEmail && userEmail) popupEmail.textContent = userEmail;
+
+                // 3. Fetch Profile from Backend
+                if (userEmail) {
+                    try {
+                        const response = await fetch(`http://127.0.0.1:5000/api/auth/api/profile/user-profile?email=${encodeURIComponent(userEmail)}`);
+                        const resData = await response.json();
+                        if (response.ok && resData.data) {
+                            const profile = resData.data;
+
+                            // Update Avatar
+                            const profilePic = profile.profile_pic === 'default-profile.png'
+                                ? `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.nama)}&background=FF6B00&color=FFFFFF`
+                                : `static/${profile.profile_pic}`;
+
+                            document.querySelectorAll('.avatar-img, .profile-avatar').forEach(img => {
+                                img.src = profilePic;
+                            });
+
+                            // Notification Logic
+                            const notifDot = document.getElementById('notifDot');
+                            const notifDropdown = document.getElementById('notifDropdown');
+
+                            if (!profile.telepon || !profile.alamat) {
+                                if (notifDot) notifDot.style.display = 'block';
+                                if (notifDropdown) {
+                                    notifDropdown.innerHTML = `
+                                        <li>
+                                            <div style="display: flex; gap: 0.5rem; align-items: start;">
+                                                <i data-lucide="alert-circle" style="color: var(--danger-red); width: 16px; margin-top: 2px;"></i>
+                                                <div>
+                                                    <strong style="color: var(--asphalt-dark);">Profil Belum Lengkap</strong><br>
+                                                    <span style="font-size: 0.8rem; color: var(--text-muted);">Silakan <a href="profile.html" style="color: var(--safety-orange); font-weight: 600;">lengkapi data diri Anda</a> (Opsional)</span>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    `;
+                                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                                }
+                            } else {
+                                if (notifDot) notifDot.style.display = 'none';
+                                if (notifDropdown) {
+                                    notifDropdown.innerHTML = `
+                                        <li>
+                                            <div style="text-align: center; padding: 1rem 0; color: var(--text-muted);">
+                                                <i data-lucide="check-circle" style="color: var(--success-green); width: 24px; margin-bottom: 0.5rem;"></i><br>
+                                                Tidak ada notifikasi baru
+                                            </div>
+                                        </li>
+                                    `;
+                                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Failed to fetch profile:', error);
+                    }
+                }
+            };
+            
+            initDynamicProfile();
 
             // 1. Sticky Translucent Header (Identical to dashboard.html scroll behavior)
             const navbar = document.getElementById('navbar');

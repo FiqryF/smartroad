@@ -16,6 +16,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const response = await ApiService.post('/auth/login', { email, password });
                 
                 if (response.ok) {
+                    // Menyimpan status sesi, nama pengguna, dan email ke localStorage
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('userName', response.data.user_data.nama);
+                    localStorage.setItem('userEmail', response.data.user_data.email);
+
                     Swal.fire({
                         icon: 'success',
                         title: 'Sukses',

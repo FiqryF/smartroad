@@ -1454,7 +1454,7 @@
                         </div>
                         <div class="panel-actions">
                             <a href="profile.html" class="btn btn-outline-primary">Lihat Profil</a>
-                            <a href="#" class="btn btn-secondary">Keluar</a>
+                            <a href="javascript:void(0)" onclick="logout()" class="btn btn-secondary">Keluar</a>
                         </div>
                     </div>
                 </div>
@@ -1823,6 +1823,7 @@
             }
         });
     </script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 </body>
 
 </html>

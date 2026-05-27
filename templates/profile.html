@@ -483,57 +483,71 @@
             <!-- Profile Info Hero Header -->
             <div class="profile-hero">
                 <div class="avatar-uploader">
-                    <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Fiqry" class="avatar-img">
-                    <button type="button" class="avatar-edit-badge" aria-label="Ubah Foto">
+                    <img src="https://ui-avatars.com/api/?name=User&background=FF6B00&color=FFFFFF" alt="Avatar" class="avatar-img" id="avatarImg">
+                    <button type="button" class="avatar-edit-badge" aria-label="Ubah Foto" id="avatarEditBtn">
                         <i data-lucide="camera" style="width: 12px; height: 12px;"></i>
                     </button>
+                    <input type="file" id="photoInput" style="display: none;" accept="image/*">
                 </div>
                 <div class="profile-hero-info">
-                    <h3>Fiqry Ramadhan</h3>
-                    <p>Warga Terdaftar • Bergabung Mei 2026</p>
+                    <h3 id="heroNama">Memuat...</h3>
+                    <p id="labelBergabung">Bergabung ...</p>
                 </div>
             </div>
 
-            <!-- Form -->
-            <form class="settings-form" onsubmit="event.preventDefault(); triggerSaveEffect();">
-                
-                <!-- Section 1 -->
-                <div class="section-header">
-                    <i data-lucide="contact" style="width: 14px; height: 14px;"></i> Profil Utama
-                </div>
-                <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label class="form-label">Nama Lengkap</label>
-                        <input type="text" class="form-input" value="Fiqry Ramadhan" required>
+            <!-- Form Utama -->
+            <div class="settings-form">
+                <form id="profileForm">
+                    <!-- Section 1 -->
+                    <div class="section-header">
+                        <i data-lucide="contact" style="width: 14px; height: 14px;"></i> Profil Utama
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Alamat Email</label>
-                        <input type="email" class="form-input" value="fiqry@example.com" required>
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label class="form-label">Nama Lengkap</label>
+                            <input type="text" class="form-input" id="inputNama" readonly style="background-color: #f1f5f9;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Alamat Email</label>
+                            <input type="email" class="form-input" id="inputEmail" readonly style="background-color: #f1f5f9;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nomor WhatsApp</label>
+                            <input type="tel" class="form-input" id="inputTelepon">
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">Alamat Lengkap</label>
+                            <input type="text" class="form-input" id="inputAlamat">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Nomor WhatsApp</label>
-                        <input type="tel" class="form-input" value="081234567890" required>
+                    <div class="form-actions" style="margin-top: 1rem; border-top: none; padding-top: 0;">
+                        <button type="submit" class="btn btn-primary" id="btnSaveProfile">
+                            <i data-lucide="save" style="width: 15px; height: 15px;"></i> Simpan Profil
+                        </button>
                     </div>
-                    <div class="form-group full-width">
-                        <label class="form-label">Alamat Lengkap</label>
-                        <input type="text" class="form-input" value="Jl. Mawar No. 12, Kec. Sukomanunggal, Surabaya">
-                    </div>
-                </div>
+                </form>
 
-                <!-- Section 2 -->
-                <div class="section-header">
-                    <i data-lucide="lock" style="width: 14px; height: 14px;"></i> Kata Sandi
-                </div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">Kata Sandi Baru</label>
-                        <input type="password" class="form-input" placeholder="Masukkan kata sandi baru...">
+                <form id="passwordForm">
+                    <!-- Section 2 -->
+                    <div class="section-header" style="margin-top: 2.5rem;">
+                        <i data-lucide="lock" style="width: 14px; height: 14px;"></i> Kata Sandi
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Konfirmasi Kata Sandi</label>
-                        <input type="password" class="form-input" placeholder="Ulangi kata sandi...">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Kata Sandi Baru</label>
+                            <input type="password" class="form-input" id="newPassword" placeholder="Masukkan kata sandi baru..." required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Konfirmasi Kata Sandi</label>
+                            <input type="password" class="form-input" id="confirmPassword" placeholder="Ulangi kata sandi..." required>
+                        </div>
                     </div>
-                </div>
+                    <div class="form-actions" style="margin-top: 1rem; border-top: none; padding-top: 0;">
+                        <button type="submit" class="btn btn-secondary">
+                            Ubah Kata Sandi
+                        </button>
+                    </div>
+                </form>
 
                 <!-- Section 3 -->
                 <div class="section-header" style="border-color: rgba(239, 68, 68, 0.15);">
@@ -547,40 +561,15 @@
                     <button type="button" class="btn-danger" onclick="confirm('Apakah Anda yakin ingin menghapus akun permanen?')">Hapus Akun</button>
                 </div>
 
-                <!-- Form Actions -->
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="window.location.href='dashboard.html'">Batal</button>
-                    <button type="submit" class="btn btn-primary" id="btnSave">
-                        <i data-lucide="save" style="width: 15px; height: 15px;"></i> Simpan
-                    </button>
-                </div>
-
-            </form>
+            </div>
         </main>
     </div>
 
     <!-- Scripting for Lucide icons and animations -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
-        lucide.createIcons();
-
-        function triggerSaveEffect() {
-            const btn = document.getElementById('btnSave');
-            const originalHTML = btn.innerHTML;
-            
-            btn.innerHTML = `<i data-lucide="check" style="width: 15px; height: 15px;"></i> Berhasil`;
-            btn.style.backgroundColor = 'var(--success)';
-            btn.style.pointerEvents = 'none';
-            lucide.createIcons();
-            
-            setTimeout(() => {
-                btn.innerHTML = originalHTML;
-                btn.style.backgroundColor = '';
-                btn.style.pointerEvents = 'auto';
-                lucide.createIcons();
-            }, 2000);
-        }
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ url_for('static', filename='js/api.js') }}?v=2"></script>
+    <script src="{{ url_for('static', filename='js/profile.js') }}?v=3"></script>
 </body>
 
 </html>

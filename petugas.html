@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Petugas Lapangan - SmartRoad</title>
+
+    <!-- Google Fonts: Inter (UI/Body) & Montserrat (Heavy Headings) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Leaflet.js CSS for Interactive Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+    <!-- Custom CSS matching dashboard.html and index.html exactly -->
+    <style>
+        :root {
+            /* Branding Colors - Professional, Industrial & Engineering */
+            --asphalt-dark: #121416;
+            --asphalt-medium: #181B1E;
+            --asphalt-light: #202428;
+            --asphalt-border: #262B30;
+
+            --safety-orange: #FF6B00;
+            --safety-orange-hover: #E05E00;
+            --safety-orange-glow: rgba(255, 107, 0, 0.15);
+
+            --concrete-gray: #F8F9FA;
+            --concrete-dark: #E9ECEF;
+            --concrete-border: #E2E5E8;
+
+            --text-dark: #1F2226;
+            --text-muted: #5A626A;
+            --text-light: #B9C2CB;
+            --text-white: #FFFFFF;
+
+            --danger-red: #E63946;
+            --success-green: #2A9D8F;
+            --processing-blue: #3A86FF;
+
+            /* Sharp, Minimalist Tokens */
+            --border-radius: 4px;
+            --transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.15);
+            --shadow-hover: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        /* Resets */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--text-dark);
+            background-color: var(--concrete-gray);
+        }
+
+        body {
+            line-height: 1.5;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::selection {
+            background-color: var(--safety-orange);
+            color: var(--text-white);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: var(--transition);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Buttons (Minimal, Sharp) */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.6rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1.5px solid transparent;
+        }
+
+        .btn-primary {
+            background-color: var(--safety-orange);
+            color: var(--text-white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--safety-orange-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-white {
+            background-color: transparent;
+            border-color: var(--text-white);
+            color: var(--text-white);
+        }
+
+        .btn-outline-white:hover {
+            background-color: var(--text-white);
+            color: var(--asphalt-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-dark {
+            background-color: transparent;
+            border-color: var(--asphalt-border);
+            color: var(--asphalt-dark);
+        }
+
+        .btn-outline-dark:hover {
+            background-color: var(--concrete-dark);
+        }
+
+        .btn-success {
+            background-color: var(--success-green);
+            color: var(--text-white);
+        }
+
+        .btn-success:hover {
+            background-color: #21867a;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: var(--concrete-dark);
+            color: var(--asphalt-dark);
+            border: 1.5px solid var(--concrete-border);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--concrete-border);
+        }
+
+        /* Floating Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1.25rem 0;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+        }
+
+        .header.scrolled {
+            background-color: rgba(18, 20, 22, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--asphalt-border);
+            padding: 0.85rem 0;
+        }
+
+        .header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: visible;
+        }
+
+        .logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: var(--text-white);
+            letter-spacing: -0.03em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .logo i {
+            color: var(--safety-orange);
+            display: flex;
+        }
+
+        .logo span {
+            color: var(--safety-orange);
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-link {
+            color: var(--text-light);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.4rem 0;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--text-white);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0%;
+            height: 1.5px;
+            background-color: var(--safety-orange);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .notification-btn {
+            position: relative;
+            background: none;
+            border: none;
+            color: var(--text-white);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-size: 1.25rem;
+            transition: var(--transition);
+            outline: none;
+        }
+
+        .notification-btn:hover {
+            color: var(--safety-orange);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 7px;
+            height: 7px;
+            background-color: var(--safety-orange);
+            border-radius: 50%;
+            box-shadow: 0 0 5px var(--safety-orange);
+        }
+
+        .user-profile-desktop {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .user-profile-desktop:hover .user-name {
+            color: var(--safety-orange);
+        }
+
+        .avatar-img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1.5px solid var(--asphalt-border);
+            object-fit: cover;
+        }
+
+        .user-name {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-white);
+            transition: var(--transition);
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-white);
+            font-size: 1.35rem;
+            cursor: pointer;
+            z-index: 1010;
+            outline: none;
+        }
+
+        /* Dropdowns */
+        .header-dropdowns {
+            position: absolute;
+            top: 100%;
+            right: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            z-index: 1020;
+            pointer-events: none;
+        }
+
+        .notification-panel,
+        .profile-menu {
+            position: absolute;
+            top: calc(100% + 0.75rem);
+            right: 0;
+            width: 320px;
+            max-width: calc(100vw - 2rem);
+            background-color: var(--text-white);
+            border: 1px solid var(--concrete-border);
+            border-radius: 18px;
+            box-shadow: var(--shadow-lg);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px);
+            transition: var(--transition);
+            pointer-events: auto;
+        }
+
+        .notification-panel.active,
+        .profile-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .panel-card {
+            padding: 1.25rem;
+        }
+
+        .panel-title {
+            font-size: 0.85rem;
+            color: var(--text-dark);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+
+        .panel-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            gap: 0.85rem;
+        }
+
+        .panel-list li {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        .panel-link {
+            display: inline-block;
+            margin-top: 1rem;
+            color: var(--safety-orange);
+            font-weight: 700;
+        }
+
+        .panel-link:hover {
+            text-decoration: underline;
+        }
+
+        .profile-summary {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .profile-avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .profile-summary strong {
+            display: block;
+            font-size: 0.95rem;
+            color: var(--asphalt-dark);
+            margin-bottom: 0.15rem;
+        }
+
+        .profile-summary p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .profile-detail {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            padding: 0.95rem 0;
+            border-top: 1px solid var(--concrete-border);
+            border-bottom: 1px solid var(--concrete-border);
+            margin-bottom: 1rem;
+        }
+
+        .profile-detail span {
+            display: block;
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 0.68rem;
+            color: var(--text-muted);
+        }
+
+        .panel-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-outline-primary {
+            background-color: transparent;
+            border: 1.5px solid var(--safety-orange);
+            color: var(--safety-orange);
+            width: 100%;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--safety-orange);
+            color: var(--text-white);
+        }
+
+        /* Hero */
+        .hero {
+            height: 40vh;
+            min-height: 320px;
+            position: relative;
+            background: url('https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=2560') no-repeat center center/cover;
+            display: flex;
+            align-items: center;
+            color: var(--text-white);
+            overflow: hidden;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(18, 20, 22, 0.95) 0%, rgba(18, 20, 22, 0.8) 50%, rgba(18, 20, 22, 0.4) 100%);
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 3;
+            max-width: 800px;
+            margin-top: 2rem;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background-color: var(--safety-orange);
+            color: var(--text-white);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            padding: 0.4rem 0.8rem;
+            border-radius: 2px;
+            margin-bottom: 1.25rem;
+        }
+
+        .hero-headline {
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(2rem, 4.5vw, 3rem);
+            font-weight: 900;
+            line-height: 1.15;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            margin-bottom: 1.25rem;
+        }
+
+        .hero-headline span {
+            color: var(--safety-orange);
+        }
+
+        .hero-desc {
+            font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+            color: var(--text-light);
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        /* Workspace Layout (Daftar Tugas Kiri & Peta Kanan) */
+        .workspace-section {
+            padding: 4rem 0;
+            background-color: var(--concrete-gray);
+        }
+
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--asphalt-dark);
+            color: var(--safety-orange);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            padding: 0.4rem 0.8rem;
+            border-left: 2px solid var(--safety-orange);
+            margin-bottom: 0.75rem;
+            border-radius: 2px;
+        }
+
+        .section-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--asphalt-dark);
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.75rem;
+        }
+
+        .section-desc {
+            margin-bottom: 2rem;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Tasks Side Column */
+        .tasks-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .task-card {
+            background-color: var(--text-white);
+            border: 1px solid var(--concrete-border);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+        }
+
+        .task-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Foto Kerusakan di Dalam Daftar Tugas */
+        .task-card-image {
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+            position: relative;
+            border-bottom: 1px solid var(--concrete-border);
+        }
+
+        .task-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .task-card-body {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .task-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-id {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--asphalt-dark);
+        }
+
+        .task-status {
+            display: inline-flex;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 999px;
+        }
+
+        .status-processing {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .task-details-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+
+        .task-details-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            line-height: 1.4;
+        }
+
+        .task-details-list i {
+            color: var(--safety-orange);
+            margin-top: 0.15rem;
+            flex-shrink: 0;
+            font-size: 1rem;
+        }
+
+        .task-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            padding-top: 0.5rem;
+        }
+
+        /* Map Side Column (Sticky on Desktop) */
+        .map-column {
+            position: sticky;
+            top: 100px;
+            height: calc(100vh - 140px);
+            min-height: 520px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .interactive-map-wrapper {
+            flex: 1;
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--concrete-border);
+            z-index: 10;
+        }
+
+        #main-map {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            background: rgba(18, 20, 22, 0.6);
+            padding: 1.5rem;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: var(--transition);
+            z-index: 1050;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            width: min(720px, 100%);
+            background: var(--text-white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            transform: translateY(-20px);
+            transition: var(--transition);
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 1.75rem;
+            border-bottom: 1px solid var(--concrete-border);
+        }
+
+        .modal-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--asphalt-dark);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--danger-red);
+        }
+
+        .modal-body {
+            padding: 1.5rem 1.75rem;
+            overflow-y: auto;
+        }
+
+        /* Details Modal Layout */
+        .detail-layout {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 1.75rem;
+        }
+
+        .detail-block {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .detail-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+        }
+
+        .detail-image-wrapper {
+            width: 100%;
+            height: 180px;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid var(--concrete-border);
+        }
+
+        .detail-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .detail-desc-box {
+            background-color: var(--concrete-gray);
+            border-left: 3px solid var(--safety-orange);
+            padding: 0.85rem 1rem;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            color: var(--text-dark);
+        }
+
+        .mini-map-container {
+            width: 100%;
+            height: 180px;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid var(--concrete-border);
+        }
+
+        #mini-map {
+            width: 100%;
+            height: 100%;
+        }
+
+        .detail-text-field {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+
+        .modal-footer {
+            padding: 1.25rem 1.75rem;
+            border-top: 1px solid var(--concrete-border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        /* Form styling */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            color: var(--asphalt-dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--concrete-border);
+            border-radius: var(--border-radius);
+            font-family: inherit;
+            font-size: 0.88rem;
+            background-color: var(--concrete-gray);
+            color: var(--text-dark);
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--safety-orange);
+            background-color: var(--text-white);
+        }
+
+        .file-upload-wrapper {
+            position: relative;
+            border: 2px dashed var(--concrete-border);
+            border-radius: var(--border-radius);
+            padding: 2.25rem;
+            text-align: center;
+            background: var(--concrete-gray);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .file-upload-wrapper:hover {
+            border-color: var(--safety-orange);
+            background-color: rgba(255, 107, 0, 0.02);
+        }
+
+        .file-upload-input {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .file-upload-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        .file-upload-content i {
+            color: var(--safety-orange);
+            font-size: 1.5rem;
+        }
+
+        /* Drawer Overlay Mobile Navbar */
+        .drawer-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .drawer-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--asphalt-dark);
+            color: var(--text-white);
+            padding: 4rem 0 2rem;
+            border-top: 1px solid var(--asphalt-border);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1.2fr 1.8fr;
+            gap: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            text-transform: uppercase;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer-logo i {
+            color: var(--safety-orange);
+        }
+
+        .footer-logo span {
+            color: var(--safety-orange);
+        }
+
+        .footer-desc {
+            color: var(--text-light);
+            font-size: 0.85rem;
+            margin-bottom: 1.25rem;
+            line-height: 1.5;
+            max-width: 280px;
+        }
+
+        .footer-socials {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .social-link {
+            width: 2.25rem;
+            height: 2.25rem;
+            background-color: var(--asphalt-medium);
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--asphalt-border);
+            font-size: 0.95rem;
+        }
+
+        .social-link:hover {
+            background-color: var(--safety-orange);
+            color: var(--text-white);
+            border-color: var(--safety-orange);
+            transform: translateY(-2px);
+        }
+
+        .footer-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-white);
+            margin-bottom: 1.25rem;
+            position: relative;
+            padding-bottom: 0.4rem;
+        }
+
+        .footer-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 1.5rem;
+            height: 1.5px;
+            background-color: var(--safety-orange);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.6rem;
+        }
+
+        .footer-links a {
+            color: var(--text-light);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .footer-links a:hover {
+            color: var(--safety-orange);
+            padding-left: 4px;
+        }
+
+        .footer-contact li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            color: var(--text-light);
+            font-size: 0.8rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .footer-contact i {
+            color: var(--safety-orange);
+            margin-top: 0.15rem;
+            flex-shrink: 0;
+            font-size: 0.9rem;
+        }
+
+        .footer-newsletter p {
+            color: var(--text-light);
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .newsletter-form {
+            display: flex;
+            border: 1px solid var(--asphalt-border);
+            background-color: var(--asphalt-medium);
+            padding: 0.25rem;
+            border-radius: var(--border-radius);
+        }
+
+        .newsletter-input {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 0.5rem 0.75rem;
+            color: var(--text-white);
+            font-family: inherit;
+            font-size: 0.8rem;
+            outline: none;
+        }
+
+        .newsletter-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .newsletter-btn {
+            background-color: var(--safety-orange);
+            color: var(--text-white);
+            border: none;
+            width: 2.25rem;
+            height: 2.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .newsletter-btn:hover {
+            background-color: var(--safety-orange-hover);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--asphalt-border);
+            padding-top: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-copy {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .footer-legal {
+            display: flex;
+            gap: 1.25rem;
+            list-style: none;
+        }
+
+        .footer-legal a {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .footer-legal a:hover {
+            color: var(--safety-orange);
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1024px) {
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 2rem;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .workspace-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .map-column {
+                position: static;
+                height: 380px;
+                min-height: 300px;
+                order: -1; /* Map displays first on tablet/mobile for geosurvey reference */
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: flex;
+                flex-direction: column;
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 280px;
+                height: 100vh;
+                background-color: #121416 !important;
+                border-left: 1px solid var(--asphalt-border);
+                padding: 6rem 2rem 2rem;
+                gap: 1.75rem;
+                align-items: center;
+                text-align: center;
+                transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+                z-index: 1005;
+                box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+            }
+
+            .nav-menu.active {
+                right: 0;
+            }
+
+            .nav-link {
+                font-size: 0.9rem;
+                width: 100%;
+                display: block;
+                border-bottom: 1px solid var(--asphalt-border);
+                padding-bottom: 0.75rem;
+                text-align: center;
+            }
+
+            .nav-link::after {
+                display: none;
+            }
+
+            .user-profile-desktop {
+                display: none;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .detail-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Drawer Overlay for Mobile Navbar -->
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+
+    <!-- Floating Header -->
+    <header class="header" id="navbar">
+        <div class="container">
+            <a href="petugas.html" class="logo">
+                <i data-lucide="shield-alert"></i>Smart<span>Road</span>
+            </a>
+
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="petugas.html" class="nav-link active">Beranda Petugas</a></li>
+                <li><a href="#peta-tugas" class="nav-link">Peta Tugas</a></li>
+                <li><a href="#tugas-aktif" class="nav-link">Daftar Pekerjaan</a></li>
+                <!-- Mobile only profile menu drawer link -->
+                <li style="margin-top: 1.5rem; width: 100%; display: none;" id="mobileUserItem">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <img src="https://ui-avatars.com/api/?name=Fahmi&background=FF6B00&color=FFFFFF" alt="Fahmi" class="avatar-img">
+                        <span class="user-name">Fahmi (Petugas)</span>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="header-actions">
+                <button class="notification-btn" aria-label="Notifikasi" id="notificationBtn">
+                    <i data-lucide="bell"></i>
+                    <span class="notification-badge"></span>
+                </button>
+
+                <!-- Desktop User Profile -->
+                <div class="user-profile-desktop" id="profileBtn">
+                    <img src="https://ui-avatars.com/api/?name=Fahmi&background=FF6B00&color=FFFFFF" alt="Fahmi" class="avatar-img">
+                    <span class="user-name">Fahmi</span>
+                </div>
+
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle Menu">
+                    <i data-lucide="menu"></i>
+                </button>
+            </div>
+
+            <!-- Dropdown Panels -->
+            <div class="header-dropdowns">
+                <!-- Notifications -->
+                <div class="notification-panel" id="notificationPanel" aria-hidden="true">
+                    <div class="panel-card">
+                        <div class="panel-title">Tugas & Info Terbaru</div>
+                        <ul class="panel-list">
+                            <li><strong>Hari Ini, 09:15</strong> - Admin membagikan tugas baru <b>#REP-0015</b> di Jl. Ahmad Yani.</li>
+                            <li><strong>Hari Ini, 08:30</strong> - Anda ditugaskan untuk memperbaiki lubang jalan <b>#REP-0012</b>.</li>
+                            <li><strong>Kemarin</strong> - Laporan perbaikan <b>#REP-0010</b> di Jl. Raya Darmo disetujui Admin.</li>
+                        </ul>
+                        <a href="mailto:dpu-surabaya@smartroad.go.id" class="panel-link">Hubungi Koordinator</a>
+                    </div>
+                </div>
+
+                <!-- Profile Menu -->
+                <div class="profile-menu" id="profileMenu" aria-hidden="true">
+                    <div class="panel-card">
+                        <div class="panel-title">Profil Petugas</div>
+                        <div class="profile-summary">
+                            <img src="https://ui-avatars.com/api/?name=Fahmi&background=FF6B00&color=FFFFFF" alt="Avatar" class="profile-avatar">
+                            <div>
+                                <strong>Fahmi Pratama</strong>
+                                <p>Petugas Lapangan DPU</p>
+                            </div>
+                        </div>
+                        <div class="profile-detail">
+                            <span>Email Dinas</span>
+                            <strong>fahmi.pratama@surabaya.go.id</strong>
+                        </div>
+                        <div class="panel-actions">
+                            <a href="#" class="btn btn-outline-primary">Lihat ID Card</a>
+                            <a href="login.html" class="btn btn-secondary" style="width: 100%; text-align: center; justify-content: center;">Keluar</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-overlay"></div>
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i data-lucide="shield" style="width: 12px; height: 12px;"></i> Portal Lapangan & Operasional
+                </div>
+                <h1 class="hero-headline">Halo, <span>Fahmi</span></h1>
+                <p class="hero-desc">Pantau koordinat kerusakan jalan secara akurat melalui peta interaktif. Kerjakan tugas di lapangan dengan aman, lalu segera unggah dokumentasi selesai guna mengabari warga pelapor secara otomatis.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Workspace: Left Task List, Right Map -->
+    <section class="workspace-section" id="peta-tugas">
+        <div class="container">
+            <div class="workspace-grid">
+                
+                <!-- Left: Task List -->
+                <div class="tasks-column" id="tugas-aktif">
+                    <div>
+                        <span class="section-badge">Operasional Lapangan</span>
+                        <h2 class="section-title">Daftar Penugasan</h2>
+                        <p class="section-desc">Kerusakan infrastruktur jalan yang wajib Anda tindaklanjuti hari ini.</p>
+                    </div>
+
+                    <!-- Task Card 1 -->
+                    <div class="task-card">
+                        <div class="task-card-image">
+                            <img src="https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?q=80&w=800" alt="Foto Jalan Berlubang">
+                        </div>
+                        <div class="task-card-body">
+                            <div class="task-card-top">
+                                <span class="task-id">#REP-0012</span>
+                                <span class="task-status status-processing">Dalam Pengerjaan</span>
+                            </div>
+                            <ul class="task-details-list">
+                                <li><i data-lucide="map-pin"></i> <span>Jl. Raya Basuki Rahmat No. 120 (Depan Ruko Plaza)</span></li>
+                                <li><i data-lucide="alert-triangle"></i> <span>Lubang berdiameter 50cm, kedalaman ~15cm</span></li>
+                                <li><i data-lucide="clock"></i> <span>Ditugaskan: Hari ini, 08:30 WIB</span></li>
+                            </ul>
+                            <div class="task-actions">
+                                <button class="btn btn-outline-dark" onclick="openDetailModal('REP-0012')">
+                                    <i data-lucide="eye"></i> Detail
+                                </button>
+                                <button class="btn btn-primary" onclick="openConfirmModal('REP-0012')">
+                                    <i data-lucide="check"></i> Selesai
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Task Card 2 -->
+                    <div class="task-card">
+                        <div class="task-card-image">
+                            <img src="https://images.unsplash.com/photo-1599740831633-149b109be762?q=80&w=800" alt="Foto Jalan Retak">
+                        </div>
+                        <div class="task-card-body">
+                            <div class="task-card-top">
+                                <span class="task-id">#REP-0015</span>
+                                <span class="task-status status-processing">Dalam Pengerjaan</span>
+                            </div>
+                            <ul class="task-details-list">
+                                <li><i data-lucide="map-pin"></i> <span>Jl. Ahmad Yani KM 12 (Samping Halte Dishub Surabaya)</span></li>
+                                <li><i data-lucide="alert-triangle"></i> <span>Retakan memanjang di lajur kiri sepanjang 2 meter</span></li>
+                                <li><i data-lucide="clock"></i> <span>Ditugaskan: Hari ini, 09:15 WIB</span></li>
+                            </ul>
+                            <div class="task-actions">
+                                <button class="btn btn-outline-dark" onclick="openDetailModal('REP-0015')">
+                                    <i data-lucide="eye"></i> Detail
+                                </button>
+                                <button class="btn btn-primary" onclick="openConfirmModal('REP-0015')">
+                                    <i data-lucide="check"></i> Selesai
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Map (Sticky on Desktop) -->
+                <div class="map-column">
+                    <div>
+                        <span class="section-badge">Visualisasi Geospasial</span>
+                        <h2 class="section-title">Peta Navigasi</h2>
+                        <p class="section-desc">Peta penugasan interaktif.</p>
+                    </div>
+                    <div class="interactive-map-wrapper">
+                        <div id="main-map"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Detail Modal -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="modal-title">Detail Aduan Laporan <span id="detailTaskIdText" style="color: var(--safety-orange);">#REP-0012</span></h3>
+                <button class="modal-close" onclick="closeDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-layout">
+                    <!-- Left: Photo and Details -->
+                    <div class="detail-block">
+                        <div>
+                            <span class="detail-label">Visual Kerusakan (Dari Warga)</span>
+                            <div class="detail-image-wrapper">
+                                <img id="detailImage" src="" alt="Kerusakan Jalan">
+                            </div>
+                        </div>
+                        <div>
+                            <span class="detail-label">Kategori Kerusakan</span>
+                            <div class="detail-text-field" id="detailCategory" style="font-weight: 700;">-</div>
+                        </div>
+                        <div>
+                            <span class="detail-label">Deskripsi Lengkap</span>
+                            <div class="detail-desc-box" id="detailDesc">
+                                -
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Map and Reporter -->
+                    <div class="detail-block">
+                        <div>
+                            <span class="detail-label">Lokasi Geospasial</span>
+                            <div class="mini-map-container">
+                                <div id="mini-map"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="detail-label">Alamat Lengkap</span>
+                            <div class="detail-text-field" id="detailLocation" style="font-weight: 500;">
+                                -
+                            </div>
+                        </div>
+                        <div>
+                            <span class="detail-label">Identitas Pelapor</span>
+                            <div class="detail-text-field">
+                                Nama: <strong id="detailReporterName">-</strong><br>
+                                Waktu Lapor: <span id="detailReportTime">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeDetailModal()">Kembali</button>
+                <button class="btn btn-primary" id="detailConfirmBtn">
+                    <i data-lucide="check"></i> Konfirmasi Selesai
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-card" style="width: min(500px, 100%);">
+            <div class="modal-header">
+                <h3 class="modal-title">Konfirmasi Penyelesaian</h3>
+                <button class="modal-close" onclick="closeConfirmModal()">&times;</button>
+            </div>
+            <form onsubmit="submitCompletionForm(event)">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">ID Laporan</label>
+                        <input type="text" id="modalTaskId" class="form-control" readonly style="font-weight: 700; color: var(--safety-orange);">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Foto Bukti Selesai Perbaikan</label>
+                        <div class="file-upload-wrapper">
+                            <input type="file" class="file-upload-input" accept="image/*" required id="fileInput" onchange="handleFileChange()">
+                            <div class="file-upload-content" id="uploadContent">
+                                <i data-lucide="camera"></i>
+                                <span style="font-weight: 600; color: var(--asphalt-dark);">Klik atau Drag Foto Disini</span>
+                                <span style="font-size: 0.75rem;">Format JPG/PNG, Maksimal 5MB</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Keterangan / Catatan Pengerjaan</label>
+                        <textarea class="form-control" id="completionNote" rows="3" placeholder="Masukkan detail perbaikan (misal: Lubang ditambal aspal tipe hotmix setebal 5cm)..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeConfirmModal()">Batal</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i data-lucide="send"></i> Kirim Konfirmasi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <!-- Col 1: Brand Info -->
+                <div>
+                    <a href="petugas.html" class="footer-logo">
+                        <i data-lucide="shield-alert"></i>Smart<span>Road</span>
+                    </a>
+                    <p class="footer-desc">Pusat penanganan pelaporan aduan kerusakan jalan raya berbasis transparansi publik dan pemetaan geospasial real-time.</p>
+                    <div class="footer-socials">
+                        <a href="#" class="social-link" aria-label="Facebook"><i data-lucide="facebook"></i></a>
+                        <a href="#" class="social-link" aria-label="Twitter"><i data-lucide="twitter"></i></a>
+                        <a href="#" class="social-link" aria-label="Instagram"><i data-lucide="instagram"></i></a>
+                        <a href="#" class="social-link" aria-label="Linkedin"><i data-lucide="linkedin"></i></a>
+                    </div>
+                </div>
+
+                <!-- Col 2: Navigation Links -->
+                <div>
+                    <h4 class="footer-title">Tautan Petugas</h4>
+                    <ul class="footer-links">
+                        <li><a href="petugas.html">Beranda Operasional</a></li>
+                        <li><a href="#peta-tugas">Peta Geospasial</a></li>
+                        <li><a href="#tugas-aktif">Daftar Pekerjaan</a></li>
+                        <li><a href="login.html">Keluar Sesi</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 3: Assistance Hotlines -->
+                <div>
+                    <h4 class="footer-title">Pusat Bantuan</h4>
+                    <ul class="footer-contact">
+                        <li>
+                            <i data-lucide="map-pin"></i>
+                            <span>Jl. Dinas Pekerjaan Umum No. 45, Gedung Bina Marga, Kota Surabaya</span>
+                        </li>
+                        <li>
+                            <i data-lucide="phone"></i>
+                            <span>(031) 555-0199 / 555-0200</span>
+                        </li>
+                        <li>
+                            <i data-lucide="mail"></i>
+                            <span>dpu-surabaya@smartroad.go.id</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Col 4: Newsletter -->
+                <div>
+                    <h4 class="footer-title">Buletin Kota</h4>
+                    <p class="footer-newsletter">Menerima informasi bulanan rekapitulasi penambalan jalan rusak kota dan peningkatan platform SmartRoad.</p>
+                    <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Terima kasih telah bergabung dengan newsletter kami!');">
+                        <input type="email" class="newsletter-input" placeholder="Masukkan email Anda..." required>
+                        <button type="submit" class="newsletter-btn" aria-label="Berlangganan">
+                            <i data-lucide="arrow-right"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Footer Bottom legal info -->
+            <div class="footer-bottom">
+                <p class="footer-copy">&copy; 2026 SmartRoad City Initiative. Seluruh Hak Cipta Dilindungi Undang-Undang.</p>
+                <ul class="footer-legal">
+                    <li><a href="#">Kebijakan Privasi</a></li>
+                    <li><a href="#">Syarat Penggunaan</a></li>
+                    <li><a href="#">Dinas Bina Marga</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Lucide Icons Bundle -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Leaflet.js Library for Map rendering -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <script>
+        // Data Mockup Laporan untuk Petugas
+        const reportData = {
+            'REP-0012': {
+                id: 'REP-0012',
+                category: 'Jalan Berlubang (Tingkat Parah)',
+                location: 'Jl. Raya Basuki Rahmat No. 120 (Depan Ruko Plaza)',
+                coords: [-7.2654, 112.7410],
+                description: 'Terdapat lubang besar dengan kedalaman sekitar 15cm dan diameter 50cm di lajur kiri jalan Basuki Rahmat. Sangat berbahaya bagi pengendara motor terutama saat malam hari karena kurangnya penerangan di sekitar lokasi ruko plaza.',
+                reporter: 'Budi Santoso',
+                time: '26 Mei 2026, 14:30 WIB',
+                image: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?q=80&w=800'
+            },
+            'REP-0015': {
+                id: 'REP-0015',
+                category: 'Jalan Retak (Struktural)',
+                location: 'Jl. Ahmad Yani KM 12 (Samping Halte Dishub Surabaya)',
+                coords: [-7.3200, 112.7300],
+                description: 'Retakan memanjang di lajur kiri jalan utama sepanjang sekitar 2 meter. Struktur aspal mulai retak bergelombang, berisiko mengelupas dan memicu terbentuknya lubang baru jika dilalui truk bermuatan berat.',
+                reporter: 'Siti Rahma',
+                time: '27 Mei 2026, 07:15 WIB',
+                image: 'https://images.unsplash.com/photo-1599740831633-149b109be762?q=80&w=800'
+            }
+        };
+
+        let mainMap, miniMap;
+        let miniMapMarker = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Lucide Icons
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+
+            // 1. Sticky Translucent Header logic
+            const navbar = document.getElementById('navbar');
+            const handleScroll = () => {
+                if (window.scrollY > 40) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            };
+            window.addEventListener('scroll', handleScroll);
+            handleScroll();
+
+            // 2. Mobile Drawer Navigation Toggle
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.getElementById('navMenu');
+            const drawerOverlay = document.getElementById('drawerOverlay');
+
+            const toggleMobileMenu = () => {
+                navMenu.classList.toggle('active');
+                drawerOverlay.classList.toggle('active');
+
+                const icon = menuToggle.querySelector('i');
+                if (navMenu.classList.contains('active')) {
+                    icon.setAttribute('data-lucide', 'x');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    icon.setAttribute('data-lucide', 'menu');
+                    document.body.style.overflow = '';
+                }
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            };
+
+            if (menuToggle && navMenu && drawerOverlay) {
+                menuToggle.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleMobileMenu();
+                });
+
+                drawerOverlay.addEventListener('click', () => {
+                    navMenu.classList.remove('active');
+                    drawerOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                    const icon = menuToggle.querySelector('i');
+                    icon.setAttribute('data-lucide', 'menu');
+                    if (window.lucide) {
+                        window.lucide.createIcons();
+                    }
+                });
+            }
+
+            // 3. Desktop Dropdown Header Panels
+            const notificationBtn = document.getElementById('notificationBtn');
+            const profileBtn = document.getElementById('profileBtn');
+            const notificationPanel = document.getElementById('notificationPanel');
+            const profileMenu = document.getElementById('profileMenu');
+
+            notificationBtn?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                profileMenu?.classList.remove('active');
+                notificationPanel?.classList.toggle('active');
+            });
+
+            profileBtn?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                notificationPanel?.classList.remove('active');
+                profileMenu?.classList.toggle('active');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.notification-panel') && !e.target.closest('#notificationBtn')) {
+                    notificationPanel?.classList.remove('active');
+                }
+                if (!e.target.closest('.profile-menu') && !e.target.closest('#profileBtn')) {
+                    profileMenu?.classList.remove('active');
+                }
+            });
+
+            // 4. Initialize Main Interactive Map (Leaflet)
+            mainMap = L.map('main-map').setView([-7.29, 112.74], 11.5);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(mainMap);
+
+            // Add Markers for each task
+            Object.values(reportData).forEach(report => {
+                const marker = L.marker(report.coords).addTo(mainMap);
+                
+                const popupContent = `
+                    <div style="font-family: 'Inter', sans-serif; font-size: 0.85rem; width: 220px;">
+                        <strong style="color: var(--safety-orange); font-size: 0.95rem;">${report.id}</strong><br>
+                        <strong>${report.category}</strong><br>
+                        <p style="margin: 0.5rem 0; color: #555;">${report.location}</p>
+                        <button onclick="openDetailModal('${report.id}')" style="background: #FF6B00; border: none; color: white; padding: 0.35rem 0.75rem; border-radius: 3px; font-weight: 700; width: 100%; cursor: pointer; text-transform: uppercase; font-size: 0.75rem;">Lihat Detail</button>
+                    </div>
+                `;
+                marker.bindPopup(popupContent);
+            });
+        });
+
+        // 5. Open & Close Details Modal
+        const detailModal = document.getElementById('detailModal');
+        const detailTaskIdText = document.getElementById('detailTaskIdText');
+        const detailImage = document.getElementById('detailImage');
+        const detailCategory = document.getElementById('detailCategory');
+        const detailDesc = document.getElementById('detailDesc');
+        const detailLocation = document.getElementById('detailLocation');
+        const detailReporterName = document.getElementById('detailReporterName');
+        const detailReportTime = document.getElementById('detailReportTime');
+        const detailConfirmBtn = document.getElementById('detailConfirmBtn');
+
+        function openDetailModal(id) {
+            const report = reportData[id];
+            if (!report) return;
+
+            detailTaskIdText.innerText = `#${report.id}`;
+            detailImage.src = report.image;
+            detailCategory.innerText = report.category;
+            detailDesc.innerText = report.description;
+            detailLocation.innerHTML = `<strong>${report.location.split('(')[0]}</strong><br>${report.location.includes('(') ? '(' + report.location.split('(')[1] : ''}`;
+            detailReporterName.innerText = report.reporter;
+            detailReportTime.innerText = report.time;
+
+            // Set up transition confirmation button
+            detailConfirmBtn.onclick = () => {
+                closeDetailModal();
+                openConfirmModal(report.id);
+            };
+
+            // Show Modal
+            detailModal.classList.add('active');
+
+            // Initialize/update Mini Map inside details modal
+            setTimeout(() => {
+                if (!miniMap) {
+                    miniMap = L.map('mini-map', {
+                        zoomControl: false,
+                        attributionControl: false
+                    }).setView(report.coords, 15);
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19
+                    }).addTo(miniMap);
+                    
+                    miniMapMarker = L.marker(report.coords).addTo(miniMap);
+                } else {
+                    miniMap.setView(report.coords, 15);
+                    miniMapMarker.setLatLng(report.coords);
+                }
+                miniMap.invalidateSize();
+            }, 300);
+        }
+
+        function closeDetailModal() {
+            detailModal.classList.remove('active');
+        }
+
+        // 6. Confirm Selesai Modal Logic
+        const confirmModal = document.getElementById('confirmModal');
+        const modalTaskId = document.getElementById('modalTaskId');
+
+        function openConfirmModal(id) {
+            modalTaskId.value = `#${id}`;
+            confirmModal.classList.add('active');
+        }
+
+        function closeConfirmModal() {
+            confirmModal.classList.remove('active');
+            // reset file upload content
+            document.getElementById('fileInput').value = '';
+            document.getElementById('completionNote').value = '';
+            document.getElementById('uploadContent').innerHTML = `
+                <i data-lucide="camera"></i>
+                <span style="font-weight: 600; color: var(--asphalt-dark);">Klik atau Drag Foto Disini</span>
+                <span style="font-size: 0.75rem;">Format JPG/PNG, Maksimal 5MB</span>
+            `;
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        }
+
+        function handleFileChange() {
+            const input = document.getElementById('fileInput');
+            const content = document.getElementById('uploadContent');
+            if (input.files && input.files[0]) {
+                content.innerHTML = `
+                    <i data-lucide="check-circle" style="color: var(--success-green); width: 32px; height: 32px;"></i>
+                    <span style="font-weight: 600; color: var(--success-green);">${input.files[0].name}</span>
+                    <span style="font-size: 0.75rem;">File terpilih & siap dikirim</span>
+                `;
+            }
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        }
+
+        // 7. Submit Completion Form Simulation
+        function submitCompletionForm(event) {
+            event.preventDefault();
+            const taskId = modalTaskId.value;
+            alert(`Laporan penyelesaian ${taskId} berhasil dikirim! Notifikasi perubahan status sukses diteruskan ke Admin serta ke HP pelapor secara real-time.`);
+            closeConfirmModal();
+        }
+    </script>
+</body>
+
+</html>

@@ -9,6 +9,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
     
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <style>
         /* ═══════════════════════════════════════════════════
            DESIGN TOKENS — Industrial Dark Theme
@@ -459,7 +462,7 @@
             <h1 class="card-title">SELAMAT DATANG KEMBALI</h1>
             <p class="card-subtitle">PORTAL PELAPORAN INFRASTRUKTUR JALAN</p>
 
-            <form action="dashboard.html" method="GET">
+            <form id="loginForm">
                 <!-- Email Input -->
                 <div class="form-group">
                     <label class="form-label" for="email">ALAMAT EMAIL</label>
@@ -539,5 +542,7 @@
             lucide.createIcons();
         });
     </script>
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
 </body>
 </html>

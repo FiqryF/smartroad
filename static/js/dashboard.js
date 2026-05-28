@@ -100,6 +100,49 @@ window.onload = async () => {
     if (userEmail && popupEmail) {
         popupEmail.textContent = userEmail;
     }
+
+    // 4. GPS Permission Logic
+    const gpsPreference = localStorage.getItem('gpsPreference');
+    if (!gpsPreference && typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'Izinkan Akses Lokasi?',
+            text: 'Kami memerlukan akses lokasi Anda (GPS) untuk mendeteksi koordinat kerusakan jalan secara presisi.',
+            icon: 'question',
+            showCancelButton: true,
+            showDenyButton: true,
+            confirmButtonText: 'Selalu Izinkan',
+            denyButtonText: 'Izinkan Sekali',
+            cancelButtonText: 'Nanti Saja',
+            confirmButtonColor: '#FF6B00',
+            denyButtonColor: '#2A9D8F',
+            cancelButtonColor: '#5A626A'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                localStorage.setItem('gpsPreference', 'always');
+                requestLocation();
+            } else if (result.isDenied) {
+                localStorage.setItem('gpsPreference', 'once');
+                requestLocation();
+            }
+        });
+    } else if (gpsPreference === 'always') {
+        requestLocation();
+    }
+
+    function requestLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    localStorage.setItem('userLat', position.coords.latitude);
+                    localStorage.setItem('userLng', position.coords.longitude);
+                    console.log("Lokasi GPS berhasil disimpan:", position.coords.latitude, position.coords.longitude);
+                },
+                (error) => {
+                    console.warn("Gagal mendapatkan lokasi GPS:", error.message);
+                }
+            );
+        }
+    }
 };
 
 // 4. Fungsi Logout

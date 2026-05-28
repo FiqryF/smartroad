@@ -1271,6 +1271,9 @@
                     <span class="notification-badge" id="notifDot" style="display: none;"></span>
                 </button>
 
+                <!-- SweetAlert2 -->
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
                 <!-- Desktop Only Profile section (Aligned perfectly in a single row) -->
                 <div class="user-profile-desktop">
                     <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Fiqry"
@@ -1368,7 +1371,7 @@
                             <div class="form-group">
                                 <label for="kategoriKerusakan" class="form-label">Kategori Aduan</label>
                                 <div class="input-with-icon">
-                                    <select id="kategoriKerusakan" class="form-select" required>
+                                    <select id="kategoriKerusakan" name="category" class="form-select" required>
                                         <option value="" disabled selected>Pilih Kategori...</option>
                                         <option value="Jalan Berlubang">Jalan Berlubang</option>
                                         <option value="Retak Struktural">Retak Struktural</option>
@@ -1381,18 +1384,31 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="kecamatanWilayah" class="form-label">Wilayah Kecamatan (Surabaya)</label>
+                                <label for="provinsiLaporan" class="form-label">Provinsi</label>
                                 <div class="input-with-icon">
-                                    <select id="kecamatanWilayah" class="form-select" required>
-                                        <option value="" disabled selected>Pilih Kecamatan...</option>
-                                        <option value="Tegalsari">Kec. Tegalsari</option>
-                                        <option value="Wonokromo">Kec. Wonokromo</option>
-                                        <option value="Karangpilang">Kec. Karangpilang</option>
-                                        <option value="Genteng">Kec. Genteng</option>
-                                        <option value="Gubeng">Kec. Gubeng</option>
-                                        <option value="Gayungan">Kec. Gayungan</option>
-                                        <option value="Sukolilo">Kec. Sukolilo</option>
-                                        <option value="Rungkut">Kec. Rungkut</option>
+                                    <select id="provinsiLaporan" name="province" class="form-select" required>
+                                        <option value="" disabled selected>Memuat Provinsi...</option>
+                                    </select>
+                                    <i data-lucide="map" class="input-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="kotaLaporan" class="form-label">Kota / Kabupaten</label>
+                                <div class="input-with-icon">
+                                    <select id="kotaLaporan" name="city" class="form-select" required disabled>
+                                        <option value="" disabled selected>Pilih Provinsi Dahulu</option>
+                                    </select>
+                                    <i data-lucide="milestone" class="input-icon"></i>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="kecamatanLaporan" class="form-label">Kecamatan</label>
+                                <div class="input-with-icon">
+                                    <select id="kecamatanLaporan" name="district" class="form-select" required disabled>
+                                        <option value="" disabled selected>Pilih Kota Dahulu</option>
                                     </select>
                                     <i data-lucide="navigation" class="input-icon"></i>
                                 </div>
@@ -1481,11 +1497,15 @@
                             </div>
                         </div>
 
+                        <!-- Hidden lat/lng inputs -->
+                        <input type="hidden" id="latInput" name="lat">
+                        <input type="hidden" id="lngInput" name="lng">
+
                         <!-- Buttons Row inside Card Columns -->
                         <div class="form-actions">
                             <button type="button" class="btn btn-secondary"
                                 onclick="window.location.href='dashboard.html'">Batal</button>
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary" id="btnSubmit">
                                 <i data-lucide="send" style="width: 14px; height: 14px;"></i> Kirim Aduan
                             </button>
                         </div>
@@ -1582,383 +1602,7 @@
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <!-- Scripts Logic -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initialize Lucide Icons
-            if (window.lucide) {
-                window.lucide.createIcons();
-            }
-
-            // --- 0. DYNAMIC PROFILE & NOTIFICATION LOGIC ---
-            const initDynamicProfile = async () => {
-                const isLoggedIn = localStorage.getItem('isLoggedIn');
-                const userEmail = localStorage.getItem('userEmail');
-                const userName = localStorage.getItem('userName');
-
-                if (isLoggedIn !== 'true') {
-                    window.location.href = 'login.html';
-                    return;
-                }
-
-                // 1. Set Navbar Names (Looping multiple elements)
-                const userNames = document.querySelectorAll('.user-name');
-                userNames.forEach(el => {
-                    if (userName) el.textContent = userName;
-                });
-
-                // 2. Set Popup Info
-                const popupName = document.getElementById('popupName');
-                const popupEmail = document.getElementById('popupEmail');
-                if (popupName && userName) popupName.textContent = userName;
-                if (popupEmail && userEmail) popupEmail.textContent = userEmail;
-
-                // 3. Fetch Profile from Backend to determine Notifications
-                if (userEmail) {
-                    try {
-                        const response = await fetch(`http://127.0.0.1:5000/api/auth/api/profile/user-profile?email=${encodeURIComponent(userEmail)}`);
-                        const resData = await response.json();
-                        if (response.ok && resData.data) {
-                            const profile = resData.data;
-
-                            // Update Avatar
-                            const profilePic = profile.profile_pic === 'default-profile.png'
-                                ? `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.nama)}&background=FF6B00&color=FFFFFF`
-                                : `static/${profile.profile_pic}`;
-
-                            document.querySelectorAll('.avatar-img, .profile-avatar').forEach(img => {
-                                img.src = profilePic;
-                            });
-
-                            // Notification Logic
-                            const notifDot = document.getElementById('notifDot');
-                            const notifDropdown = document.getElementById('notifDropdown');
-
-                            if (!profile.telepon || !profile.alamat) {
-                                if (notifDot) notifDot.style.display = 'block';
-                                if (notifDropdown) {
-                                    notifDropdown.innerHTML = `
-                                        <li>
-                                            <div style="display: flex; gap: 0.5rem; align-items: start;">
-                                                <i data-lucide="alert-circle" style="color: var(--danger-red); width: 16px; margin-top: 2px;"></i>
-                                                <div>
-                                                    <strong style="color: var(--asphalt-dark);">Profil Belum Lengkap</strong><br>
-                                                    <span style="font-size: 0.8rem; color: var(--text-muted);">Silakan <a href="profile.html" style="color: var(--safety-orange); font-weight: 600;">lengkapi data diri Anda</a> (Opsional)</span>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    `;
-                                    if (typeof lucide !== 'undefined') lucide.createIcons();
-                                }
-                            } else {
-                                if (notifDot) notifDot.style.display = 'none';
-                                if (notifDropdown) {
-                                    notifDropdown.innerHTML = `
-                                        <li>
-                                            <div style="text-align: center; padding: 1rem 0; color: var(--text-muted);">
-                                                <i data-lucide="check-circle" style="color: var(--success-green); width: 24px; margin-bottom: 0.5rem;"></i><br>
-                                                Tidak ada notifikasi baru
-                                            </div>
-                                        </li>
-                                    `;
-                                    if (typeof lucide !== 'undefined') lucide.createIcons();
-                                }
-                            }
-                        }
-                    } catch (error) {
-                        console.error('Failed to fetch profile:', error);
-                    }
-                }
-            };
-
-            initDynamicProfile();
-
-
-            // 1. Sticky Translucent Header Scrolled Mode (Exact Copy from dashboard.html)
-            const navbar = document.getElementById('navbar');
-            const handleScroll = () => {
-                if (window.scrollY > 40) {
-                    navbar.classList.add('scrolled');
-                } else {
-                    navbar.classList.remove('scrolled');
-                }
-            };
-
-            window.addEventListener('scroll', handleScroll);
-            handleScroll();
-
-            // 2. FIXED MOBILE NAVIGATION HAMBURGER DRAWER MENU
-            const menuToggle = document.getElementById('menuToggle');
-            const navMenu = document.getElementById('navMenu');
-            const drawerOverlay = document.getElementById('drawerOverlay');
-
-            const toggleMobileMenu = () => {
-                navMenu.classList.toggle('active');
-                drawerOverlay.classList.toggle('active');
-
-                // Toggle Lucide Menu/X icons
-                const icon = menuToggle.querySelector('i');
-                if (navMenu.classList.contains('active')) {
-                    icon.setAttribute('data-lucide', 'x');
-                    document.body.style.overflow = 'hidden'; // Prevent background scrolling
-                } else {
-                    icon.setAttribute('data-lucide', 'menu');
-                    document.body.style.overflow = '';
-                }
-                if (window.lucide) {
-                    window.lucide.createIcons();
-                }
-            };
-
-            if (menuToggle && navMenu && drawerOverlay) {
-                menuToggle.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    toggleMobileMenu();
-                });
-
-                drawerOverlay.addEventListener('click', () => {
-                    navMenu.classList.remove('active');
-                    drawerOverlay.classList.remove('active');
-                    document.body.style.overflow = '';
-                    const icon = menuToggle.querySelector('i');
-                    icon.setAttribute('data-lucide', 'menu');
-                    if (window.lucide) {
-                        window.lucide.createIcons();
-                    }
-                });
-
-                const navLinks = document.querySelectorAll('.nav-link');
-                navLinks.forEach(link => {
-                    link.addEventListener('click', () => {
-                        navMenu.classList.remove('active');
-                        drawerOverlay.classList.remove('active');
-                        document.body.style.overflow = '';
-                        const icon = menuToggle.querySelector('i');
-                        icon.setAttribute('data-lucide', 'menu');
-                        if (window.lucide) {
-                            window.lucide.createIcons();
-                        }
-                    });
-                });
-            }
-
-            // Notification and Profile Dropdown Panels
-            const notificationBtn = document.querySelector('.notification-btn');
-            const profileDesktop = document.querySelector('.user-profile-desktop');
-            const notificationPanel = document.getElementById('notificationPanel');
-            const profileMenu = document.getElementById('profileMenu');
-
-            const closePanels = () => {
-                if (notificationPanel) notificationPanel.classList.remove('active');
-                if (profileMenu) profileMenu.classList.remove('active');
-            };
-
-            notificationBtn?.addEventListener('click', (event) => {
-                event.stopPropagation();
-                if (profileMenu) profileMenu.classList.remove('active');
-                notificationPanel?.classList.toggle('active');
-            });
-
-            profileDesktop?.addEventListener('click', (event) => {
-                event.stopPropagation();
-                if (notificationPanel) notificationPanel.classList.remove('active');
-                profileMenu?.classList.toggle('active');
-            });
-
-            document.addEventListener('click', (event) => {
-                if (!event.target.closest('.header-actions') && !event.target.closest('.header-dropdowns')) {
-                    closePanels();
-                }
-            });
-
-            // 3. Drag & Drop Visual Box Upload Logic
-            const uploadBox = document.getElementById('uploadBox');
-            const fileInput = document.getElementById('fileInput');
-            const uploadPreview = document.getElementById('uploadPreview');
-            const previewImg = document.getElementById('previewImg');
-            const previewName = document.getElementById('previewName');
-            const previewSize = document.getElementById('previewSize');
-            const removeUploadBtn = document.getElementById('removeUploadBtn');
-
-            uploadBox.addEventListener('click', () => {
-                fileInput.click();
-            });
-
-            uploadBox.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                uploadBox.classList.add('drag-over');
-            });
-
-            uploadBox.addEventListener('dragleave', () => {
-                uploadBox.classList.remove('drag-over');
-            });
-
-            uploadBox.addEventListener('drop', (e) => {
-                e.preventDefault();
-                uploadBox.classList.remove('drag-over');
-                if (e.dataTransfer.files.length > 0) {
-                    fileInput.files = e.dataTransfer.files;
-                    handleFileSelect(e.dataTransfer.files[0]);
-                }
-            });
-
-            fileInput.addEventListener('change', () => {
-                if (fileInput.files.length > 0) {
-                    handleFileSelect(fileInput.files[0]);
-                }
-            });
-
-            const handleFileSelect = (file) => {
-                if (file && file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        previewImg.src = e.target.result;
-                        previewName.textContent = file.name;
-
-                        // Human-readable sizes
-                        const sizeKB = (file.size / 1024).toFixed(1);
-                        if (sizeKB > 1024) {
-                            previewSize.textContent = `${(sizeKB / 1024).toFixed(1)} MB`;
-                        } else {
-                            previewSize.textContent = `${sizeKB} KB`;
-                        }
-
-                        uploadPreview.style.display = 'flex';
-                        uploadBox.style.display = 'none';
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    alert('Mohon unggah file format gambar (JPG/PNG).');
-                }
-            };
-
-            removeUploadBtn.addEventListener('click', () => {
-                fileInput.value = '';
-                previewImg.src = '';
-                previewName.textContent = '';
-                previewSize.textContent = '';
-                uploadPreview.style.display = 'none';
-                uploadBox.style.display = 'flex';
-            });
-
-            // 4. Leaflet Geolocation Map Integration
-            // Centered in Surabaya / East Java standard region (-7.2575, 112.7521)
-            const map = L.map('map', {
-                center: [-7.2575, 112.7521],
-                zoom: 13,
-                zoomControl: true
-            });
-
-            // Clean, bright, highly legible light theme map tiles from OpenStreetMap
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-
-            // Safety Orange custom theme pin marker icon
-            const orangeIcon = L.divIcon({
-                className: 'custom-orange-pin',
-                html: '<div style="background-color: #FF6B00; width: 14px; height: 14px; border: 2.5px solid #FFFFFF; border-radius: 50%; box-shadow: 0 0 8px rgba(255, 107, 0, 0.65);"></div>',
-                iconSize: [14, 14],
-                iconAnchor: [7, 7]
-            });
-
-            // Draggable Marker
-            let marker = L.marker([-7.2575, 112.7521], {
-                draggable: true,
-                icon: orangeIcon
-            }).addTo(map);
-
-            // Update coordinate displays when dragging
-            const valLat = document.getElementById('valLat');
-            const valLng = document.getElementById('valLng');
-
-            const updateCoordsDisplay = (lat, lng) => {
-                valLat.textContent = Number(lat).toFixed(6);
-                valLng.textContent = Number(lng).toFixed(6);
-            };
-
-            marker.on('dragend', (e) => {
-                const position = marker.getLatLng();
-                updateCoordsDisplay(position.lat, position.lng);
-            });
-
-            map.on('click', (e) => {
-                marker.setLatLng(e.latlng);
-                updateCoordsDisplay(e.latlng.lat, e.latlng.lng);
-            });
-
-            // Detect GPS Button Action
-            const btnGps = document.getElementById('btnGps');
-            btnGps.addEventListener('click', () => {
-                btnGps.innerHTML = '<i data-lucide="loader" class="spin-icon"></i> Mencari...';
-                if (window.lucide) {
-                    window.lucide.createIcons();
-                }
-
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            const lat = position.coords.latitude;
-                            const lng = position.coords.longitude;
-
-                            map.setView([lat, lng], 16);
-                            marker.setLatLng([lat, lng]);
-                            updateCoordsDisplay(lat, lng);
-
-                            btnGps.innerHTML = '<i data-lucide="check"></i> Terdeteksi';
-                            if (window.lucide) {
-                                window.lucide.createIcons();
-                            }
-                            setTimeout(() => {
-                                btnGps.innerHTML = '<i data-lucide="crosshair"></i> GPS Aktif';
-                                if (window.lucide) { window.lucide.createIcons(); }
-                            }, 2000);
-                        },
-                        () => {
-                            // Fallback simulation when permission is denied or failed
-                            alert("Akses lokasi tidak diizinkan atau tidak tersedia. Menggunakan lokasi simulasi Surabaya.");
-                            const simLat = -7.2625 + (Math.random() - 0.5) * 0.015;
-                            const simLng = 112.7485 + (Math.random() - 0.5) * 0.015;
-
-                            map.setView([simLat, simLng], 15);
-                            marker.setLatLng([simLat, simLng]);
-                            updateCoordsDisplay(simLat, simLng);
-
-                            btnGps.innerHTML = '<i data-lucide="crosshair"></i> GPS Aktif';
-                            if (window.lucide) {
-                                window.lucide.createIcons();
-                            }
-                        }
-                    );
-                } else {
-                    alert("Browser Anda tidak mendukung fitur Geolocation.");
-                    btnGps.innerHTML = '<i data-lucide="crosshair"></i> GPS Aktif';
-                    if (window.lucide) { window.lucide.createIcons(); }
-                }
-            });
-
-            // 5. Handle Form Submission & Direct Success Redirect
-            const handleFormSubmit = () => {
-                const title = document.getElementById('judulLaporan').value;
-                const address = document.getElementById('alamatLengkap').value;
-                const category = document.getElementById('kategoriKerusakan').value;
-                const district = document.getElementById('kecamatanWilayah').value;
-                const severity = document.getElementById('tingkatKeparahan').value;
-                const size = document.getElementById('estimasiUkuran').value;
-                const desc = document.getElementById('deskripsiKerusakan').value;
-                const lat = valLat.textContent;
-                const lng = valLng.textContent;
-
-                // Success alert confirmation
-                alert(`Pengaduan Berhasil Terkirim!\n\nLaporan "${title}" telah resmi masuk ke dalam sistem verifikasi Dinas Pekerjaan Umum Kota. Anda akan dialihkan langsung ke halaman Riwayat untuk meninjau status.`);
-
-                // Direct redirect to riwayat.html
-                window.location.href = 'riwayat.html';
-            };
-
-            window.handleFormSubmit = handleFormSubmit;
-        });
-    </script>
+    <script src="{{ url_for('static', filename='js/laporan.js') }}"></script>
 </body>
 
 </html>

@@ -300,7 +300,7 @@
                                     <th class="px-6 py-4 border-b border-gray-100 text-center">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100">
+                            <tbody id="adminTableBody" class="divide-y divide-gray-100">
                                 <tr class="hover:bg-gray-50/80 transition-colors group">
                                     <td class="px-6 py-4 font-bold text-gray-900">#RPT-8421</td>
                                     <td class="px-6 py-4">
@@ -707,5 +707,6 @@
             }
         });
     </script>
+    <script src="{{ url_for('static', filename='js/admin-dashboard.js') }}"></script>
 </body>
 </html>

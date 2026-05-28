@@ -5,6 +5,7 @@ from flask_cors import CORS
 from app.routes.auth_routes import auth_bp
 from app.routes.view_routes import view_bp
 from app.routes.profile_routes import profile_bp
+from app.routes.report_routes import report_bp
 
 def create_app():
     # Setup logging
@@ -23,6 +24,7 @@ def create_app():
     # Register blueprints
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(profile_bp, url_prefix='/api/profile')
+    app.register_blueprint(report_bp, url_prefix='/api/reports')
     app.register_blueprint(view_bp)
     
     # Global error handlers

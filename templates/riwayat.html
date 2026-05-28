@@ -9,7 +9,9 @@
     <!-- Google Fonts: Inter (UI/Body) & Montserrat (Heavy Headings) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap"
+        rel="stylesheet">
 
     <!-- Unified Stylesheet with exact dashboard.html Sync -->
     <style>
@@ -641,28 +643,34 @@
         .stat-card.stat-pending {
             border-left: 1px solid var(--concrete-border);
         }
+
         .stat-pending .stat-icon {
             background-color: var(--yellow-accent-glow);
             color: var(--yellow-accent);
         }
+
         .stat-pending .stat-indicator {
             background-color: var(--yellow-accent);
         }
 
         .stat-card.stat-processing {}
+
         .stat-processing .stat-icon {
             background-color: var(--blue-accent-glow);
             color: var(--blue-accent);
         }
+
         .stat-processing .stat-indicator {
             background-color: var(--blue-accent);
         }
 
         .stat-card.stat-done {}
+
         .stat-done .stat-icon {
             background-color: var(--green-accent-glow);
             color: var(--green-accent);
         }
+
         .stat-done .stat-indicator {
             background-color: var(--green-accent);
         }
@@ -795,7 +803,7 @@
             transition: var(--transition);
         }
 
-        .select-wrapper select:focus + .select-icon {
+        .select-wrapper select:focus+.select-icon {
             color: var(--safety-orange);
             transform: translateY(-50%) rotate(180deg);
         }
@@ -823,7 +831,10 @@
         .history-card::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; height: 3px;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
             background: transparent;
             transition: var(--transition);
             z-index: 5;
@@ -1490,13 +1501,16 @@
             width: 8px;
             height: 8px;
         }
+
         ::-webkit-scrollbar-track {
             background: var(--concrete-gray);
         }
+
         ::-webkit-scrollbar-thumb {
             background: var(--concrete-dark);
             border-radius: 4px;
         }
+
         ::-webkit-scrollbar-thumb:hover {
             background: var(--text-muted);
         }
@@ -1552,6 +1566,7 @@
         }
 
         @media (max-width: 768px) {
+
             /* FIXED MOBILE NAVIGATION & DRAWER */
             .nav-menu {
                 display: flex;
@@ -1684,7 +1699,8 @@
                 <!-- Mobile Only User Info inside drawer menu (Centered & non-duplicating) -->
                 <li class="menu-user-item">
                     <div class="user-profile-mobile" onclick="window.location.href='profile.html'">
-                        <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Fiqry" class="avatar-img">
+                        <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Fiqry"
+                            class="avatar-img">
                         <span class="user-name">Fiqry</span>
                     </div>
                 </li>
@@ -1698,7 +1714,8 @@
 
                 <!-- Desktop Only Profile section (Aligned perfectly in a single row) -->
                 <div class="user-profile-desktop">
-                    <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Fiqry" class="avatar-img">
+                    <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Fiqry"
+                        class="avatar-img">
                     <span class="user-name">Fiqry</span>
                 </div>
 
@@ -1721,7 +1738,8 @@
                     <div class="panel-card panel-profile-card">
                         <div class="panel-title">Profil Pengguna</div>
                         <div class="profile-summary">
-                            <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Avatar" class="profile-avatar">
+                            <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF"
+                                alt="Avatar" class="profile-avatar">
                             <div>
                                 <strong id="popupName">Fiqry</strong>
                                 <p>Warga Terdaftar</p>
@@ -1750,7 +1768,9 @@
                     <i data-lucide="history" style="width: 12px; height: 12px;"></i> Portal Resmi Warga
                 </div>
                 <h1 class="hero-headline">Riwayat Laporan<br><span>SmartRoad</span></h1>
-                <p class="hero-desc">Pantau status penanganan aduan infrastruktur jalan raya yang telah Anda kirimkan. Semua perubahan status diverifikasi secara transparan oleh petugas dinas konstruksi terkait kota secara real-time.</p>
+                <p class="hero-desc">Pantau status penanganan aduan infrastruktur jalan raya yang telah Anda kirimkan.
+                    Semua perubahan status diverifikasi secara transparan oleh petugas dinas konstruksi terkait kota
+                    secara real-time.</p>
             </div>
         </div>
     </section>
@@ -1762,7 +1782,7 @@
                 <div class="stat-card stat-pending">
                     <div class="stat-icon"><i data-lucide="clock"></i></div>
                     <div class="stat-info">
-                        <h4 class="stat-value" id="countPending">1</h4>
+                        <h4 class="stat-value" id="countPending">0</h4>
                         <p class="stat-label">Menunggu</p>
                     </div>
                     <div class="stat-indicator"></div>
@@ -1770,7 +1790,7 @@
                 <div class="stat-card stat-processing">
                     <div class="stat-icon"><i data-lucide="loader"></i></div>
                     <div class="stat-info">
-                        <h4 class="stat-value" id="countProcessing">1</h4>
+                        <h4 class="stat-value" id="countProcessing">0</h4>
                         <p class="stat-label">Diproses</p>
                     </div>
                     <div class="stat-indicator"></div>
@@ -1778,7 +1798,7 @@
                 <div class="stat-card stat-done">
                     <div class="stat-icon"><i data-lucide="check-circle"></i></div>
                     <div class="stat-info">
-                        <h4 class="stat-value" id="countDone">1</h4>
+                        <h4 class="stat-value" id="countDone">0</h4>
                         <p class="stat-label">Selesai</p>
                     </div>
                     <div class="stat-indicator"></div>
@@ -1799,7 +1819,8 @@
                 <div class="filter-controls">
                     <div class="search-box">
                         <i data-lucide="search" class="search-icon"></i>
-                        <input type="text" id="searchInput" placeholder="Cari berdasarkan judul atau wilayah kecamatan..." aria-label="Cari Laporan" />
+                        <input type="text" id="searchInput"
+                            placeholder="Cari berdasarkan judul atau wilayah kecamatan..." aria-label="Cari Laporan" />
                     </div>
                     <div class="filter-select-group">
                         <div class="select-wrapper">
@@ -1822,75 +1843,17 @@
                 </div>
             </div>
 
-            <!-- List Grid -->
-            <div class="history-grid" id="historyGrid">
-                <!-- Card 1 -->
-                <article class="history-card" data-status="Menunggu Verifikasi" data-title="Lubang Besar di Jalan Sudirman" data-date="2026-05-22">
-                    <div class="card-img-container">
-                        <img src="https://images.unsplash.com/photo-1526481280690-9f10f80d63b2?auto=format&fit=crop&w=900&q=80" alt="Jalan rusak" class="history-img">
-                        <span class="badge-overlay badge-pending"><i data-lucide="clock"></i> Menunggu</span>
-                    </div>
-                    <div class="history-body">
-                        <div class="history-date"><i data-lucide="calendar"></i> 22 Mei 2026 • 10:15 WIB</div>
-                        <h3 class="history-card-title">Lubang Besar di Jalan Sudirman</h3>
-                        <div class="history-address"><i data-lucide="map-pin"></i> Jl. Sudirman, Kecamatan Tegalsari</div>
-                        <p class="history-desc-text">Jalan berlubang besar di tengah lajur utama yang membahayakan kendaraan dan pejalan kaki.</p>
-                        <div class="card-divider"></div>
-                        <div class="history-actions">
-                            <button class="btn btn-outline-orange detail-button" data-report='{"id":1,"title":"Lubang Besar di Jalan Sudirman","location":"Jl. Sudirman, Kecamatan Tegalsari","date":"22 Mei 2026","status":"Menunggu Verifikasi","description":"Jalan berlubang besar di tengah lajur utama yang membahayakan kendaraan dan pejalan kaki.","admin":"pengaduan@smartroad.go.id","photoOriginal":"https://images.unsplash.com/photo-1526481280690-9f10f80d63b2?auto=format&fit=crop&w=900&q=80","photoRepair":"","note":"Laporan Anda telah berhasil terkirim ke dalam basis data sistem kota. Saat ini sistem sedang menunggu petugas verifikasi administrasi di Dinas Pekerjaan Umum Bina Marga untuk memvalidasi kelayakan visual dan lokasi aduan Anda sebelum diturunkan surat tugas lapangan."}'>Lihat Detail</button>
-                            <a href="mailto:pengaduan@smartroad.go.id?subject=Tanya%20Status%20Laporan%20ID%201" class="btn btn-secondary action-contact" title="Hubungi Admin">
-                                <i data-lucide="mail"></i>
-                            </a>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Card 2 -->
-                <article class="history-card" data-status="Sedang Diproses" data-title="Drainase Tersumbat di Perempatan" data-date="2026-05-19">
-                    <div class="card-img-container">
-                        <img src="https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=900&q=80" alt="Drainase tersumbat" class="history-img">
-                        <span class="badge-overlay badge-processing"><i data-lucide="loader"></i> Diproses</span>
-                    </div>
-                    <div class="history-body">
-                        <div class="history-date"><i data-lucide="calendar"></i> 19 Mei 2026 • 08:45 WIB</div>
-                        <h3 class="history-card-title">Drainase Tersumbat di Perempatan</h3>
-                        <div class="history-address"><i data-lucide="map-pin"></i> Perempatan Gunungsari, Kecamatan Wonokromo</div>
-                        <p class="history-desc-text">Drainase utama tersumbat sampah dan endapan sehingga rawan banjir saat hujan deras.</p>
-                        <div class="card-divider"></div>
-                        <div class="history-actions">
-                            <button class="btn btn-outline-orange detail-button" data-report='{"id":2,"title":"Drainase Tersumbat di Perempatan","location":"Perempatan Gunungsari, Kecamatan Wonokromo","date":"19 Mei 2026","status":"Sedang Diproses","description":"Drainase utama tersumbat sampah dan endapan sehingga rawan banjir saat hujan deras.","admin":"pengaduan@smartroad.go.id","photoOriginal":"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=900&q=80","photoRepair":"","note":"Petugas lapangan dari Seksi Drainase Kota telah ditugaskan dan saat ini sedang berada di lokasi untuk melakukan pengerukan lumpur sedimen serta pengangkutan sumbatan sampah. Pengerjaan diperkirakan selesai sore hari ini."}'>Lihat Detail</button>
-                            <a href="mailto:pengaduan@smartroad.go.id?subject=Tanya%20Status%20Laporan%20ID%202" class="btn btn-secondary action-contact" title="Hubungi Admin">
-                                <i data-lucide="mail"></i>
-                            </a>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Card 3 -->
-                <article class="history-card" data-status="Selesai" data-title="Penerangan Jalan Mati di Perumahan" data-date="2026-05-12">
-                    <div class="card-img-container">
-                        <img src="https://images.unsplash.com/photo-1509395176047-4a66953fd231?auto=format&fit=crop&w=900&q=80" alt="Jalan diperbaiki" class="history-img">
-                        <span class="badge-overlay badge-done"><i data-lucide="check-circle"></i> Selesai</span>
-                    </div>
-                    <div class="history-body">
-                        <div class="history-date"><i data-lucide="calendar"></i> 12 Mei 2026 • 09:00 WIB</div>
-                        <h3 class="history-card-title">Penerangan Jalan Mati di Perumahan</h3>
-                        <div class="history-address"><i data-lucide="map-pin"></i> Perumahan Graha Mulyo, Kecamatan Karangpilang</div>
-                        <p class="history-desc-text">Lampu jalan sepanjang komplek tidak menyala hingga larut malam, membahayakan pejalan kaki.</p>
-                        <div class="card-divider"></div>
-                        <div class="history-actions">
-                            <button class="btn btn-outline-orange detail-button" data-report='{"id":3,"title":"Penerangan Jalan Mati di Perumahan","location":"Perumahan Graha Mulyo, Kecamatan Karangpilang","date":"12 Mei 2026","status":"Selesai","description":"Lampu jalan sepanjang komplek tidak menyala hingga larut malam, membahayakan pejalan kaki.","admin":"pengaduan@smartroad.go.id","photoOriginal":"https://images.unsplash.com/photo-1509395176047-4a66953fd231?auto=format&fit=crop&w=900&q=80","photoRepair":"https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80","note":"Petugas teknis kelistrikan kota dari Dinas Perhubungan telah menyelesaikan penggantian bohlam LED Mercury yang rusak dan memperbaiki sekering utama gardu perumahan. Lampu jalan kini menyala normal dan jalanan kembali terang benderang."}'>Lihat Detail</button>
-                            <button class="btn btn-primary repair-button" data-report='{"id":3,"title":"Penerangan Jalan Mati di Perumahan","location":"Perumahan Graha Mulyo, Kecamatan Karangpilang","date":"12 Mei 2026","status":"Selesai","description":"Lampu jalan sepanjang komplek tidak menyala hingga larut malam, membahayakan pejalan kaki.","admin":"pengaduan@smartroad.go.id","photoOriginal":"https://images.unsplash.com/photo-1509395176047-4a66953fd231?auto=format&fit=crop&w=900&q=80","photoRepair":"https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80","note":"Petugas teknis kelistrikan kota dari Dinas Perhubungan telah menyelesaikan penggantian bohlam LED Mercury yang rusak dan memperbaiki sekering utama gardu perumahan. Lampu jalan kini menyala normal dan jalanan kembali terang benderang."}'>Perbaikan</button>
-                        </div>
-                    </div>
-                </article>
+            <!-- List Grid (WADAH YANG KOSONG DAN SIAP DIISI) -->
+            <div class="history-grid" id="riwayatContainer">
+                <!-- Data akan disuntikkan oleh riwayat.js ke sini -->
             </div>
 
             <!-- Empty State Container -->
             <div id="emptyState" class="empty-state" style="display: none;">
                 <i data-lucide="folder-open" class="empty-icon"></i>
                 <h4>Laporan Tidak Ditemukan</h4>
-                <p>Tidak ada laporan aduan yang cocok dengan pencarian kata kunci atau kategori filter status yang Anda pilih saat ini.</p>
+                <p>Tidak ada laporan aduan yang cocok dengan pencarian kata kunci atau kategori filter status yang Anda
+                    pilih saat ini.</p>
                 <button id="resetFilters" class="btn btn-primary">Atur Ulang Filter</button>
             </div>
         </div>
@@ -1906,7 +1869,7 @@
                 </div>
                 <button type="button" class="detail-close" id="detailCloseBtn" aria-label="Tutup detail">×</button>
             </div>
-            
+
             <div class="detail-grid-layout">
                 <!-- Left Column: Details -->
                 <div class="detail-info-pane">
@@ -1917,7 +1880,7 @@
                             <strong id="detailLocation" class="info-value">Jl. Sudirman, Kecamatan Tegalsari</strong>
                         </div>
                     </div>
-                    
+
                     <div class="detail-info-row">
                         <i data-lucide="calendar" class="info-icon"></i>
                         <div>
@@ -1925,20 +1888,23 @@
                             <strong id="detailDate" class="info-value">22 Mei 2026</strong>
                         </div>
                     </div>
-                    
+
                     <div class="detail-info-row align-start">
                         <i data-lucide="file-text" class="info-icon mt-1"></i>
                         <div>
                             <span class="info-label">Deskripsi Masalah</span>
-                            <p id="detailDescription" class="info-desc">Jalan berlubang besar di tengah lajur utama yang membahayakan kendaraan dan pejalan kaki.</p>
+                            <p id="detailDescription" class="info-desc">Jalan berlubang besar di tengah lajur utama yang
+                                membahayakan kendaraan dan pejalan kaki.</p>
                         </div>
                     </div>
-                    
+
                     <div class="detail-info-row align-start border-none">
                         <i data-lucide="message-square" class="info-icon mt-1"></i>
                         <div>
                             <span class="info-label">Catatan Dinas / Petugas</span>
-                            <p id="detailNote" class="info-desc note-box">Laporan Anda telah berhasil terkirim ke dalam basis data sistem kota. Saat ini sistem sedang menunggu petugas verifikasi administrasi.</p>
+                            <p id="detailNote" class="info-desc note-box">Laporan Anda telah berhasil terkirim ke dalam
+                                basis data sistem kota. Saat ini sistem sedang menunggu petugas verifikasi administrasi.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -1959,7 +1925,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="detail-footer">
                 <a id="detailContactLink" href="#" class="btn btn-primary">
                     <i data-lucide="mail"></i> Hubungi Penanggung Jawab
@@ -1978,7 +1944,8 @@
                     <a href="#" class="footer-logo">
                         <i data-lucide="shield-alert"></i>Smart<span>Road</span>
                     </a>
-                    <p class="footer-desc">Pusat penanganan pelaporan aduan kerusakan jalan raya berbasis transparansi publik dan pemetaan geospasial real-time.</p>
+                    <p class="footer-desc">Pusat penanganan pelaporan aduan kerusakan jalan raya berbasis transparansi
+                        publik dan pemetaan geospasial real-time.</p>
                     <div class="footer-socials">
                         <a href="#" class="social-link" aria-label="Facebook"><i data-lucide="facebook"></i></a>
                         <a href="#" class="social-link" aria-label="Twitter"><i data-lucide="twitter"></i></a>
@@ -2020,8 +1987,10 @@
                 <!-- Col 4: Newsletter -->
                 <div>
                     <h4 class="footer-title">Buletin Kota</h4>
-                    <p class="footer-newsletter">Menerima informasi bulanan rekapitulasi penambalan jalan rusak kota dan peningkatan platform SmartRoad.</p>
-                    <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Terima kasih telah bergabung dengan newsletter kami!');">
+                    <p class="footer-newsletter">Menerima informasi bulanan rekapitulasi penambalan jalan rusak kota dan
+                        peningkatan platform SmartRoad.</p>
+                    <form class="newsletter-form"
+                        onsubmit="event.preventDefault(); alert('Terima kasih telah bergabung dengan newsletter kami!');">
                         <input type="email" class="newsletter-input" placeholder="Masukkan email Anda..." required>
                         <button type="submit" class="newsletter-btn" aria-label="Berlangganan">
                             <i data-lucide="arrow-right"></i>
@@ -2033,7 +2002,8 @@
 
             <!-- Footer Bottom legal info -->
             <div class="footer-bottom">
-                <p class="footer-copy">&copy; 2026 SmartRoad City Initiative. Seluruh Hak Cipta Dilindungi Undang-Undang.</p>
+                <p class="footer-copy">&copy; 2026 SmartRoad City Initiative. Seluruh Hak Cipta Dilindungi
+                    Undang-Undang.</p>
                 <ul class="footer-legal">
                     <li><a href="#">Kebijakan Privasi</a></li>
                     <li><a href="#">Syarat Penggunaan</a></li>
@@ -2046,8 +2016,319 @@
     <!-- Lucide Icons Bundle -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- FILE JS ANDA -->
+    <script src="/static/js/auth-utility.js"></script>
+    <script src="/static/js/riwayat.js"></script>
+
     <!-- Unified Event Handlers, Dynamic Searching/Filtering & Modals -->
-    <script src="{{ url_for('static', filename='js/riwayat.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Lucide Icons
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+
+            // 1. Sticky Translucent Header (Identical to dashboard.html scroll behavior)
+            const navbar = document.getElementById('navbar');
+            const handleScroll = () => {
+                if (window.scrollY > 40) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            };
+
+            window.addEventListener('scroll', handleScroll);
+            handleScroll(); // Trigger immediately at startup
+
+            // 2. FIXED MOBILE NAVIGATION HAMBURGER DRAWER MENU
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.getElementById('navMenu');
+            const drawerOverlay = document.getElementById('drawerOverlay');
+
+            const toggleMobileMenu = () => {
+                navMenu.classList.toggle('active');
+                drawerOverlay.classList.toggle('active');
+
+                // Toggle Lucide Menu/X icons
+                const icon = menuToggle.querySelector('i');
+                if (navMenu.classList.contains('active')) {
+                    icon.setAttribute('data-lucide', 'x');
+                    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                } else {
+                    icon.setAttribute('data-lucide', 'menu');
+                    document.body.style.overflow = '';
+                }
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            };
+
+            if (menuToggle && navMenu && drawerOverlay) {
+                menuToggle.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleMobileMenu();
+                });
+
+                // Close menu clicking overlay
+                drawerOverlay.addEventListener('click', () => {
+                    navMenu.classList.remove('active');
+                    drawerOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                    const icon = menuToggle.querySelector('i');
+                    icon.setAttribute('data-lucide', 'menu');
+                    if (window.lucide) {
+                        window.lucide.createIcons();
+                    }
+                });
+
+                // Close menu when clicking link items
+                const navLinks = document.querySelectorAll('.nav-link');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        navMenu.classList.remove('active');
+                        drawerOverlay.classList.remove('active');
+                        document.body.style.overflow = '';
+                        const icon = menuToggle.querySelector('i');
+                        icon.setAttribute('data-lucide', 'menu');
+                        if (window.lucide) {
+                            window.lucide.createIcons();
+                        }
+                    });
+                });
+            }
+
+            // 3. Header Dropdown Panels (Notification Panel & User Profile Panel)
+            const notificationBtn = document.querySelector('.notification-btn');
+            const profileDesktop = document.querySelector('.user-profile-desktop');
+            const notificationPanel = document.getElementById('notificationPanel');
+            const profileMenu = document.getElementById('profileMenu');
+
+            const closePanels = () => {
+                if (notificationPanel) notificationPanel.classList.remove('active');
+                if (profileMenu) profileMenu.classList.remove('active');
+            };
+
+            notificationBtn?.addEventListener('click', (event) => {
+                event.stopPropagation();
+                if (profileMenu) profileMenu.classList.remove('active');
+                notificationPanel?.classList.toggle('active');
+            });
+
+            profileDesktop?.addEventListener('click', (event) => {
+                event.stopPropagation();
+                if (notificationPanel) notificationPanel.classList.remove('active');
+                profileMenu?.classList.toggle('active');
+            });
+
+            // Click outside to close panels
+            document.addEventListener('click', (event) => {
+                if (!event.target.closest('.notification-panel') && !event.target.closest('.notification-btn')) {
+                    notificationPanel?.classList.remove('active');
+                }
+                if (!event.target.closest('.profile-menu') && !event.target.closest('.user-profile-desktop')) {
+                    profileMenu?.classList.remove('active');
+                }
+            });
+
+            // 4. Interactive Searching, Filtering, and Sorting of Cards
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            const sortOrder = document.getElementById('sortOrder');
+            const historyGrid = document.getElementById('riwayatContainer');
+            const emptyState = document.getElementById('emptyState');
+            const resetFiltersBtn = document.getElementById('resetFilters');
+
+            // Count summary references
+            const countPending = document.getElementById('countPending');
+            const countProcessing = document.getElementById('countProcessing');
+            const countDone = document.getElementById('countDone');
+
+            // Helper function to get loaded cards dynamically
+            const getCards = () => Array.from(historyGrid.querySelectorAll('.history-card'));
+
+            // Update stats summary on load (calculates counts from initial list of items)
+            const updateStats = () => {
+                let pending = 0;
+                let processing = 0;
+                let done = 0;
+
+                getCards().forEach(card => {
+                    const status = card.dataset.status;
+                    if (status === 'Menunggu Verifikasi' || status === 'Menunggu') pending++;
+                    else if (status === 'Sedang Diproses') processing++;
+                    else if (status === 'Selesai') done++;
+                });
+
+                if (countPending) countPending.textContent = pending;
+                if (countProcessing) countProcessing.textContent = processing;
+                if (countDone) countDone.textContent = done;
+            };
+
+            // Core filtering process
+            const filterReports = () => {
+                const query = searchInput.value.toLowerCase().trim();
+                const selectedStatus = statusFilter.value;
+                let visibleCount = 0;
+                const currentCards = getCards();
+
+                currentCards.forEach(card => {
+                    const title = card.dataset.title.toLowerCase();
+                    const address = card.querySelector('.history-address').textContent.toLowerCase();
+                    const status = card.dataset.status;
+
+                    const matchesSearch = title.includes(query) || address.includes(query);
+                    const matchesStatus = (selectedStatus === 'all') || (status === selectedStatus);
+
+                    if (matchesSearch && matchesStatus) {
+                        card.style.display = 'flex';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                // Display empty state if no matches are found
+                if (visibleCount === 0 && currentCards.length > 0) {
+                    historyGrid.style.display = 'none';
+                    emptyState.style.display = 'flex';
+                } else if (currentCards.length > 0) {
+                    historyGrid.style.display = 'grid';
+                    emptyState.style.display = 'none';
+                }
+            };
+
+            // Sorting logic
+            const sortReports = () => {
+                const selectedOrder = sortOrder.value;
+                const currentCards = getCards();
+
+                currentCards.sort((a, b) => {
+                    const dateA = new Date(a.dataset.date);
+                    const dateB = new Date(b.dataset.date);
+
+                    if (selectedOrder === 'newest') {
+                        return dateB - dateA;
+                    } else {
+                        return dateA - dateB;
+                    }
+                });
+
+                // Re-append sorted cards in order
+                currentCards.forEach(card => {
+                    historyGrid.appendChild(card);
+                });
+            };
+
+            // Attach search & filter inputs
+            searchInput.addEventListener('input', filterReports);
+            statusFilter.addEventListener('change', filterReports);
+            sortOrder.addEventListener('change', () => {
+                sortReports();
+                filterReports(); // Re-apply display status
+            });
+
+            // Reset filters click handler
+            resetFiltersBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                statusFilter.value = 'all';
+                sortOrder.value = 'newest';
+                sortReports();
+                filterReports();
+            });
+
+            // 5. Dual Column Detail Modal Activation
+            const detailModal = document.getElementById('detailModal');
+            const detailCloseBtn = document.getElementById('detailCloseBtn');
+            const detailStatus = document.getElementById('detailStatus');
+            const detailTitle = document.getElementById('detailTitle');
+            const detailLocation = document.getElementById('detailLocation');
+            const detailDate = document.getElementById('detailDate');
+            const detailDescription = document.getElementById('detailDescription');
+            const detailOriginalPhoto = document.getElementById('detailOriginalPhoto');
+            const detailRepairContainer = document.getElementById('detailRepairContainer');
+            const detailRepairPhoto = document.getElementById('detailRepairPhoto');
+            const detailContactLink = document.getElementById('detailContactLink');
+            const detailNote = document.getElementById('detailNote');
+
+            const openDetailModal = (report) => {
+                // Populate data fields
+                detailTitle.textContent = report.title;
+                detailLocation.textContent = report.location;
+                detailDate.textContent = report.date;
+                detailDescription.textContent = report.description;
+                detailOriginalPhoto.src = report.photoOriginal;
+                detailContactLink.href = `mailto:${report.admin}?subject=${encodeURIComponent('Pertanyaan Detail Laporan ID ' + report.id)}`;
+
+                // Apply status text & badges matching initial accent systems
+                detailStatus.textContent = report.status;
+                detailStatus.className = 'detail-status'; // Reset classes
+
+                if (report.status === 'Menunggu Verifikasi') {
+                    detailStatus.classList.add('badge-pending');
+                } else if (report.status === 'Sedang Diproses') {
+                    detailStatus.classList.add('badge-processing');
+                } else if (report.status === 'Selesai') {
+                    detailStatus.classList.add('badge-done');
+                }
+
+                // Custom handling for administrative dynamic notes
+                if (detailNote) {
+                    detailNote.textContent = report.note || 'Laporan Anda telah berhasil terdaftar dan berada dalam antrean penelaahan berkas administrasi.';
+                }
+
+                // Comparative photo handling
+                if (report.photoRepair) {
+                    detailRepairContainer.style.display = 'flex';
+                    detailRepairPhoto.src = report.photoRepair;
+                } else {
+                    detailRepairContainer.style.display = 'none';
+                    detailRepairPhoto.src = '';
+                }
+
+                // Show modal window with active state transitions
+                detailModal.classList.add('active');
+                detailModal.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden'; // Keep scroll inside the modal window only
+            };
+
+            // Setup buttons (Disesuaikan agar bisa membaca klik pada elemen yang baru di-generate JS)
+            historyGrid.addEventListener('click', (e) => {
+                const detailBtn = e.target.closest('.detail-button');
+                const repairBtn = e.target.closest('.repair-button');
+
+                if (detailBtn || repairBtn) {
+                    // Fitur modal detail Anda bisa dihubungkan kembali di sini nanti
+                    // berdasarkan dataset-report yang disisipkan dari JSON
+                }
+            });
+
+            // Close modal handlers
+            const closeModal = () => {
+                detailModal.classList.remove('active');
+                detailModal.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+            };
+
+            detailCloseBtn.addEventListener('click', closeModal);
+
+            detailModal.addEventListener('click', (event) => {
+                if (event.target === detailModal) {
+                    closeModal();
+                }
+            });
+
+            // Close on escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && detailModal.classList.contains('active')) {
+                    closeModal();
+                }
+            });
+
+            // Memberitahu script untuk mengupdate stat setelah delay kecil untuk memastikan data riwayat.js sudah diisi
+            setTimeout(updateStats, 1000);
+        });
+    </script>
 </body>
 
 </html>

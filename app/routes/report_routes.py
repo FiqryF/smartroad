@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.controllers.report_controller import save_report, get_user_reports, get_all_reports
 
 report_bp = Blueprint('reports', __name__)
@@ -18,14 +19,12 @@ def submit_report():
     return jsonify(result), status_code
 
 @report_bp.route('/user', methods=['GET', 'OPTIONS'])
+@jwt_required()
 def get_user_reports_route():
     if request.method == 'OPTIONS':
         return jsonify({}), 200
         
-    email = request.args.get('email')
-    if not email:
-        return jsonify({"status": "error", "message": "Parameter email diperlukan"}), 400
-        
+    email = get_jwt_identity()
     result, status_code = get_user_reports(email)
     return jsonify(result), status_code
 

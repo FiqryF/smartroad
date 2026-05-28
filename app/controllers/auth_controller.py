@@ -2,6 +2,7 @@ from datetime import datetime
 import bcrypt
 import logging
 from app.db import db
+from flask_jwt_extended import create_access_token
 
 # Mengakses koleksi users
 users_collection = db["users"] if db is not None else None
@@ -80,9 +81,11 @@ def login_user(data):
                 is_valid = (password == stored_password)
 
             if is_valid:
+                access_token = create_access_token(identity=email)
                 return {
                     "status": "success",
                     "message": "Login berhasil!",
+                    "access_token": access_token,
                     "user_data": {
                         "id": str(user.get("_id")),
                         "nama": user.get("nama"),

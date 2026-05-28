@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (response.ok) {
                     // Menyimpan status sesi, nama pengguna, dan email ke localStorage
+                    localStorage.setItem('jwtToken', response.data.access_token);
                     localStorage.setItem('isLoggedIn', 'true');
                     localStorage.setItem('userName', response.data.user_data.nama);
                     localStorage.setItem('userEmail', response.data.user_data.email);

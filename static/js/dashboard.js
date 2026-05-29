@@ -20,15 +20,18 @@ window.onload = async () => {
 
             if (response.ok && resData.data) {
                 const profile = resData.data;
-                // Update Local Storage just in case
                 localStorage.setItem('userName', profile.nama);
                 userName = profile.nama;
 
-                // Update Avatar
+                // Tentukan URL Avatar
                 const profilePic = profile.profile_pic === 'default-profile.png'
                     ? `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.nama)}&background=FF6B00&color=FFFFFF`
-                    : `static/${profile.profile_pic}`;
+                    : `http://127.0.0.1:5000/static/${profile.profile_pic}`; // Pastikan base URL backend benar
 
+                // SIMPAN KE LOCAL STORAGE
+                localStorage.setItem('userAvatar', profilePic);
+
+                // Update Avatar di halaman dashboard
                 document.querySelectorAll('.avatar-img, .profile-avatar').forEach(img => {
                     img.src = profilePic;
                 });

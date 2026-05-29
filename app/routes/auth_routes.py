@@ -40,8 +40,17 @@ def get_user_profile_route():
     if not email:
         return jsonify({"status": "error", "message": "Email diperlukan"}), 400
         
-    result, status_code = get_profile_data(email)
-    return jsonify(result), status_code
+    try:
+        result, status_code = get_profile_data(email)
+        
+        # Jika hasil kosong atau user tidak ditemukan
+        if not result or status_code == 404 or (isinstance(result, dict) and result.get('status') == 'error'):
+            return jsonify({"error": "User tidak ditemukan"}), 404
+            
+        return jsonify(result), status_code
+    except Exception as e:
+        # Menangkap error DB atau error lainnya agar server tidak crash 500
+        return jsonify({"error": "Terjadi kesalahan pada server", "detail": str(e)}), 500
 
 @auth_bp.route('/api/profile/update-profile', methods=['POST', 'OPTIONS'])
 def update_profile_route():

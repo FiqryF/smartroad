@@ -15,16 +15,16 @@
             --bg-body: #F8FAFC;
             --bg-card: #FFFFFF;
             --bg-input: #FFFFFF;
-            
+
             --border-light: #E2E8F0;
             --border-hover: #CBD5E1;
             --brand-primary: #FF6B00;
             --brand-primary-hover: #E05E00;
-            
+
             --text-primary: #0F172A;
             --text-secondary: #475569;
             --text-muted: #94A3B8;
-            
+
             --danger: #EF4444;
             --danger-bg: #FEF2F2;
             --danger-border: #FEE2E2;
@@ -33,7 +33,7 @@
             --shadow-subtle: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
             --shadow-card: 0 10px 15px -3px rgba(15, 23, 42, 0.04), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
             --shadow-input: 0 0 0 3px rgba(255, 107, 0, 0.12);
-            
+
             --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             --radius-md: 10px;
             --radius-lg: 14px;
@@ -380,10 +380,12 @@
 
         /* Responsive Breakpoints */
         @media (max-width: 1080px) {
+
             /* Move back button inside container on narrower screens */
             .settings-container {
                 grid-template-columns: 220px 1fr;
             }
+
             .btn-back-floating {
                 position: static;
                 margin-bottom: 1rem;
@@ -394,23 +396,30 @@
             body {
                 padding: 1rem;
             }
+
             .settings-container {
                 grid-template-columns: 1fr;
                 gap: 1.5rem;
             }
+
             .btn-back-floating {
                 position: static;
                 margin-bottom: 0.5rem;
             }
+
             .sidebar-menu {
                 flex-direction: row;
                 overflow-x: auto;
                 padding-bottom: 0.25rem;
-                scrollbar-width: none; /* Firefox */
+                scrollbar-width: none;
+                /* Firefox */
             }
+
             .sidebar-menu::-webkit-scrollbar {
-                display: none; /* Chrome/Safari */
+                display: none;
+                /* Chrome/Safari */
             }
+
             .menu-item {
                 white-space: nowrap;
             }
@@ -420,25 +429,31 @@
             .form-grid {
                 grid-template-columns: 1fr;
             }
+
             .form-group.full-width {
                 grid-column: span 1;
             }
+
             .profile-hero {
                 padding: 1.5rem;
                 flex-direction: column;
                 text-align: center;
             }
+
             .settings-form {
                 padding: 1.5rem;
             }
+
             .danger-panel {
                 flex-direction: column;
                 text-align: center;
             }
+
             .form-actions {
                 flex-direction: column-reverse;
                 gap: 0.75rem;
             }
+
             .btn {
                 width: 100%;
                 justify-content: center;
@@ -446,14 +461,15 @@
         }
     </style>
     <!-- Auth Guard Middleware -->
-    <script src="js/auth-guard.js"></script>
+    <script src="static/js/auth-utility.js"></script>
+    <script src="static/js/auth-guard.js"></script>
 </head>
 
 <body>
 
     <!-- Main Container -->
     <div class="settings-container">
-        
+
         <!-- Absolute/Floating Back Button (Icon Only) -->
         <a href="dashboard.html" class="btn-back-floating" title="Kembali ke Dashboard">
             <i data-lucide="arrow-left" style="width: 20px; height: 20px;"></i>
@@ -485,7 +501,8 @@
             <!-- Profile Info Hero Header -->
             <div class="profile-hero">
                 <div class="avatar-uploader">
-                    <img src="https://ui-avatars.com/api/?name=User&background=FF6B00&color=FFFFFF" alt="Avatar" class="avatar-img" id="avatarImg">
+                    <img src="https://ui-avatars.com/api/?name=User&background=FF6B00&color=FFFFFF" alt="Avatar"
+                        class="avatar-img" id="avatarImg">
                     <button type="button" class="avatar-edit-badge" aria-label="Ubah Foto" id="avatarEditBtn">
                         <i data-lucide="camera" style="width: 12px; height: 12px;"></i>
                     </button>
@@ -507,11 +524,13 @@
                     <div class="form-grid">
                         <div class="form-group full-width">
                             <label class="form-label">Nama Lengkap</label>
-                            <input type="text" class="form-input" id="inputNama" readonly style="background-color: #f1f5f9;">
+                            <input type="text" class="form-input" id="inputNama" readonly
+                                style="background-color: #f1f5f9;">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Alamat Email</label>
-                            <input type="email" class="form-input" id="inputEmail" readonly style="background-color: #f1f5f9;">
+                            <input type="email" class="form-input" id="inputEmail" readonly
+                                style="background-color: #f1f5f9;">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Nomor WhatsApp</label>
@@ -537,11 +556,13 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label">Kata Sandi Baru</label>
-                            <input type="password" class="form-input" id="newPassword" placeholder="Masukkan kata sandi baru..." required>
+                            <input type="password" class="form-input" id="newPassword"
+                                placeholder="Masukkan kata sandi baru..." required>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Konfirmasi Kata Sandi</label>
-                            <input type="password" class="form-input" id="confirmPassword" placeholder="Ulangi kata sandi..." required>
+                            <input type="password" class="form-input" id="confirmPassword"
+                                placeholder="Ulangi kata sandi..." required>
                         </div>
                     </div>
                     <div class="form-actions" style="margin-top: 1rem; border-top: none; padding-top: 0;">
@@ -553,14 +574,16 @@
 
                 <!-- Section 3 -->
                 <div class="section-header" style="border-color: rgba(239, 68, 68, 0.15);">
-                    <i data-lucide="alert-triangle" style="width: 14px; height: 14px; color: var(--danger);"></i> Zona Bahaya
+                    <i data-lucide="alert-triangle" style="width: 14px; height: 14px; color: var(--danger);"></i> Zona
+                    Bahaya
                 </div>
                 <div class="danger-panel">
                     <div class="danger-text">
                         <h4>Hapus Akun Anda</h4>
                         <p>Setelah Anda menghapus akun, data profil dan laporan Anda akan terhapus secara permanen.</p>
                     </div>
-                    <button type="button" class="btn-danger" onclick="confirm('Apakah Anda yakin ingin menghapus akun permanen?')">Hapus Akun</button>
+                    <button type="button" class="btn-danger"
+                        onclick="confirm('Apakah Anda yakin ingin menghapus akun permanen?')">Hapus Akun</button>
                 </div>
 
             </div>

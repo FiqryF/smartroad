@@ -36,41 +36,45 @@ window.onload = async () => {
                     img.src = profilePic;
                 });
 
-                // Evaluasi Profil Kosong (Sistem Notifikasi Cerdas)
+                // Di dalam dashboard.js (Bagian Evaluasi Profil Kosong)
                 const notifDot = document.getElementById('notifDot');
                 const notifDropdown = document.getElementById('notifDropdown');
 
                 if (!profile.telepon || !profile.alamat) {
-                    // Profil INCOMPLETE
+                    // Simpan status tidak lengkap ke localStorage
+                    localStorage.setItem('profileStatus', 'incomplete');
+
+                    // Profil INCOMPLETE (Kode aslimu)
                     if (notifDot) notifDot.style.display = 'block';
                     if (notifDropdown) {
                         notifDropdown.innerHTML = `
-                            <li>
-                                <div style="display: flex; gap: 0.5rem; align-items: start;">
-                                    <i data-lucide="alert-circle" style="color: var(--danger-red); width: 16px; margin-top: 2px;"></i>
-                                    <div>
-                                        <strong style="color: var(--asphalt-dark);">Profil Belum Lengkap</strong><br>
-                                        <span style="font-size: 0.8rem; color: var(--text-muted);">Silakan <a href="profile.html" style="color: var(--safety-orange); font-weight: 600;">lengkapi data diri Anda</a> (Opsional)</span>
-                                    </div>
-                                </div>
-                            </li>
-                        `;
-                        // Re-initialize lucide icons for newly injected HTML
+            <li>
+                <div style="display: flex; gap: 0.5rem; align-items: start;">
+                    <i data-lucide="alert-circle" style="color: var(--danger-red); width: 16px; margin-top: 2px;"></i>
+                    <div>
+                        <strong style="color: var(--asphalt-dark);">Profil Belum Lengkap</strong><br>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">Silakan <a href="profile.html" style="color: var(--safety-orange); font-weight: 600;">lengkapi data diri Anda</a> (Opsional)</span>
+                    </div>
+                </div>
+            </li>
+        `;
                         if (typeof lucide !== 'undefined') lucide.createIcons();
                     }
                 } else {
-                    // Profil COMPLETE
+                    // Simpan status lengkap ke localStorage
+                    localStorage.setItem('profileStatus', 'complete');
+
+                    // Profil COMPLETE (Kode aslimu)
                     if (notifDot) notifDot.style.display = 'none';
                     if (notifDropdown) {
                         notifDropdown.innerHTML = `
-                            <li>
-                                <div style="text-align: center; padding: 1rem 0; color: var(--text-muted);">
-                                    <i data-lucide="check-circle" style="color: var(--success-green); width: 24px; margin-bottom: 0.5rem;"></i><br>
-                                    Tidak ada notifikasi baru
-                                </div>
-                            </li>
-                        `;
-                        // Re-initialize lucide icons
+            <li>
+                <div style="text-align: center; padding: 1rem 0; color: var(--text-muted);">
+                    <i data-lucide="check-circle" style="color: var(--success-green); width: 24px; margin-bottom: 0.5rem;"></i><br>
+                    Tidak ada notifikasi baru
+                </div>
+            </li>
+        `;
                         if (typeof lucide !== 'undefined') lucide.createIcons();
                     }
                 }

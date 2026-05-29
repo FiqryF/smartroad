@@ -818,12 +818,15 @@
                 text-align: center;
                 gap: 2.5rem;
             }
+
             .cta-desc {
                 margin: 0 auto;
             }
+
             .btn-cta-solid {
                 align-self: center;
             }
+
             .cta-feature-item {
                 justify-content: center;
             }
@@ -1032,6 +1035,7 @@
         }
 
         @media (max-width: 992px) {
+
             .action-banner-grid,
             .overview-grid,
             .history-grid {
@@ -1381,7 +1385,8 @@
         }
     </style>
     <!-- Auth Guard Middleware -->
-    <script src="js/auth-guard.js"></script>
+    <script src="static/js/auth-utility.js"></script>
+    <script src="static/js/auth-guard.js"></script>
 </head>
 
 <body>
@@ -1444,7 +1449,8 @@
                     <div class="panel-card panel-profile-card">
                         <div class="panel-title">Profil Pengguna</div>
                         <div class="profile-summary">
-                            <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Avatar" class="profile-avatar">
+                            <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF"
+                                alt="Avatar" class="profile-avatar">
                             <div>
                                 <strong id="popupName">Fiqry</strong>
                                 <p>Warga Terdaftar</p>
@@ -1560,8 +1566,9 @@
             <div class="cta-wrapper">
                 <div class="cta-content">
                     <h2 class="cta-heading">Laporkan Kerusakan <span>Infrastruktur Jalan</span></h2>
-                    <p class="cta-desc">Klik tombol di bawah untuk masuk ke panel pelaporan dan unggah foto langsung dari lokasi kerusakan. Mari bersama wujudkan infrastruktur kota yang lebih baik dan aman.</p>
-                    
+                    <p class="cta-desc">Klik tombol di bawah untuk masuk ke panel pelaporan dan unggah foto langsung
+                        dari lokasi kerusakan. Mari bersama wujudkan infrastruktur kota yang lebih baik dan aman.</p>
+
                     <div class="cta-features">
                         <div class="cta-feature-item">
                             <div class="cta-icon"><i data-lucide="camera"></i></div>
@@ -1581,11 +1588,12 @@
                         <i data-lucide="zap" style="width:18px;height:18px;"></i> BUAT LAPORAN SEKARANG
                     </a>
                 </div>
-                
+
                 <div class="cta-visual">
                     <div class="cta-image-wrapper">
                         <!-- Professional construction / road inspection photo -->
-                        <img src="https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?q=80&w=1200" alt="Inspeksi Infrastruktur Jalan" class="cta-img" />
+                        <img src="https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?q=80&w=1200"
+                            alt="Inspeksi Infrastruktur Jalan" class="cta-img" />
                     </div>
                 </div>
             </div>

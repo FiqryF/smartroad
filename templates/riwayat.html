@@ -1919,8 +1919,12 @@
                     </div>
                     <div class="photo-box" id="detailRepairContainer">
                         <span class="photo-title-badge success">Hasil Penambalan / Perbaikan</span>
-                        <div class="photo-frame">
-                            <img id="detailRepairPhoto" src="" alt="Foto hasil perbaikan">
+                        <div class="photo-frame" id="repairPhotoFrame" style="position: relative;">
+                            <img id="detailRepairPhoto" src="" alt="Foto hasil perbaikan" style="display: none;">
+                            <div id="repairNoPhoto" class="no-photo-info" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); text-align: center; padding: 1rem; background-color: #f8fafc;">
+                                <i data-lucide="image-off" style="width: 32px; height: 32px; margin-bottom: 0.5rem; color: #cbd5e1;"></i>
+                                <span style="font-size: 0.85rem;">Foto perbaikan belum diunggah oleh petugas.</span>
+                            </div>
                         </div>
                     </div>
                 </div>

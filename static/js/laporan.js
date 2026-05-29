@@ -427,3 +427,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+window.logout = function () {
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userAvatar');
+    localStorage.removeItem('profileStatus');
+
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            icon: 'info',
+            title: 'Berhasil Keluar',
+            text: 'Anda telah keluar dari sistem.',
+            confirmButtonColor: '#FF6B00',
+            timer: 1500,
+            showConfirmButton: false
+        }).then(() => {
+            window.location.href = 'login.html';
+        });
+    } else {
+        window.location.href = 'login.html';
+    }
+};

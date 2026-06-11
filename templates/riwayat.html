@@ -2160,7 +2160,7 @@
                 getCards().forEach(card => {
                     const status = card.dataset.status;
                     if (status === 'Menunggu Verifikasi' || status === 'Menunggu') pending++;
-                    else if (status === 'Sedang Diproses') processing++;
+                    else if (status === 'Sedang Diproses' || status === 'Proses') processing++;
                     else if (status === 'Selesai') done++;
                 });
 

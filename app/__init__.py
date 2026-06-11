@@ -7,6 +7,7 @@ from app.routes.auth_routes import auth_bp
 from app.routes.view_routes import view_bp
 from app.routes.profile_routes import profile_bp
 from app.routes.report_routes import report_bp
+from app.routes.admin_routes import admin_bp
 
 def create_app():
     # Setup logging
@@ -22,13 +23,16 @@ def create_app():
     # Konfigurasi CORS (Mengizinkan local development)
     CORS(app, resources={r"/*": {"origins": "*"}})
     
+    from datetime import timedelta
     app.config["JWT_SECRET_KEY"] = "super-secret-jwt-key"
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=24)
     jwt = JWTManager(app)
     
     # Register blueprints
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(profile_bp, url_prefix='/api/profile')
     app.register_blueprint(report_bp, url_prefix='/api/reports')
+    app.register_blueprint(admin_bp, url_prefix='/api/admin')
     app.register_blueprint(view_bp)
     
     # Global error handlers

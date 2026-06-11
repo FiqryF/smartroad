@@ -2,6 +2,7 @@ import os
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.controllers.auth_controller import register_user, login_user, get_profile_data, update_user_profile, update_user_password, update_user_photo
 
 auth_bp = Blueprint('auth', __name__)
@@ -31,11 +32,12 @@ def login():
     return jsonify(result), status_code
 
 @auth_bp.route('/api/profile/user-profile', methods=['GET', 'OPTIONS'])
+@jwt_required()
 def get_user_profile_route():
     if request.method == 'OPTIONS':
         return jsonify({}), 200
         
-    email = request.args.get('email')
+    email = get_jwt_identity()
     
     if not email:
         return jsonify({"status": "error", "message": "Email diperlukan"}), 400
@@ -53,27 +55,38 @@ def get_user_profile_route():
         return jsonify({"error": "Terjadi kesalahan pada server", "detail": str(e)}), 500
 
 @auth_bp.route('/api/profile/update-profile', methods=['POST', 'OPTIONS'])
+@jwt_required()
 def update_profile_route():
     if request.method == 'OPTIONS':
         return jsonify({}), 200
     data = request.get_json()
+    
+    # Overwrite email from token to prevent unauthorized modification
+    data['email'] = get_jwt_identity()
+    
     result, status_code = update_user_profile(data)
     return jsonify(result), status_code
 
 @auth_bp.route('/api/profile/update-password', methods=['POST', 'OPTIONS'])
+@jwt_required()
 def update_password_route():
     if request.method == 'OPTIONS':
         return jsonify({}), 200
     data = request.get_json()
+    
+    # Overwrite email from token to prevent unauthorized modification
+    data['email'] = get_jwt_identity()
+    
     result, status_code = update_user_password(data)
     return jsonify(result), status_code
 
 @auth_bp.route('/api/profile/upload-photo', methods=['POST', 'OPTIONS'])
+@jwt_required()
 def upload_photo_route():
     if request.method == 'OPTIONS':
         return jsonify({}), 200
         
-    email = request.form.get('email')
+    email = get_jwt_identity()
     if not email:
         return jsonify({"status": "error", "message": "Email tidak ditemukan"}), 400
         

@@ -50,38 +50,91 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- 2. SINKRONISASI NOTIFIKASI ---
     const notifDot = document.getElementById('notifDot');
     const notifDropdown = document.getElementById('notifDropdown');
+    const notificationBtn = document.querySelector('.notification-btn');
 
-    if (profileStatus === 'incomplete') {
-        if (notifDot) notifDot.style.display = 'block';
-        if (notifDropdown) {
-            notifDropdown.innerHTML = `
-                <li>
-                    <div style="display: flex; gap: 0.5rem; align-items: start;">
-                        <i data-lucide="alert-circle" style="color: var(--danger-red); width: 16px; margin-top: 2px;"></i>
-                        <div>
-                            <strong style="color: var(--asphalt-dark);">Profil Belum Lengkap</strong><br>
-                            <span style="font-size: 0.8rem; color: var(--text-muted);">Silakan <a href="profile.html" style="color: var(--safety-orange); font-weight: 600;">lengkapi data diri Anda</a> (Opsional)</span>
-                        </div>
-                    </div>
-                </li>
-            `;
+    const loadNotifications = async () => {
+        if (!userEmail) return;
+        try {
+            const res = await fetchWithAuth(`http://127.0.0.1:5000/api/reports/notifications/user?email=${encodeURIComponent(userEmail)}`);
+            if (res && res.ok) {
+                const resData = await res.json();
+                const notifs = resData.data || [];
+                const unread = notifs.some(n => !n.is_read);
+
+                if (unread || profileStatus === 'incomplete') {
+                    if (notifDot) notifDot.style.display = 'block';
+                } else {
+                    if (notifDot) notifDot.style.display = 'none';
+                }
+
+                if (notifDropdown) {
+                    notifDropdown.innerHTML = '';
+                    if (profileStatus === 'incomplete') {
+                        notifDropdown.insertAdjacentHTML('beforeend', `
+                            <li>
+                                <div style="display: flex; gap: 0.5rem; align-items: start;">
+                                    <i data-lucide="alert-circle" style="color: var(--danger-red); width: 16px; margin-top: 2px;"></i>
+                                    <div>
+                                        <strong style="color: var(--asphalt-dark);">Profil Belum Lengkap</strong><br>
+                                        <span style="font-size: 0.8rem; color: var(--text-muted);">Silakan <a href="profile.html" style="color: var(--safety-orange); font-weight: 600;">lengkapi data diri Anda</a></span>
+                                    </div>
+                                </div>
+                            </li>
+                        `);
+                    }
+
+                    if (notifs.length > 0) {
+                        notifs.forEach(n => {
+                            const dateObj = new Date(n.created_at);
+                            const dateStr = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                            const timeStr = dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                            
+                            notifDropdown.insertAdjacentHTML('beforeend', `
+                                <li>
+                                    <div style="display: flex; gap: 0.5rem; align-items: start;">
+                                        <i data-lucide="bell" style="color: var(--safety-orange); width: 16px; margin-top: 2px;"></i>
+                                        <div>
+                                            <strong style="color: var(--asphalt-dark);">${n.title}</strong><br>
+                                            <span style="font-size: 0.8rem; color: var(--text-muted);">${n.message}</span><br>
+                                            <span style="font-size: 0.7rem; color: #9ca3af; margin-top: 4px; display: block;">${dateStr} • ${timeStr}</span>
+                                        </div>
+                                    </div>
+                                </li>
+                            `);
+                        });
+                    } else if (profileStatus !== 'incomplete') {
+                        notifDropdown.insertAdjacentHTML('beforeend', `
+                            <li>
+                                <div style="text-align: center; padding: 1rem 0; color: var(--text-muted);">
+                                    <i data-lucide="check-circle" style="color: var(--success-green); width: 24px; margin-bottom: 0.5rem;"></i><br>
+                                    Tidak ada notifikasi baru
+                                </div>
+                            </li>
+                        `);
+                    }
+                }
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }
+        } catch (error) {
+            console.error(error);
         }
-    } else if (profileStatus === 'complete') {
-        if (notifDot) notifDot.style.display = 'none';
-        if (notifDropdown) {
-            notifDropdown.innerHTML = `
-                <li>
-                    <div style="text-align: center; padding: 1rem 0; color: var(--text-muted);">
-                        <i data-lucide="check-circle" style="color: var(--success-green); width: 24px; margin-bottom: 0.5rem;"></i><br>
-                        Tidak ada notifikasi baru
-                    </div>
-                </li>
-            `;
-        }
+    };
+
+    // Mark as read when notification panel opens
+    if (notificationBtn) {
+        notificationBtn.addEventListener('click', async () => {
+            if (notifDot && profileStatus !== 'incomplete') notifDot.style.display = 'none';
+            try {
+                await fetchWithAuth('http://127.0.0.1:5000/api/reports/notifications/user/read', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: userEmail })
+                });
+            } catch (err) { console.error(err); }
+        });
     }
 
-    // Render icon lucide untuk notifikasi
-    if (typeof lucide !== 'undefined') lucide.createIcons();
+    loadNotifications();
 
 
     // --- 3. FETCH RIWAYAT LAPORAN ---
@@ -112,7 +165,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 let badgeClass = 'badge-pending';
                 let iconName = 'clock';
-                if (report.status === 'Sedang Diproses') { badgeClass = 'badge-processing'; iconName = 'loader'; }
+                if (report.status === 'Sedang Diproses' || report.status === 'Proses') { badgeClass = 'badge-processing'; iconName = 'loader'; }
                 if (report.status === 'Selesai') { badgeClass = 'badge-done'; iconName = 'check-circle'; }
 
                 const imgSrc = report.image_path ? `/static/${report.image_path}` : 'https://images.unsplash.com/photo-1526481280690-9f10f80d63b2?auto=format&fit=crop&w=900&q=80';
@@ -198,7 +251,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 detailStatus.textContent = status;
                 detailStatus.className = 'detail-status'; // Reset class
                 if (status === 'Menunggu' || status === 'Menunggu Verifikasi') detailStatus.classList.add('badge-pending');
-                else if (status === 'Sedang Diproses') detailStatus.classList.add('badge-processing');
+                else if (status === 'Sedang Diproses' || status === 'Proses') detailStatus.classList.add('badge-processing');
                 else if (status === 'Selesai') detailStatus.classList.add('badge-done');
             }
 

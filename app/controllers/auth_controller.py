@@ -38,6 +38,7 @@ def register_user(data):
             "telepon": "",
             "alamat": "",
             "profile_pic": "default-profile.png",
+            "role": "user",
             "created_at": datetime.utcnow()
         }
 
@@ -72,16 +73,24 @@ def login_user(data):
         if user:
             stored_password = user.get("password")
             
+            if not stored_password:
+                return {"status": "error", "message": "Email atau password salah"}, 401
+            
             is_valid = False
             if stored_password.startswith('$2b$'):
                 # Password is hashed
-                is_valid = bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8'))
+                try:
+                    is_valid = bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8'))
+                except ValueError:
+                    # In case the hash starts with $2b$ but is malformed
+                    is_valid = (password == stored_password)
             else:
                 # Plain-text fallback for existing test data
                 is_valid = (password == stored_password)
 
             if is_valid:
-                access_token = create_access_token(identity=email)
+                user_role = user.get("role", "user")
+                access_token = create_access_token(identity=email, additional_claims={"role": user_role})
                 return {
                     "status": "success",
                     "message": "Login berhasil!",
@@ -92,7 +101,8 @@ def login_user(data):
                         "email": user.get("email"),
                         "telepon": user.get("telepon", ""),
                         "alamat": user.get("alamat", ""),
-                        "profile_pic": user.get("profile_pic", "default-profile.png")
+                        "profile_pic": user.get("profile_pic", "default-profile.png"),
+                        "role": user_role
                     }
                 }, 200
 

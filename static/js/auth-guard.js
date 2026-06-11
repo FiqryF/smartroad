@@ -31,6 +31,7 @@ window.authFetch = async function(url, options = {}) {
             
             // Clear the invalid/expired token and redirect
             localStorage.removeItem('jwtToken');
+            localStorage.removeItem('userRole');
             window.location.replace('login.html');
             return null; // Return null to indicate failure
         }

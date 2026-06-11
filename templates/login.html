@@ -4,6 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SELAMAT DATANG KEMBALI — SmartRoad</title>
+    
+    <!-- Reverse Auth Guard: Jika sudah login, lempar ke dashboard -->
+    <script>
+        const existingToken = localStorage.getItem('jwtToken');
+        if (existingToken) {
+            const role = localStorage.getItem('userRole');
+            if (role === 'admin') {
+                window.location.replace('dashboard-admin.html');
+            } else {
+                window.location.replace('dashboard.html');
+            }
+        }
+    </script>
+    
     <!-- Google Fonts: Plus Jakarta Sans & Montserrat -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

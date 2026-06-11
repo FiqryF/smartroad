@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     localStorage.setItem('isLoggedIn', 'true');
                     localStorage.setItem('userName', response.data.user_data.nama);
                     localStorage.setItem('userEmail', response.data.user_data.email);
+                    localStorage.setItem('userRole', response.data.user_data.role);
 
                     Swal.fire({
                         icon: 'success',
@@ -29,7 +30,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         confirmButtonColor: '#FF6B00'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            window.location.href = "dashboard.html";
+                            if (response.data.user_data.role === 'admin') {
+                                window.location.href = "dashboard-admin.html";
+                            } else {
+                                window.location.href = "dashboard.html";
+                            }
                         }
                     });
                 } else {

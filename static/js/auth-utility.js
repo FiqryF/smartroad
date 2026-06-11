@@ -16,6 +16,7 @@ async function fetchWithAuth(url, options = {}) {
 
         if (response.status === 401) {
             localStorage.removeItem('jwtToken');
+            localStorage.removeItem('userRole');
             window.location.replace('login.html');
             return null;
         }
@@ -33,6 +34,7 @@ window.logout = function () {
     localStorage.removeItem('userName');
     localStorage.removeItem('userEmail');
     localStorage.removeItem('userAvatar');
+    localStorage.removeItem('userRole');
     localStorage.removeItem('profileStatus');
     window.location.replace('login.html');
 };

@@ -95,3 +95,70 @@ def get_all_reports():
     except Exception as e:
         logging.error(f"Error saat mengambil semua laporan: {e}")
         return {"status": "error", "message": "Terjadi kesalahan saat memproses data"}, 500
+
+from bson import ObjectId
+
+def update_report_status(report_id, new_status):
+    if reports_collection is None:
+        return {"status": "error", "message": "Database tidak terhubung"}, 500
+        
+    try:
+        # Validasi format ObjectId
+        if not ObjectId.is_valid(report_id):
+            return {"status": "error", "message": "ID laporan tidak valid"}, 400
+            
+        report = reports_collection.find_one({"_id": ObjectId(report_id)})
+        if not report:
+            return {"status": "error", "message": "Laporan tidak ditemukan"}, 404
+            
+        result = reports_collection.update_one(
+            {"_id": ObjectId(report_id)},
+            {"$set": {"status": new_status}}
+        )
+        
+        # Create a notification for the user
+        notifications_collection = db["notifications"]
+        notifications_collection.insert_one({
+            "email": report.get("reporter_email"),
+            "title": "Update Status Laporan",
+            "message": f"Status laporan \"{report.get('title')}\" telah diubah menjadi {new_status}.",
+            "is_read": False,
+            "created_at": datetime.utcnow()
+        })
+        
+        return {"status": "success", "message": f"Status laporan berhasil diperbarui menjadi {new_status}"}, 200
+    except Exception as e:
+        logging.error(f"Error saat memperbarui status laporan: {e}")
+        return {"status": "error", "message": "Terjadi kesalahan saat memperbarui status"}, 500
+
+def get_user_notifications(email):
+    if db is None:
+        return {"status": "error", "message": "Database tidak terhubung"}, 500
+        
+    try:
+        notifications_collection = db["notifications"]
+        cursor = notifications_collection.find({"email": email}).sort("created_at", -1)
+        notifications = []
+        for doc in cursor:
+            doc['_id'] = str(doc['_id'])
+            notifications.append(doc)
+            
+        return {"status": "success", "data": notifications}, 200
+    except Exception as e:
+        logging.error(f"Error saat mengambil notifikasi: {e}")
+        return {"status": "error", "message": "Terjadi kesalahan saat mengambil notifikasi"}, 500
+
+def mark_notifications_read(email):
+    if db is None:
+        return {"status": "error", "message": "Database tidak terhubung"}, 500
+        
+    try:
+        notifications_collection = db["notifications"]
+        notifications_collection.update_many(
+            {"email": email, "is_read": False},
+            {"$set": {"is_read": True}}
+        )
+        return {"status": "success", "message": "Notifikasi ditandai sudah dibaca"}, 200
+    except Exception as e:
+        logging.error(f"Error saat menandai notifikasi: {e}")
+        return {"status": "error", "message": "Terjadi kesalahan sistem"}, 500

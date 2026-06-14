@@ -168,6 +168,13 @@ async function loadUserNotifications(options = {}) {
         }
 
         if (typeof lucide !== 'undefined') lucide.createIcons();
+
+        if (!window.userNotificationPollingStarted) {
+            window.userNotificationPollingStarted = true;
+            window.setInterval(() => {
+                loadUserNotifications({ profile });
+            }, 30000);
+        }
     } catch (error) {
         console.error('Gagal memuat notifikasi:', error);
     }

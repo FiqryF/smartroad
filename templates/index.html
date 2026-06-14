@@ -850,6 +850,10 @@
             border-bottom: 3px solid var(--safety-orange);
         }
 
+        .feedback .container {
+            overflow: hidden;
+        }
+
         .feedback-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -859,75 +863,137 @@
 
         /* Simplified, smaller testimonial card */
         .testimonial-card {
-            background-color: var(--asphalt-medium);
-            border: 1px solid var(--asphalt-border);
-            padding: 1.75rem;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.018));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 2px solid rgba(255, 107, 0, 0.55);
+            padding: 1.35rem;
             position: relative;
             transition: var(--transition);
+            border-radius: 8px;
+            min-height: 190px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+        }
+
+        .testimonial-card::before {
+            content: "“";
+            position: absolute;
+            right: 1.15rem;
+            top: 0.35rem;
+            font-family: Georgia, serif;
+            font-size: 4rem;
+            line-height: 1;
+            color: rgba(255, 107, 0, 0.1);
+            pointer-events: none;
         }
 
         .testimonial-card:hover {
-            border-color: var(--safety-orange);
+            border-color: rgba(255, 107, 0, 0.7);
+            transform: translateY(-3px);
         }
 
         /* Smaller text font size for clean minimalist UI */
         .testimonial-quote {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: var(--text-light);
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
             line-height: 1.6;
             font-style: italic;
             font-weight: 400;
             position: relative;
             z-index: 2;
+            min-height: 3.2rem;
         }
 
         .testimonial-stars {
             color: var(--safety-orange);
             display: flex;
             gap: 0.15rem;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.85rem;
+            background: rgba(255, 107, 0, 0.08);
+            border: 1px solid rgba(255, 107, 0, 0.12);
+            width: fit-content;
+            padding: 0.35rem 0.45rem;
+            border-radius: 999px;
         }
 
-        .testimonial-stars i {
-            font-size: 0.85rem;
+        .testimonial-stars i,
+        .testimonial-stars svg {
+            width: 0.9rem;
+            height: 0.9rem;
             fill: var(--safety-orange);
+            color: var(--safety-orange);
+            stroke: var(--safety-orange);
+            stroke-width: 2.4;
         }
 
-        .testimonial-stars i.empty {
+        .testimonial-stars i.empty,
+        .testimonial-stars svg.empty {
             fill: none;
+            color: var(--text-muted);
+            stroke: var(--text-muted);
+            opacity: 0.45;
         }
 
         .testimonial-author {
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            border-top: 1px solid var(--asphalt-border);
-            padding-top: 1.25rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 1rem;
         }
 
         /* Cleaner avatar styling */
         .author-avatar {
-            width: 2.5rem;
-            height: 2.5rem;
-            border-radius: 50%;
+            width: 2.35rem;
+            height: 2.35rem;
+            border-radius: 10px;
             object-fit: cover;
-            border: 1.5px solid var(--safety-orange);
+            border: 1px solid rgba(255, 107, 0, 0.55);
         }
 
         .author-name {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.02em;
             color: var(--text-white);
+            margin-bottom: 0.12rem;
         }
 
         .author-role {
             font-size: 0.7rem;
-            color: var(--text-muted);
+            color: var(--text-light);
             font-weight: 500;
             margin-top: 0.05rem;
+            opacity: 0.7;
+        }
+
+        .feedback-grid.is-carousel {
+            display: flex;
+            gap: 1.5rem;
+            width: max-content;
+            margin-top: 3rem;
+            animation: testimonial-scroll 34s linear infinite;
+        }
+
+        .feedback-grid.is-carousel .testimonial-card {
+            flex: 0 0 min(360px, calc(100vw - 3rem));
+        }
+
+        .feedback-grid.is-carousel:hover {
+            animation-play-state: paused;
+        }
+
+        @keyframes testimonial-scroll {
+            from {
+                transform: translateX(0);
+            }
+            to {
+                transform: translateX(calc(-50% - 0.75rem));
+            }
         }
 
         /* 8. Professional Footer Section */
@@ -1380,8 +1446,8 @@
                     </div>
                     <div class="stat-info">
                         <div class="stat-number-box">
-                            <span class="stat-number" data-target="2453">0</span>
-                            <span class="stat-plus">+</span>
+                            <span class="stat-number" data-stat="total_reports" data-target="0">0</span>
+                            <span class="stat-plus"></span>
                         </div>
                         <p class="stat-label">Laporan Masuk</p>
                     </div>
@@ -1397,8 +1463,8 @@
                     </div>
                     <div class="stat-info">
                         <div class="stat-number-box">
-                            <span class="stat-number" data-target="2104">0</span>
-                            <span class="stat-plus">+</span>
+                            <span class="stat-number" data-stat="handled_reports" data-target="0">0</span>
+                            <span class="stat-plus"></span>
                         </div>
                         <p class="stat-label">Laporan Ditangani</p>
                     </div>
@@ -1411,8 +1477,8 @@
                     </div>
                     <div class="stat-info">
                         <div class="stat-number-box">
-                            <span class="stat-number" data-target="15820">0</span>
-                            <span class="stat-plus">+</span>
+                            <span class="stat-number" data-stat="citizen_participation" data-target="0">0</span>
+                            <span class="stat-plus"></span>
                         </div>
                         <p class="stat-label">Partisipasi Warga</p>
                     </div>
@@ -1593,7 +1659,7 @@
         <!-- INFINITE AUTO-SCROLL MARQUEE CAROUSEL TRACK -->
         <div class="marquee-container">
             <!-- Continuous Infinite Loop Marquee (Consists of 4 unique pairs, duplicated exactly once inside the track to ensure seamless scroll) -->
-            <div class="marquee-track">
+            <div class="marquee-track" id="repairGalleryTrack">
                 
                 <!-- Card 1 -->
                 <div class="gallery-case">
@@ -1786,7 +1852,7 @@
                 <p class="section-desc">Umpan balik langsung dari warga kota mengenai dampak positif penanganan masalah jalan cepat melalui platform SmartRoad.</p>
             </div>
 
-            <div class="feedback-grid">
+            <div class="feedback-grid" id="publicReviewGrid">
                 
                 <!-- Feedback 1 -->
                 <div class="testimonial-card">
@@ -2026,12 +2092,16 @@
 
             // 3. Live Statistics Counter Animating
             const counters = document.querySelectorAll('.stat-number');
+            const repairGalleryTrack = document.getElementById('repairGalleryTrack');
+            const publicReviewGrid = document.getElementById('publicReviewGrid');
             const counterObserverOptions = {
                 threshold: 0.1,
                 rootMargin: '0px'
             };
 
             const animateCounter = (counter) => {
+                if (counter.dataset.animating === 'true') return;
+                counter.dataset.animating = 'true';
                 const target = parseInt(counter.getAttribute('data-target'), 10);
                 const duration = 1800; // Counter timing in milliseconds
                 const stepTime = 20;   // Interval frame rate
@@ -2046,11 +2116,128 @@
                     
                     if (stepCount >= totalSteps) {
                         counter.textContent = target.toLocaleString('id-ID');
+                        counter.dataset.animating = 'false';
                         clearInterval(counterInterval);
                     } else {
                         counter.textContent = Math.floor(currentCount).toLocaleString('id-ID');
                     }
                 }, stepTime);
+            };
+
+            const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            }[char]));
+
+            const staticPath = (path) => path ? `/static/${String(path).replace(/^\/?static\//, '')}` : '';
+            const getReviewAvatar = (item) => {
+                const profilePic = String(item.profile_pic || '');
+                if (/^https?:\/\//i.test(profilePic)) return profilePic;
+                if (profilePic && profilePic !== 'default-profile.png') return staticPath(profilePic);
+                return `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name || 'Warga')}&background=FF6B00&color=FFFFFF`;
+            };
+
+            const renderGalleryCase = (item) => {
+                const title = escapeHtml(item.title || 'Laporan selesai');
+                const address = escapeHtml(item.address || '-');
+                const beforePhoto = escapeHtml(staticPath(item.image_path));
+                const afterPhoto = escapeHtml(staticPath(item.repair_image_path));
+                const days = Number.isFinite(Number(item.duration_days)) ? Number(item.duration_days) : null;
+                const durationLabel = days === null
+                    ? 'Selesai'
+                    : days <= 0
+                        ? 'Selesai Hari Ini'
+                        : `Selesai ${days} Hari`;
+
+                return `
+                    <div class="gallery-case">
+                        <div class="gallery-photos">
+                            <div class="photo-container">
+                                <span class="photo-label before">Sebelum</span>
+                                <img src="${beforePhoto}" alt="Foto awal ${title}">
+                            </div>
+                            <div class="comparison-divider"><i data-lucide="arrow-right-left" style="width: 12px; height: 12px;"></i></div>
+                            <div class="photo-container">
+                                <span class="photo-label after">Sesudah</span>
+                                <img src="${afterPhoto}" alt="Foto hasil perbaikan ${title}">
+                            </div>
+                        </div>
+                        <div class="gallery-info">
+                            <div class="gallery-details">
+                                <h4>${title}</h4>
+                                <p><i data-lucide="map-pin"></i> ${address}</p>
+                            </div>
+                            <span class="gallery-status-badge">${escapeHtml(durationLabel)}</span>
+                        </div>
+                    </div>
+                `;
+            };
+
+            const renderReviewCard = (item) => {
+                const rating = Math.max(1, Math.min(5, Number(item.rating) || 5));
+                const name = escapeHtml(item.name || 'Warga SmartRoad');
+                const role = escapeHtml(item.role || item.report_title || 'Warga SmartRoad');
+                const quote = escapeHtml(item.quote || '');
+                const avatar = escapeHtml(getReviewAvatar(item));
+                const stars = Array.from({ length: 5 }, (_, index) => (
+                    `<i data-lucide="star"${index >= rating ? ' class="empty"' : ''}></i>`
+                )).join('');
+
+                return `
+                    <div class="testimonial-card">
+                        <div class="testimonial-stars">${stars}</div>
+                        <p class="testimonial-quote">"${quote}"</p>
+                        <div class="testimonial-author">
+                            <img src="${avatar}" alt="${name}" class="author-avatar">
+                            <div>
+                                <h4 class="author-name">${name}</h4>
+                                <p class="author-role">${role}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            };
+
+            const updatePublicSummary = async () => {
+                try {
+                    const response = await fetch('/api/reports/public-summary');
+                    const payload = await response.json();
+                    if (!response.ok || payload.status !== 'success') return;
+
+                    const stats = payload.data?.stats || {};
+                    counters.forEach(counter => {
+                        const key = counter.dataset.stat;
+                        const nextValue = Number(stats[key] ?? 0);
+                        counter.dataset.target = Number.isFinite(nextValue) ? String(nextValue) : '0';
+                        counter.textContent = '0';
+                        counter.dataset.animating = 'false';
+                        animateCounter(counter);
+                    });
+
+                    const cases = Array.isArray(payload.data?.completed_cases) ? payload.data.completed_cases : [];
+                    if (repairGalleryTrack && cases.length > 0) {
+                        const cards = cases.map(renderGalleryCase).join('');
+                        repairGalleryTrack.innerHTML = cards + cards;
+                        if (window.lucide) {
+                            window.lucide.createIcons();
+                        }
+                    }
+
+                    const reviews = Array.isArray(payload.data?.reviews) ? payload.data.reviews : [];
+                    if (publicReviewGrid && reviews.length > 0) {
+                        publicReviewGrid.classList.toggle('is-carousel', reviews.length > 3);
+                        const visibleReviews = reviews.length > 3 ? [...reviews, ...reviews] : reviews.slice(0, 3);
+                        publicReviewGrid.innerHTML = visibleReviews.map(renderReviewCard).join('');
+                        if (window.lucide) {
+                            window.lucide.createIcons();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Gagal memuat ringkasan publik:', error);
+                }
             };
 
             const counterObserver = new IntersectionObserver((entries, observer) => {
@@ -2065,6 +2252,8 @@
             counters.forEach(counter => {
                 counterObserver.observe(counter);
             });
+
+            updatePublicSummary();
 
             // 4. Smooth scroll back to top on branding logo click
             const logo = document.querySelector('.logo');

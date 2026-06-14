@@ -12,6 +12,13 @@ def create_petugas():
             "password": "Petugas123!",
             "telepon": "081234567891",
             "alamat": "Unit Operasional Lapangan SmartRoad"
+        },
+        {
+            "nama": "Petugas Lapangan 02",
+            "email": "petugas2@smartroad.gov",
+            "password": "Petugas123!",
+            "telepon": "081234567892",
+            "alamat": "Unit Operasional Lapangan SmartRoad"
         }
     ]
 

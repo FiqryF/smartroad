@@ -7,6 +7,7 @@ from flask import current_app
 
 reports_collection = db["reports"] if db is not None else None
 users_collection = db["users"] if db is not None else None
+cs_messages_collection = db["cs_messages"] if db is not None else None
 
 ALLOWED_IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
 ALLOWED_IMAGE_MIMETYPES = {"image/jpeg", "image/png", "image/webp"}
@@ -127,6 +128,280 @@ def get_all_reports():
     except Exception as e:
         logging.error(f"Error saat mengambil semua laporan: {e}")
         return {"status": "error", "message": "Terjadi kesalahan saat memproses data"}, 500
+
+def get_public_report_summary():
+    if reports_collection is None:
+        return {"status": "error", "message": "Database tidak terhubung"}, 500
+
+    try:
+        total_reports = reports_collection.count_documents({})
+        handled_reports = reports_collection.count_documents({"status": {"$in": ["Proses", "Selesai"]}})
+        citizen_count = len(reports_collection.distinct("reporter_email", {"reporter_email": {"$nin": ["", None]}}))
+
+        completed_cursor = reports_collection.find(
+            {
+                "status": "Selesai",
+                "image_path": {"$nin": ["", None]},
+                "repair_image_path": {"$nin": ["", None]}
+            },
+            {
+                "title": 1,
+                "address": 1,
+                "image_path": 1,
+                "repair_image_path": 1,
+                "created_at": 1,
+                "completed_at": 1,
+                "completion_note": 1
+            }
+        ).sort("completed_at", -1).limit(8)
+
+        completed_cases = []
+        for doc in completed_cursor:
+            created_at = doc.get("created_at")
+            completed_at = doc.get("completed_at")
+            duration_days = None
+            if isinstance(created_at, datetime) and isinstance(completed_at, datetime):
+                duration_days = max((completed_at.date() - created_at.date()).days, 0)
+
+            completed_cases.append({
+                "title": doc.get("title", "Laporan selesai"),
+                "address": doc.get("address", "-"),
+                "image_path": doc.get("image_path", ""),
+                "repair_image_path": doc.get("repair_image_path", ""),
+                "completion_note": doc.get("completion_note", ""),
+                "duration_days": duration_days
+            })
+
+        review_cursor = reports_collection.find(
+            {
+                "status": "Selesai",
+                "review_rating": {"$gte": 1, "$lte": 5},
+                "review_text": {"$nin": ["", None]}
+            },
+            {
+                "title": 1,
+                "address": 1,
+                "reporter_email": 1,
+                "review_rating": 1,
+                "review_text": 1,
+                "reviewer_name": 1,
+                "reviewed_at": 1
+            }
+        ).sort("reviewed_at", -1).limit(6)
+
+        reviews = []
+        for doc in review_cursor:
+            reporter_email = doc.get("reporter_email", "")
+            reviewer = users_collection.find_one({"email": reporter_email}, {"profile_pic": 1, "nama": 1}) if users_collection is not None and reporter_email else None
+            fallback_name = reporter_email.split("@")[0].replace(".", " ").title() if reporter_email else "Warga SmartRoad"
+            reviews.append({
+                "name": doc.get("reviewer_name") or (reviewer or {}).get("nama") or fallback_name,
+                "role": doc.get("address") or "Warga SmartRoad",
+                "rating": int(doc.get("review_rating", 5)),
+                "quote": doc.get("review_text", ""),
+                "report_title": doc.get("title", "Laporan selesai"),
+                "profile_pic": (reviewer or {}).get("profile_pic", "")
+            })
+
+        return {
+            "status": "success",
+            "data": {
+                "stats": {
+                    "total_reports": total_reports,
+                    "handled_reports": handled_reports,
+                    "citizen_participation": citizen_count
+                },
+                "completed_cases": completed_cases,
+                "reviews": reviews
+            }
+        }, 200
+    except Exception as e:
+        logging.error(f"Error saat mengambil ringkasan publik: {e}")
+        return {"status": "error", "message": "Terjadi kesalahan saat mengambil ringkasan publik"}, 500
+
+def submit_report_review(report_id, email, data):
+    if reports_collection is None:
+        return {"status": "error", "message": "Database tidak terhubung"}, 500
+
+    try:
+        if not ObjectId.is_valid(report_id):
+            return {"status": "error", "message": "ID laporan tidak valid"}, 400
+
+        report = reports_collection.find_one({"_id": ObjectId(report_id), "reporter_email": email})
+        if not report:
+            return {"status": "error", "message": "Laporan tidak ditemukan atau bukan milik Anda"}, 404
+        if report.get("status") != "Selesai":
+            return {"status": "error", "message": "Penilaian hanya dapat diberikan setelah laporan selesai"}, 400
+
+        try:
+            rating = int(data.get("rating", 0))
+        except (TypeError, ValueError):
+            rating = 0
+
+        review_text = str(data.get("review_text", "")).strip()
+        reviewer_name = str(data.get("reviewer_name", "")).strip()
+
+        if rating < 1 or rating > 5:
+            return {"status": "error", "message": "Rating harus berada di antara 1 sampai 5 bintang"}, 400
+        if not review_text:
+            return {"status": "error", "message": "Ulasan warga wajib diisi"}, 400
+        if len(review_text) > 500:
+            return {"status": "error", "message": "Ulasan maksimal 500 karakter"}, 400
+
+        if not reviewer_name:
+            reviewer_name = email.split("@")[0].replace(".", " ").title()
+
+        reports_collection.update_one(
+            {"_id": ObjectId(report_id)},
+            {"$set": {
+                "review_rating": rating,
+                "review_text": review_text,
+                "reviewer_name": reviewer_name,
+                "reviewed_at": datetime.utcnow()
+            }}
+        )
+
+        return {"status": "success", "message": "Terima kasih, penilaian Anda berhasil disimpan"}, 200
+    except Exception as e:
+        logging.error(f"Error saat menyimpan penilaian laporan: {e}")
+        return {"status": "error", "message": "Terjadi kesalahan saat menyimpan penilaian"}, 500
+
+def get_report_cs_messages(report_id, email, role):
+    if reports_collection is None or cs_messages_collection is None:
+        return {"status": "error", "message": "Database tidak terhubung"}, 500
+
+    try:
+        if not ObjectId.is_valid(report_id):
+            return {"status": "error", "message": "ID laporan tidak valid"}, 400
+
+        report = reports_collection.find_one({"_id": ObjectId(report_id)})
+        if not report:
+            return {"status": "error", "message": "Laporan tidak ditemukan"}, 404
+        if role != "admin" and report.get("reporter_email") != email:
+            return {"status": "error", "message": "Anda tidak memiliki akses ke chat laporan ini"}, 403
+
+        sender_role = "admin" if role == "admin" else "user"
+        cs_messages_collection.update_many(
+            {"report_id": report_id, "sender_role": {"$ne": sender_role}, "is_read": False},
+            {"$set": {"is_read": True, "read_at": datetime.utcnow()}}
+        )
+
+        messages = []
+        for doc in cs_messages_collection.find({"report_id": report_id}).sort("created_at", 1):
+            messages.append({
+                "_id": str(doc.get("_id")),
+                "report_id": doc.get("report_id"),
+                "sender_email": doc.get("sender_email"),
+                "sender_name": doc.get("sender_name"),
+                "sender_role": doc.get("sender_role"),
+                "message": doc.get("message"),
+                "is_read": doc.get("is_read", False),
+                "created_at": doc.get("created_at")
+            })
+
+        return {
+            "status": "success",
+            "data": {
+                "report": {
+                    "_id": str(report.get("_id")),
+                    "title": report.get("title", "Laporan"),
+                    "address": report.get("address", "-"),
+                    "status": report.get("status", "Menunggu")
+                },
+                "messages": messages
+            }
+        }, 200
+    except Exception as e:
+        logging.error(f"Error saat mengambil chat CS: {e}")
+        return {"status": "error", "message": "Terjadi kesalahan saat mengambil chat CS"}, 500
+
+def send_report_cs_message(report_id, email, role, data):
+    if reports_collection is None or cs_messages_collection is None:
+        return {"status": "error", "message": "Database tidak terhubung"}, 500
+
+    try:
+        if not ObjectId.is_valid(report_id):
+            return {"status": "error", "message": "ID laporan tidak valid"}, 400
+
+        report = reports_collection.find_one({"_id": ObjectId(report_id)})
+        if not report:
+            return {"status": "error", "message": "Laporan tidak ditemukan"}, 404
+        if role != "admin" and report.get("reporter_email") != email:
+            return {"status": "error", "message": "Anda tidak memiliki akses ke chat laporan ini"}, 403
+
+        message = str(data.get("message", "")).strip()
+        if not message:
+            return {"status": "error", "message": "Pesan tidak boleh kosong"}, 400
+        if len(message) > 1000:
+            return {"status": "error", "message": "Pesan maksimal 1000 karakter"}, 400
+
+        sender_role = "admin" if role == "admin" else "user"
+        sender_name = str(data.get("sender_name", "")).strip()
+        if not sender_name:
+            user = users_collection.find_one({"email": email}, {"nama": 1}) if users_collection is not None else None
+            sender_name = (user or {}).get("nama") or ("Admin CS" if sender_role == "admin" else email.split("@")[0])
+
+        doc = {
+            "report_id": report_id,
+            "report_title": report.get("title", "Laporan"),
+            "reporter_email": report.get("reporter_email"),
+            "sender_email": email,
+            "sender_name": sender_name,
+            "sender_role": sender_role,
+            "message": message,
+            "is_read": False,
+            "created_at": datetime.utcnow()
+        }
+        result = cs_messages_collection.insert_one(doc)
+        doc["_id"] = str(result.inserted_id)
+
+        if sender_role == "admin":
+            notifications_collection = db["notifications"]
+            notifications_collection.insert_one({
+                "email": report.get("reporter_email"),
+                "title": "Balasan CS SmartRoad",
+                "message": f"Admin membalas chat Anda untuk laporan \"{report.get('title', 'Laporan')}\".",
+                "is_read": False,
+                "created_at": datetime.utcnow()
+            })
+
+        return {"status": "success", "message": "Pesan berhasil dikirim", "data": doc}, 201
+    except Exception as e:
+        logging.error(f"Error saat mengirim chat CS: {e}")
+        return {"status": "error", "message": "Terjadi kesalahan saat mengirim chat CS"}, 500
+
+def get_admin_cs_conversations():
+    if reports_collection is None or cs_messages_collection is None:
+        return {"status": "error", "message": "Database tidak terhubung"}, 500
+
+    try:
+        grouped = {}
+        for msg in cs_messages_collection.find().sort("created_at", -1):
+            report_id = msg.get("report_id")
+            if not report_id:
+                continue
+            if report_id not in grouped:
+                report = reports_collection.find_one({"_id": ObjectId(report_id)}) if ObjectId.is_valid(report_id) else None
+                grouped[report_id] = {
+                    "report_id": report_id,
+                    "report_title": (report or {}).get("title") or msg.get("report_title") or "Laporan",
+                    "report_address": (report or {}).get("address") or "-",
+                    "report_status": (report or {}).get("status") or "-",
+                    "reporter_email": (report or {}).get("reporter_email") or msg.get("reporter_email") or "-",
+                    "last_message": msg.get("message", ""),
+                    "last_sender_role": msg.get("sender_role", ""),
+                    "last_at": msg.get("created_at"),
+                    "unread_count": 0
+                }
+            if msg.get("sender_role") == "user" and not msg.get("is_read", False):
+                grouped[report_id]["unread_count"] += 1
+
+        conversations = list(grouped.values())
+        conversations.sort(key=lambda item: item.get("last_at") or datetime.min, reverse=True)
+        return {"status": "success", "data": conversations}, 200
+    except Exception as e:
+        logging.error(f"Error saat mengambil daftar chat CS: {e}")
+        return {"status": "error", "message": "Terjadi kesalahan saat mengambil daftar chat CS"}, 500
 
 from bson import ObjectId
 

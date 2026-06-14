@@ -284,6 +284,10 @@
             box-shadow: 0 0 5px var(--safety-orange);
         }
 
+        .notification-badge.hidden {
+            display: none;
+        }
+
         .user-profile-desktop {
             display: flex;
             align-items: center;
@@ -770,6 +774,210 @@
             overflow-y: auto;
         }
 
+        .id-card-template {
+            background:
+                linear-gradient(135deg, rgba(255, 107, 0, 0.12), transparent 38%),
+                linear-gradient(135deg, var(--asphalt-dark), var(--asphalt-light));
+            color: var(--text-white);
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .id-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .id-card-brand {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .id-card-badge {
+            background: var(--safety-orange);
+            color: var(--text-white);
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.35rem 0.55rem;
+            border-radius: 4px;
+        }
+
+        .id-card-body {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 1.1rem;
+            padding: 1.25rem;
+            align-items: center;
+        }
+
+        .id-card-photo {
+            width: 86px;
+            height: 86px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.24);
+            background: var(--text-white);
+        }
+
+        .id-card-name {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            line-height: 1.15;
+            margin-bottom: 0.35rem;
+        }
+
+        .id-card-role {
+            color: var(--safety-orange);
+            font-weight: 800;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .id-card-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.75rem;
+            padding: 0 1.25rem 1.25rem;
+        }
+
+        .id-card-field {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.75rem;
+            min-width: 0;
+        }
+
+        .id-card-field span {
+            display: block;
+            color: var(--text-light);
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.25rem;
+        }
+
+        .id-card-field strong {
+            display: block;
+            color: var(--text-white);
+            font-size: 0.82rem;
+            word-break: break-word;
+        }
+
+        .id-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.9rem 1.25rem;
+            background: rgba(0, 0, 0, 0.25);
+            color: var(--text-light);
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .app-toast-wrap {
+            position: fixed;
+            top: 1.25rem;
+            right: 1.25rem;
+            z-index: 1200;
+            display: grid;
+            gap: 0.75rem;
+            width: min(380px, calc(100vw - 2rem));
+            pointer-events: none;
+        }
+
+        .app-toast {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.85rem;
+            padding: 1rem;
+            background: var(--text-white);
+            border: 1px solid var(--concrete-border);
+            border-left: 4px solid var(--safety-orange);
+            border-radius: 8px;
+            box-shadow: 0 18px 45px rgba(18, 20, 22, 0.18);
+            transform: translateY(-12px);
+            opacity: 0;
+            animation: toast-in 0.22s ease forwards;
+            pointer-events: auto;
+        }
+
+        .app-toast.success {
+            border-left-color: var(--success-green);
+        }
+
+        .app-toast.error {
+            border-left-color: var(--danger-red);
+        }
+
+        .app-toast-icon {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: var(--text-white);
+            background: var(--safety-orange);
+        }
+
+        .app-toast.success .app-toast-icon {
+            background: var(--success-green);
+        }
+
+        .app-toast.error .app-toast-icon {
+            background: var(--danger-red);
+        }
+
+        .app-toast-title {
+            font-weight: 800;
+            font-size: 0.85rem;
+            color: var(--asphalt-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.2rem;
+        }
+
+        .app-toast-message {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.45;
+        }
+
+        .app-toast-close {
+            margin-left: auto;
+            border: 0;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.1rem;
+            line-height: 1;
+        }
+
+        @keyframes toast-in {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
         /* Details Modal Layout */
         .detail-layout {
             display: grid;
@@ -1217,6 +1425,7 @@
 </head>
 
 <body>
+    <div class="app-toast-wrap" id="appToastWrap" aria-live="polite" aria-atomic="true"></div>
 
     <!-- Drawer Overlay for Mobile Navbar -->
     <div class="drawer-overlay" id="drawerOverlay"></div>
@@ -1244,7 +1453,7 @@
             <div class="header-actions">
                 <button class="notification-btn" aria-label="Notifikasi" id="notificationBtn">
                     <i data-lucide="bell"></i>
-                    <span class="notification-badge"></span>
+                    <span class="notification-badge hidden" id="notificationBadge"></span>
                 </button>
 
                 <!-- Desktop User Profile -->
@@ -1289,7 +1498,7 @@
                             <strong>fahmi.pratama@surabaya.go.id</strong>
                         </div>
                         <div class="panel-actions">
-                            <a href="#" class="btn btn-outline-primary">Lihat ID Card</a>
+                            <button type="button" class="btn btn-outline-primary" id="showIdCardBtn" style="width: 100%; justify-content: center;">Lihat ID Card</button>
                             <a href="login.html" class="btn btn-secondary" style="width: 100%; text-align: center; justify-content: center;">Keluar</a>
                         </div>
                     </div>
@@ -1458,6 +1667,56 @@
         </div>
     </div>
 
+    <!-- ID Card Modal -->
+    <div class="modal-overlay" id="idCardModal">
+        <div class="modal-card" style="width: min(520px, 100%);">
+            <div class="modal-header">
+                <h3 class="modal-title">ID Card Petugas</h3>
+                <button class="modal-close" onclick="closeIdCardModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="id-card-template">
+                    <div class="id-card-header">
+                        <div class="id-card-brand">SmartRoad</div>
+                        <div class="id-card-badge">Petugas Aktif</div>
+                    </div>
+                    <div class="id-card-body">
+                        <img id="idCardPhoto" src="" alt="Foto petugas" class="id-card-photo">
+                        <div>
+                            <div class="id-card-name" id="idCardName">Petugas</div>
+                            <div class="id-card-role">Petugas Lapangan DPU</div>
+                        </div>
+                    </div>
+                    <div class="id-card-grid">
+                        <div class="id-card-field">
+                            <span>ID Petugas</span>
+                            <strong id="idCardNumber">-</strong>
+                        </div>
+                        <div class="id-card-field">
+                            <span>Email Dinas</span>
+                            <strong id="idCardEmail">-</strong>
+                        </div>
+                        <div class="id-card-field">
+                            <span>Telepon</span>
+                            <strong id="idCardPhone">-</strong>
+                        </div>
+                        <div class="id-card-field">
+                            <span>Unit / Alamat</span>
+                            <strong id="idCardAddress">-</strong>
+                        </div>
+                    </div>
+                    <div class="id-card-footer">
+                        <span>Dinas Pekerjaan Umum</span>
+                        <span id="idCardJoined">-</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeIdCardModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -1510,7 +1769,7 @@
                 <div>
                     <h4 class="footer-title">Buletin Kota</h4>
                     <p class="footer-newsletter">Menerima informasi bulanan rekapitulasi penambalan jalan rusak kota dan peningkatan platform SmartRoad.</p>
-                    <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Terima kasih telah bergabung dengan newsletter kami!');">
+                    <form class="newsletter-form" onsubmit="event.preventDefault(); window.showPetugasToast?.('Berhasil Berlangganan', 'Terima kasih telah bergabung dengan newsletter kami.', 'success');">
                         <input type="email" class="newsletter-input" placeholder="Masukkan email Anda..." required>
                         <button type="submit" class="newsletter-btn" aria-label="Berlangganan">
                             <i data-lucide="arrow-right"></i>
@@ -1537,7 +1796,7 @@
     <!-- Leaflet.js Library for Map rendering -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-    <script src="{{ url_for('static', filename='js/petugas.js') }}?v=1"></script>
+    <script src="{{ url_for('static', filename='js/petugas.js') }}?v=3"></script>
 </body>
 
 </html>

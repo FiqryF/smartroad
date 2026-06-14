@@ -6,12 +6,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileBtn = document.getElementById('profileBtn');
     const detailModal = document.getElementById('detailModal');
     const confirmModal = document.getElementById('confirmModal');
+    const idCardModal = document.getElementById('idCardModal');
     const modalTaskId = document.getElementById('modalTaskId');
     const fileInput = document.getElementById('fileInput');
     const completionNote = document.getElementById('completionNote');
     const uploadContent = document.getElementById('uploadContent');
+    const toastWrap = document.getElementById('appToastWrap');
+    const notificationBadge = document.getElementById('notificationBadge');
+    const showIdCardBtn = document.getElementById('showIdCardBtn');
 
     let reports = [];
+    let notifications = [];
+    let petugasProfile = null;
     let mainMap = null;
     let mainMarkers = null;
     let miniMap = null;
@@ -31,6 +37,23 @@ document.addEventListener('DOMContentLoaded', () => {
         return id ? `#RPT-${String(id).slice(-6).toUpperCase()}` : '#RPT';
     };
     const staticPath = (path) => path ? `/static/${String(path).replace(/^\/?static\//, '')}` : '';
+    const avatarUrl = (name) => `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'Petugas')}&background=FF6B00&color=FFFFFF`;
+    const getProfilePhoto = (profile, fallbackName) => {
+        const pic = profile?.profile_pic || sessionStorage.getItem('userAvatar') || '';
+        if (/^https?:\/\//i.test(pic)) return pic;
+        if (pic.startsWith('/static/')) return pic;
+        if (pic && pic !== 'default-profile.png') return staticPath(pic);
+        return avatarUrl(profile?.nama || fallbackName || 'Petugas');
+    };
+    const getPetugasId = (email) => {
+        const source = String(email || 'petugas');
+        let hash = 0;
+        for (let i = 0; i < source.length; i += 1) {
+            hash = ((hash << 5) - hash) + source.charCodeAt(i);
+            hash |= 0;
+        }
+        return `SR-PG-${Math.abs(hash).toString().padStart(6, '0').slice(0, 6)}`;
+    };
     const formatDate = (value) => {
         const date = new Date(value);
         if (Number.isNaN(date.getTime())) return '-';
@@ -43,10 +66,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    const showToast = (title, message, type = 'success') => {
+        if (!toastWrap) return;
+
+        const toast = document.createElement('div');
+        const iconName = type === 'success' ? 'check' : type === 'error' ? 'x' : 'alert-triangle';
+        toast.className = `app-toast ${type}`;
+        toast.innerHTML = `
+            <span class="app-toast-icon"><i data-lucide="${iconName}"></i></span>
+            <div>
+                <div class="app-toast-title">${escape(title)}</div>
+                <div class="app-toast-message">${escape(message)}</div>
+            </div>
+            <button type="button" class="app-toast-close" aria-label="Tutup notifikasi">
+                <i data-lucide="x"></i>
+            </button>
+        `;
+
+        toastWrap.appendChild(toast);
+        if (window.lucide) window.lucide.createIcons();
+
+        const dismiss = () => toast.remove();
+        toast.querySelector('.app-toast-close')?.addEventListener('click', dismiss);
+        window.setTimeout(dismiss, type === 'success' ? 3600 : 5200);
+    };
+    window.showPetugasToast = showToast;
+
     const updateIdentity = () => {
-        const name = sessionStorage.getItem('userName') || 'Petugas';
-        const email = sessionStorage.getItem('userEmail') || '';
-        const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=FF6B00&color=FFFFFF`;
+        const name = petugasProfile?.nama || sessionStorage.getItem('userName') || 'Petugas';
+        const email = petugasProfile?.email || sessionStorage.getItem('userEmail') || '';
+        const avatar = getProfilePhoto(petugasProfile, name);
 
         document.querySelectorAll('.user-name').forEach(el => {
             el.textContent = el.textContent.includes('(') ? `${name} (Petugas)` : name;
@@ -65,6 +114,23 @@ document.addEventListener('DOMContentLoaded', () => {
         if (profileRole) profileRole.textContent = 'Petugas Lapangan';
         if (profileEmail) profileEmail.textContent = email;
         if (heroName) heroName.textContent = name.split(' ')[0] || name;
+    };
+
+    const loadProfile = async () => {
+        try {
+            const response = await fetchWithAuth('/api/profile/user-profile');
+            if (!response) return;
+
+            const data = await response.json();
+            if (response.ok && data.data) {
+                petugasProfile = data.data;
+                sessionStorage.setItem('userName', data.data.nama || 'Petugas');
+                sessionStorage.setItem('userEmail', data.data.email || '');
+                updateIdentity();
+            }
+        } catch (error) {
+            console.error('Gagal memuat profil petugas:', error);
+        }
     };
 
     const initHeaderInteractions = () => {
@@ -105,6 +171,9 @@ document.addEventListener('DOMContentLoaded', () => {
             event.stopPropagation();
             profileMenu?.classList.remove('active');
             notificationPanel?.classList.toggle('active');
+            if (notificationPanel?.classList.contains('active')) {
+                markNotificationsRead();
+            }
         });
         profileBtn?.addEventListener('click', (event) => {
             event.stopPropagation();
@@ -120,12 +189,28 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        idCardModal?.addEventListener('click', (event) => {
+            if (event.target === idCardModal) window.closeIdCardModal();
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && idCardModal?.classList.contains('active')) {
+                window.closeIdCardModal();
+            }
+        });
+
         document.querySelectorAll('a[href="login.html"], .profile-menu .btn-secondary').forEach(link => {
             link.addEventListener('click', (event) => {
                 event.preventDefault();
                 if (window.clearAuthSession) window.clearAuthSession();
                 window.location.href = 'login.html';
             });
+        });
+
+        showIdCardBtn?.addEventListener('click', (event) => {
+            event.preventDefault();
+            profileMenu?.classList.remove('active');
+            window.openIdCardModal();
         });
     };
 
@@ -170,15 +255,47 @@ document.addEventListener('DOMContentLoaded', () => {
         const panelList = notificationPanel?.querySelector('.panel-list');
         if (!panelList) return;
 
-        const activeReports = reports.filter(report => report.status === 'Proses');
-        if (activeReports.length === 0) {
-            panelList.innerHTML = '<li>Tidak ada tugas aktif baru.</li>';
+        const hasUnread = notifications.some(item => !item.is_read);
+        notificationBadge?.classList.toggle('hidden', !hasUnread);
+
+        if (notifications.length === 0) {
+            panelList.innerHTML = '<li>Tidak ada notifikasi baru.</li>';
             return;
         }
 
-        panelList.innerHTML = activeReports.slice(0, 5).map(report => `
-            <li><strong>${escape(formatDate(report.assigned_at || report.created_at))}</strong> - Tugas ${escape(shortId(report))}: ${escape(report.title || 'Laporan')}</li>
+        panelList.innerHTML = notifications.slice(0, 5).map(item => `
+            <li>
+                <strong>${escape(formatDate(item.created_at))}</strong> - ${escape(item.title || 'Notifikasi')}
+                <br>${escape(item.message || '')}
+            </li>
         `).join('');
+    };
+
+    const loadNotifications = async () => {
+        try {
+            const response = await fetchWithAuth('/api/reports/notifications/user');
+            if (!response) return;
+
+            const data = await response.json();
+            notifications = response.ok && Array.isArray(data.data) ? data.data : [];
+            renderNotifications();
+        } catch (error) {
+            console.error('Gagal memuat notifikasi petugas:', error);
+            notifications = [];
+            renderNotifications();
+        }
+    };
+
+    const markNotificationsRead = async () => {
+        if (!notifications.some(item => !item.is_read)) return;
+        notifications = notifications.map(item => ({ ...item, is_read: true }));
+        renderNotifications();
+
+        try {
+            await fetchWithAuth('/api/reports/notifications/user/read', { method: 'PUT' });
+        } catch (error) {
+            console.error('Gagal menandai notifikasi dibaca:', error);
+        }
     };
 
     const renderTasks = () => {
@@ -280,6 +397,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.closeDetailModal = () => detailModal?.classList.remove('active');
 
+    window.openIdCardModal = () => {
+        const name = petugasProfile?.nama || sessionStorage.getItem('userName') || 'Petugas';
+        const email = petugasProfile?.email || sessionStorage.getItem('userEmail') || '-';
+        const phone = petugasProfile?.telepon || '-';
+        const address = petugasProfile?.alamat || 'Unit Operasional Lapangan SmartRoad';
+        const joined = petugasProfile?.bergabung || 'Petugas Aktif';
+        const photo = getProfilePhoto(petugasProfile, name);
+
+        const setText = (id, value) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value;
+        };
+
+        setText('idCardName', name);
+        setText('idCardNumber', getPetugasId(email));
+        setText('idCardEmail', email);
+        setText('idCardPhone', phone);
+        setText('idCardAddress', address);
+        setText('idCardJoined', `Bergabung ${joined}`);
+
+        const photoEl = document.getElementById('idCardPhoto');
+        if (photoEl) {
+            photoEl.src = photo;
+            photoEl.alt = name;
+        }
+
+        idCardModal?.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    };
+
+    window.closeIdCardModal = () => {
+        idCardModal?.classList.remove('active');
+        document.body.style.overflow = '';
+    };
+
     window.openConfirmModal = (id) => {
         const report = findReport(id);
         if (!report || report.status === 'Selesai') return;
@@ -316,12 +468,19 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         const reportId = modalTaskId?.dataset.reportId;
         const file = fileInput?.files?.[0];
-        if (!reportId) return alert('ID laporan tidak valid.');
-        if (!file) return alert('Foto bukti perbaikan wajib diunggah.');
+        if (!reportId) {
+            showToast('Data Tidak Valid', 'ID laporan tidak valid.', 'error');
+            return;
+        }
+        if (!file) {
+            showToast('Foto Wajib Diunggah', 'Foto bukti perbaikan wajib diunggah.', 'error');
+            return;
+        }
 
         const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
         if (!allowedTypes.includes(file.type) || file.size > 5 * 1024 * 1024) {
-            return alert('Foto harus JPG, PNG, atau WEBP dengan ukuran maksimal 5 MB.');
+            showToast('Format Foto Tidak Sesuai', 'Foto harus JPG, PNG, atau WEBP dengan ukuran maksimal 5 MB.', 'error');
+            return;
         }
 
         const formData = new FormData();
@@ -336,14 +495,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response) return;
 
             const data = await response.json();
-            if (!response.ok) return alert(data.message || 'Gagal mengirim konfirmasi selesai.');
+            if (!response.ok) {
+                showToast('Gagal Mengirim', data.message || 'Gagal mengirim konfirmasi selesai.', 'error');
+                return;
+            }
 
-            alert(data.message || 'Konfirmasi penyelesaian berhasil dikirim.');
+            showToast('Konfirmasi Terkirim', data.message || 'Konfirmasi penyelesaian berhasil dikirim.', 'success');
             closeConfirmModal();
             await loadAssignedReports();
+            await loadNotifications();
         } catch (error) {
             console.error(error);
-            alert('Gagal terhubung ke server.');
+            showToast('Koneksi Bermasalah', 'Gagal terhubung ke server.', 'error');
         }
     };
 
@@ -356,7 +519,6 @@ document.addEventListener('DOMContentLoaded', () => {
             reports = response.ok && Array.isArray(data.data) ? data.data : [];
             renderTasks();
             renderMapMarkers();
-            renderNotifications();
         } catch (error) {
             console.error('Gagal memuat tugas petugas:', error);
             if (taskList) {
@@ -368,6 +530,8 @@ document.addEventListener('DOMContentLoaded', () => {
     updateIdentity();
     initHeaderInteractions();
     initMap();
+    loadProfile();
     loadAssignedReports();
+    loadNotifications();
     if (window.lucide) window.lucide.createIcons();
 });

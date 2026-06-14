@@ -63,6 +63,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const container = document.getElementById('riwayatContainer');
     const emptyState = document.getElementById('emptyState');
     if (!container) return;
+    let userReports = [];
+    let currentCsReportId = '';
 
     if (!userEmail) {
         window.location.replace('login.html');
@@ -80,6 +82,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (emptyState) emptyState.style.display = 'none';
             container.style.display = 'grid';
 
+            userReports = resData.data;
+            populateCsReportSelect();
+
             resData.data.forEach(report => {
                 const dateObj = new Date(report.created_at);
                 const dateStr = dateObj.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -91,6 +96,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (report.status === 'Selesai') { badgeClass = 'badge-done'; iconName = 'check-circle'; }
 
                 const safeStatus = escape(report.status || 'Menunggu');
+                const safeReportId = escape(report._id || '');
                 const safeTitle = escape(report.title || 'Laporan');
                 const safeAddress = escape(report.address || '-');
                 const safeDescription = escape(report.description || '');
@@ -99,6 +105,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const imgSrc = report.image_path ? `/static/${report.image_path}` : 'https://images.unsplash.com/photo-1526481280690-9f10f80d63b2?auto=format&fit=crop&w=900&q=80';
                 const safeImgSrc = escape(imgSrc);
                 const safeRepairImgSrc = escape(report.repair_image_path ? `/static/${report.repair_image_path}` : '');
+                const serviceNote = String(report.completion_note || report.petugas_note || report.note || '').trim();
+                const defaultNote = report.status === 'Selesai'
+                    ? 'Laporan telah diselesaikan oleh petugas. Catatan pengerjaan belum ditambahkan.'
+                    : 'Laporan Anda telah berhasil terdaftar dan berada dalam antrean penelaahan berkas administrasi.';
+                const safeServiceNote = escape(serviceNote || defaultNote);
+                const safeReviewRating = escape(report.review_rating || '');
+                const safeReviewText = escape(report.review_text || '');
 
                 const card = `
                     <article class="history-card" data-status="${safeStatus}" data-title="${safeTitle}" data-date="${safeCreatedAt}">
@@ -114,6 +127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <div class="card-divider"></div>
                             <div class="history-actions">
                                 <button class="btn btn-outline-orange detail-button" 
+                                    data-id="${safeReportId}"
                                     data-title="${safeTitle}" 
                                     data-status="${safeStatus}" 
                                     data-date="${safeDateDisplay}" 
@@ -121,6 +135,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     data-desc="${safeDescription}" 
                                     data-img="${safeImgSrc}"
                                     data-img-repair="${safeRepairImgSrc}"
+                                    data-note="${safeServiceNote}"
+                                    data-review-rating="${safeReviewRating}"
+                                    data-review-text="${safeReviewText}"
                                 >Lihat Detail</button>
                             </div>
                         </div>
@@ -138,10 +155,219 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             container.style.display = 'none';
             if (emptyState) emptyState.style.display = 'flex';
+            userReports = [];
+            populateCsReportSelect();
         }
     } catch (error) {
         console.error("Gagal memuat riwayat:", error);
     }
+
+    function populateCsReportSelect() {
+        const select = document.getElementById('csReportSelect');
+        if (!select) return;
+
+        select.innerHTML = '<option value="">Pilih laporan...</option>';
+        userReports.forEach(report => {
+            const option = document.createElement('option');
+            option.value = report._id || '';
+            option.textContent = `${report.title || 'Laporan'} - ${report.status || 'Menunggu'}`;
+            select.appendChild(option);
+        });
+    }
+
+    const formatChatTime = (value) => {
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return '';
+        return date.toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+    };
+
+    const renderCsMessages = (messages) => {
+        const list = document.getElementById('csMessageList');
+        if (!list) return;
+        if (!messages.length) {
+            list.innerHTML = '<div class="cs-message admin">Belum ada pesan. Tulis pertanyaan Anda terkait laporan ini.</div>';
+            return;
+        }
+
+        list.innerHTML = messages.map(message => {
+            const roleClass = message.sender_role === 'admin' ? 'admin' : 'user';
+            const sender = message.sender_role === 'admin' ? 'CS SmartRoad' : 'Anda';
+            return `
+                <div class="cs-message ${roleClass}">
+                    ${escape(message.message || '')}
+                    <span class="cs-message-meta">${escape(sender)} • ${escape(formatChatTime(message.created_at))}</span>
+                </div>
+            `;
+        }).join('');
+        list.scrollTop = list.scrollHeight;
+    };
+
+    async function loadCsMessages(reportId) {
+        const list = document.getElementById('csMessageList');
+        const subtitle = document.getElementById('csChatSubtitle');
+        if (!reportId) {
+            if (list) list.innerHTML = '<div class="cs-message admin">Pilih laporan untuk melihat percakapan CS.</div>';
+            if (subtitle) subtitle.textContent = 'Pilih laporan untuk mulai chat.';
+            return;
+        }
+
+        currentCsReportId = reportId;
+        if (list) list.innerHTML = '<div class="cs-message admin">Memuat percakapan...</div>';
+
+        try {
+            const response = await fetchWithAuth(`/api/reports/${encodeURIComponent(reportId)}/cs-messages`);
+            if (!response) return;
+            const data = await response.json();
+            if (!response.ok) {
+                if (list) list.innerHTML = `<div class="cs-message admin">${escape(data.message || 'Gagal memuat chat.')}</div>`;
+                return;
+            }
+            if (subtitle) subtitle.textContent = data.data?.report?.title || 'Chat laporan';
+            renderCsMessages(data.data?.messages || []);
+        } catch (error) {
+            console.error(error);
+            if (list) list.innerHTML = '<div class="cs-message admin">Gagal terhubung ke server chat.</div>';
+        }
+    }
+
+    const openCsChat = async (reportId = '') => {
+        const modal = document.getElementById('csChatModal');
+        const select = document.getElementById('csReportSelect');
+        if (!modal) return;
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+        if (reportId && select) select.value = reportId;
+        await loadCsMessages(reportId || select?.value || '');
+    };
+
+    const closeCsChat = () => {
+        const modal = document.getElementById('csChatModal');
+        modal?.classList.remove('active');
+        modal?.setAttribute('aria-hidden', 'true');
+    };
+
+    document.getElementById('csFloatingBtn')?.addEventListener('click', () => openCsChat(currentCsReportId));
+    document.getElementById('csChatCloseBtn')?.addEventListener('click', closeCsChat);
+    document.getElementById('csReportSelect')?.addEventListener('change', (event) => loadCsMessages(event.target.value));
+    document.getElementById('detailContactLink')?.addEventListener('click', () => {
+        const reportId = document.getElementById('reviewReportId')?.value || currentCsReportId;
+        openCsChat(reportId);
+    });
+    document.getElementById('csChatForm')?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const input = document.getElementById('csMessageInput');
+        const message = input?.value.trim() || '';
+        const reportId = currentCsReportId || document.getElementById('csReportSelect')?.value;
+        if (!reportId) return Swal.fire('Pilih Laporan', 'Pilih laporan terlebih dahulu sebelum mengirim pesan.', 'warning');
+        if (!message) return;
+
+        try {
+            const response = await fetchWithAuth(`/api/reports/${encodeURIComponent(reportId)}/cs-messages`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message,
+                    sender_name: sessionStorage.getItem('userName') || userName || ''
+                })
+            });
+            if (!response) return;
+            const data = await response.json();
+            if (!response.ok) return Swal.fire('Gagal', data.message || 'Pesan gagal dikirim.', 'error');
+            if (input) input.value = '';
+            await loadCsMessages(reportId);
+        } catch (error) {
+            console.error(error);
+            Swal.fire('Error', 'Gagal terhubung ke server chat.', 'error');
+        }
+    });
+
+    const ratingInput = document.getElementById('reviewRating');
+    const ratingStars = document.querySelectorAll('.rating-star');
+    const reviewForm = document.getElementById('reviewForm');
+    const reviewStatus = document.getElementById('reviewStatus');
+
+    const setRating = (rating) => {
+        const normalizedRating = Math.max(0, Math.min(5, Number(rating) || 0));
+        if (ratingInput) ratingInput.value = String(normalizedRating);
+        ratingStars.forEach(star => {
+            const starValue = Number(star.dataset.rating || 0);
+            star.classList.toggle('active', starValue <= normalizedRating);
+        });
+    };
+
+    ratingStars.forEach(star => {
+        star.addEventListener('click', () => {
+            setRating(star.dataset.rating);
+        });
+    });
+
+    reviewForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const reportId = document.getElementById('reviewReportId')?.value;
+        const rating = Number(ratingInput?.value || 0);
+        const reviewText = document.getElementById('reviewText')?.value.trim() || '';
+        const submitReviewBtn = document.getElementById('submitReviewBtn');
+
+        if (!reportId) {
+            Swal.fire('Data Tidak Valid', 'ID laporan tidak ditemukan.', 'error');
+            return;
+        }
+        if (rating < 1 || rating > 5) {
+            Swal.fire('Rating Belum Dipilih', 'Pilih rating antara 1 sampai 5 bintang.', 'warning');
+            return;
+        }
+        if (!reviewText) {
+            Swal.fire('Ulasan Wajib Diisi', 'Tulis ulasan singkat agar dapat ditampilkan pada halaman utama.', 'warning');
+            return;
+        }
+
+        const originalText = submitReviewBtn?.innerHTML;
+        if (submitReviewBtn) {
+            submitReviewBtn.disabled = true;
+            submitReviewBtn.innerHTML = '<i data-lucide="loader"></i> Menyimpan...';
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        try {
+            const response = await fetchWithAuth(`/api/reports/${encodeURIComponent(reportId)}/review`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    rating,
+                    review_text: reviewText,
+                    reviewer_name: sessionStorage.getItem('userName') || userName || ''
+                })
+            });
+            if (!response) return;
+
+            const data = await response.json();
+            if (!response.ok) {
+                Swal.fire('Gagal', data.message || 'Penilaian gagal disimpan.', 'error');
+                return;
+            }
+
+            const activeButton = Array.from(container.querySelectorAll('.detail-button'))
+                .find(button => button.dataset.id === reportId);
+            if (activeButton) {
+                activeButton.dataset.reviewRating = String(rating);
+                activeButton.dataset.reviewText = reviewText;
+            }
+
+            const reviewExistingBadge = document.getElementById('reviewExistingBadge');
+            if (reviewExistingBadge) reviewExistingBadge.style.display = 'inline-flex';
+            if (reviewStatus) reviewStatus.textContent = 'Penilaian tersimpan dan siap ditampilkan di halaman utama.';
+            Swal.fire('Berhasil', data.message || 'Penilaian berhasil disimpan.', 'success');
+        } catch (error) {
+            console.error(error);
+            Swal.fire('Error', 'Gagal terhubung ke server.', 'error');
+        } finally {
+            if (submitReviewBtn) {
+                submitReviewBtn.disabled = false;
+                submitReviewBtn.innerHTML = originalText || '<i data-lucide="send"></i> Kirim';
+                if (window.lucide) window.lucide.createIcons();
+            }
+        }
+    });
 
     // --- 4. EVENT DELEGATION MODAL DETAIL ---
     if (container) {
@@ -153,6 +379,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!modal) return;
 
             // Ambil data dari atribut tombol
+            const reportId = btn.getAttribute('data-id');
+            currentCsReportId = reportId || currentCsReportId;
             const title = btn.getAttribute('data-title');
             const status = btn.getAttribute('data-status');
             const date = btn.getAttribute('data-date');
@@ -160,6 +388,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             const desc = btn.getAttribute('data-desc');
             const img = btn.getAttribute('data-img');
             const imgRepair = btn.getAttribute('data-img-repair');
+            const note = btn.getAttribute('data-note');
+            const reviewRatingValue = parseInt(btn.getAttribute('data-review-rating') || '0', 10);
+            const reviewTextValue = btn.getAttribute('data-review-text') || '';
 
             // Injeksi data ke elemen modal eksisting di riwayat.html
             const detailOriginalPhoto = document.getElementById('detailOriginalPhoto');
@@ -170,12 +401,33 @@ document.addEventListener('DOMContentLoaded', async () => {
             const detailStatus = document.getElementById('detailStatus');
             const detailRepairPhoto = document.getElementById('detailRepairPhoto');
             const repairNoPhoto = document.getElementById('repairNoPhoto');
+            const detailNote = document.getElementById('detailNote');
+            const reviewPanel = document.getElementById('reviewPanel');
+            const reviewReportId = document.getElementById('reviewReportId');
+            const reviewText = document.getElementById('reviewText');
+            const reviewExistingBadge = document.getElementById('reviewExistingBadge');
+            const submitReviewBtn = document.getElementById('submitReviewBtn');
+            const reviewStatus = document.getElementById('reviewStatus');
 
             if (detailOriginalPhoto) detailOriginalPhoto.src = img;
             if (detailTitle) detailTitle.textContent = title;
             if (detailDate) detailDate.textContent = date;
             if (detailLocation) detailLocation.textContent = address;
             if (detailDescription) detailDescription.textContent = desc;
+            if (detailNote) detailNote.textContent = note || 'Laporan Anda telah berhasil terdaftar dan berada dalam antrean penelaahan berkas administrasi.';
+            if (reviewReportId) reviewReportId.value = reportId || '';
+            if (reviewText) reviewText.value = reviewTextValue;
+            setRating(Number.isFinite(reviewRatingValue) ? reviewRatingValue : 0);
+
+            const canReview = status === 'Selesai';
+            if (reviewPanel) reviewPanel.classList.toggle('active', canReview);
+            if (reviewExistingBadge) reviewExistingBadge.style.display = reviewRatingValue > 0 ? 'inline-flex' : 'none';
+            if (reviewStatus) reviewStatus.textContent = reviewRatingValue > 0
+                ? 'Anda dapat memperbarui penilaian untuk laporan ini.'
+                : 'Penilaian Anda dapat tampil di halaman utama.';
+            if (submitReviewBtn) submitReviewBtn.innerHTML = reviewRatingValue > 0
+                ? '<i data-lucide="send"></i> Perbarui'
+                : '<i data-lucide="send"></i> Kirim';
 
             if (detailStatus) {
                 detailStatus.textContent = status;

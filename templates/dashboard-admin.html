@@ -288,6 +288,11 @@
                 Laporan Masuk
                 <span id="sidebar-laporan-badge" class="ml-auto bg-safety/20 text-safety py-0.5 px-2 rounded-full text-xs font-bold group-hover:bg-safety group-hover:text-white transition-colors">0</span>
             </a>
+            <a href="#" data-target="view-cs" class="nav-link nav-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 group">
+                <i class="fa-solid fa-headset w-5 text-center transition-colors"></i>
+                Pesan CS
+                <span id="sidebar-cs-badge" class="ml-auto bg-red-500/15 text-red-400 py-0.5 px-2 rounded-full text-xs font-bold group-hover:bg-red-500 group-hover:text-white transition-colors hidden">0</span>
+            </a>
             <a href="#" data-target="view-coordinate" class="nav-link nav-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200">
                 <i class="fa-solid fa-map-location-dot w-5 text-center transition-colors"></i>
                 Peta Koordinat
@@ -607,6 +612,9 @@
                             <option value="Proses">Proses</option>
                             <option value="Selesai">Selesai</option>
                         </select>
+                        <select id="batchPetugasSelect" class="admin-control hidden bg-white border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-safety focus:border-safety px-3 py-1.5 font-medium shadow-sm cursor-pointer outline-none transition-all">
+                            <option value="">Pilih petugas...</option>
+                        </select>
                         <button id="applyBatchStatusBtn" class="admin-primary px-4 py-1.5 bg-safety text-white text-sm font-bold rounded-lg shadow-sm hover:bg-orange-600 transition-colors">Terapkan</button>
                     </div>
                 </div>
@@ -633,6 +641,47 @@
             </div>
         </div>
 
+        <div id="view-cs" class="view-section hidden h-full flex-col">
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Pesan CS</h2>
+                    <p class="text-gray-500 mt-1 text-sm">Kelola pertanyaan warga berdasarkan laporan yang mereka kirim.</p>
+                </div>
+                <button id="refreshCsBtn" class="admin-primary px-4 py-2 bg-safety text-white rounded-xl shadow-md shadow-safety/30 hover:bg-orange-600 transition-colors font-medium flex items-center gap-2">
+                    <i class="fa-solid fa-rotate"></i> Refresh
+                </button>
+            </header>
+            <div class="grid grid-cols-1 xl:grid-cols-[360px_1fr] gap-6 flex-1 min-h-[620px]">
+                <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+                    <div class="px-5 py-4 border-b border-gray-100">
+                        <h3 class="font-bold text-gray-900">Percakapan Masuk</h3>
+                        <p class="text-xs text-gray-500 mt-1">Klik salah satu percakapan untuk membalas.</p>
+                    </div>
+                    <div id="csConversationList" class="divide-y divide-gray-100 overflow-y-auto flex-1">
+                        <div class="p-5 text-sm text-gray-500">Memuat percakapan...</div>
+                    </div>
+                </div>
+                <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+                    <div class="px-5 py-4 border-b border-gray-100 flex items-start justify-between gap-4">
+                        <div>
+                            <h3 id="adminCsTitle" class="font-bold text-gray-900">Pilih Percakapan</h3>
+                            <p id="adminCsMeta" class="text-xs text-gray-500 mt-1">Belum ada laporan dipilih.</p>
+                        </div>
+                        <span id="adminCsStatus" class="hidden text-xs font-bold px-3 py-1 rounded-md bg-orange-50 text-safety border border-orange-100">-</span>
+                    </div>
+                    <div id="adminCsMessages" class="flex-1 overflow-y-auto p-5 space-y-3 bg-gray-50/60">
+                        <div class="text-sm text-gray-500 bg-white border border-gray-100 rounded-xl p-4">Pilih percakapan dari daftar kiri.</div>
+                    </div>
+                    <form id="adminCsForm" class="p-4 border-t border-gray-100 flex gap-3 bg-white">
+                        <textarea id="adminCsInput" class="admin-control flex-1 bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-xl focus:ring-safety focus:border-safety px-4 py-3 outline-none resize-none min-h-[48px]" placeholder="Tulis balasan CS..." maxlength="1000"></textarea>
+                        <button class="admin-primary px-5 bg-safety text-white rounded-xl shadow-md shadow-safety/30 hover:bg-orange-600 transition-colors font-bold" type="submit">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <!-- Status Update Modal -->
         <div id="statusModal" class="fixed inset-0 bg-gray-900/50 hidden items-center justify-center z-[9999] backdrop-blur-sm transition-opacity">
             <div class="admin-modal-panel bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-md overflow-hidden animate-[scale_0.2s_ease-in-out]">
@@ -652,12 +701,12 @@
                             <option value="Selesai">Selesai</option>
                         </select>
                     </div>
-                    <div class="mb-4 hidden" id="petugasAssignGroup">
+                    <div class="mb-4" id="petugasAssignGroup">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Petugas Penanggung Jawab</label>
                         <select id="modalPetugasSelect" class="admin-control w-full bg-white border border-gray-200 text-gray-700 text-sm rounded-xl focus:ring-safety focus:border-safety px-4 py-3 font-medium shadow-sm cursor-pointer outline-none transition-all">
                             <option value="">Memuat daftar petugas...</option>
                         </select>
-                        <p class="text-xs text-gray-500 mt-2">Wajib dipilih ketika status diubah menjadi Proses.</p>
+                        <p id="petugasAssignHint" class="text-xs text-gray-500 mt-2">Pilih petugas ketika laporan masuk tahap Proses.</p>
                     </div>
                     <button id="saveStatusBtn" class="admin-primary w-full bg-safety hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-xl shadow-md shadow-safety/30 transition-all">
                         Simpan Perubahan
@@ -991,6 +1040,6 @@
             }
         });
     </script>
-    <script src="{{ url_for('static', filename='js/admin-dashboard.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin-dashboard.js') }}?v=3"></script>
 </body>
 </html>

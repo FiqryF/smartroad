@@ -1405,6 +1405,272 @@
             padding: 0.7rem 1.5rem;
         }
 
+        .review-panel {
+            border-top: 1px solid var(--concrete-border);
+            padding: 0.9rem 2rem;
+            background: #fffaf6;
+            display: none;
+        }
+
+        .review-panel.active {
+            display: block;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 0.65rem;
+        }
+
+        .review-title {
+            font-size: 0.76rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--asphalt-dark);
+        }
+
+        .review-helper {
+            display: none;
+        }
+
+        #reviewForm {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .rating-stars {
+            display: inline-flex;
+            gap: 0.2rem;
+            margin-bottom: 0;
+            flex: 0 0 auto;
+        }
+
+        .rating-star {
+            width: 1.75rem;
+            height: 1.75rem;
+            border: 1px solid var(--concrete-border);
+            background: #fff;
+            color: #CBD5E1;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .rating-star.active,
+        .rating-star:hover {
+            color: #F59E0B;
+            border-color: rgba(245, 158, 11, 0.45);
+            background: #FFFBEB;
+        }
+
+        .review-textarea {
+            width: 100%;
+            height: 44px;
+            min-height: 44px;
+            max-height: 44px;
+            resize: none;
+            border: 1px solid var(--concrete-border);
+            border-radius: 4px;
+            padding: 0.7rem 0.85rem;
+            font-family: inherit;
+            font-size: 0.84rem;
+            color: var(--asphalt-dark);
+            background: #fff;
+            outline: none;
+            transition: var(--transition);
+            margin-bottom: 0;
+            flex: 1 1 auto;
+        }
+
+        .review-textarea:focus {
+            border-color: var(--safety-orange);
+            box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.12);
+        }
+
+        .review-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin-top: 0;
+            flex: 0 0 auto;
+        }
+
+        .review-status {
+            display: none;
+        }
+
+        .review-actions .btn {
+            font-size: 0.72rem;
+            padding: 0.68rem 1rem;
+            min-width: 142px;
+            white-space: nowrap;
+        }
+
+        .cs-floating-btn {
+            position: fixed;
+            right: 1.5rem;
+            bottom: 1.5rem;
+            width: 3.4rem;
+            height: 3.4rem;
+            border: none;
+            border-radius: 50%;
+            background: var(--safety-orange);
+            color: var(--text-white);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1040;
+            box-shadow: 0 18px 35px rgba(255, 107, 0, 0.32);
+            transition: var(--transition);
+        }
+
+        .cs-floating-btn:hover {
+            transform: translateY(-3px);
+            background: var(--safety-orange-hover);
+        }
+
+        .cs-chat-modal {
+            position: fixed;
+            right: 1.5rem;
+            bottom: 5.5rem;
+            width: min(390px, calc(100vw - 2rem));
+            max-height: min(620px, calc(100vh - 7rem));
+            background: var(--text-white);
+            border: 1px solid var(--concrete-border);
+            border-radius: 14px;
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.24);
+            z-index: 1050;
+            display: none;
+            overflow: hidden;
+        }
+
+        .cs-chat-modal.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cs-chat-header {
+            padding: 1rem;
+            background: var(--asphalt-dark);
+            color: var(--text-white);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.8rem;
+        }
+
+        .cs-chat-title {
+            font-weight: 800;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .cs-chat-subtitle {
+            color: var(--text-light);
+            font-size: 0.72rem;
+            margin-top: 0.1rem;
+        }
+
+        .cs-chat-close {
+            border: 0;
+            background: transparent;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .cs-report-select {
+            margin: 0.85rem 1rem 0;
+            width: calc(100% - 2rem);
+            border: 1px solid var(--concrete-border);
+            border-radius: 8px;
+            padding: 0.65rem 0.75rem;
+            font-family: inherit;
+            font-size: 0.8rem;
+            outline: none;
+        }
+
+        .cs-message-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+            min-height: 260px;
+            max-height: 360px;
+        }
+
+        .cs-message {
+            max-width: 86%;
+            padding: 0.7rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.82rem;
+            line-height: 1.45;
+        }
+
+        .cs-message.user {
+            margin-left: auto;
+            background: var(--safety-orange);
+            color: var(--text-white);
+            border-bottom-right-radius: 4px;
+        }
+
+        .cs-message.admin {
+            margin-right: auto;
+            background: var(--concrete-gray);
+            color: var(--asphalt-dark);
+            border-bottom-left-radius: 4px;
+        }
+
+        .cs-message-meta {
+            display: block;
+            font-size: 0.66rem;
+            opacity: 0.72;
+            margin-top: 0.3rem;
+            font-weight: 700;
+        }
+
+        .cs-chat-form {
+            display: flex;
+            gap: 0.6rem;
+            padding: 0.85rem 1rem 1rem;
+            border-top: 1px solid var(--concrete-border);
+            background: #fff;
+        }
+
+        .cs-chat-form textarea {
+            flex: 1;
+            resize: none;
+            min-height: 42px;
+            max-height: 84px;
+            border: 1px solid var(--concrete-border);
+            border-radius: 8px;
+            padding: 0.7rem 0.75rem;
+            font-family: inherit;
+            font-size: 0.82rem;
+            outline: none;
+        }
+
+        .cs-chat-form button {
+            width: 42px;
+            border: none;
+            border-radius: 8px;
+            background: var(--safety-orange);
+            color: var(--text-white);
+            cursor: pointer;
+        }
+
         /* 8. Professional Footer Section (EXACT COPY of dashboard.html) */
         .footer {
             background-color: var(--asphalt-dark);
@@ -1713,6 +1979,37 @@
                 border-bottom: 1px solid var(--asphalt-border);
                 padding-bottom: 0.75rem;
                 text-align: center;
+            }
+
+            .review-panel {
+                padding: 0.9rem 1.25rem;
+            }
+
+            #reviewForm {
+                flex-wrap: wrap;
+            }
+
+            .rating-stars,
+            .review-textarea,
+            .review-actions {
+                grid-column: auto;
+            }
+
+            .review-actions {
+                align-items: center;
+                justify-content: flex-end;
+                margin-left: auto;
+            }
+
+            .review-status {
+                display: none;
+            }
+
+            .review-textarea {
+                flex-basis: 100%;
+                height: 48px;
+                min-height: 48px;
+                max-height: 48px;
             }
 
             .nav-link::after {
@@ -2045,12 +2342,64 @@
                 </div>
             </div>
 
+            <div class="review-panel" id="reviewPanel">
+                <div class="review-header">
+                    <div>
+                        <div class="review-title">Penilaian Warga</div>
+                        <p class="review-helper">Berikan rating maksimal 5 bintang dan ulasan singkat setelah laporan selesai ditangani.</p>
+                    </div>
+                    <span class="detail-status badge-done" id="reviewExistingBadge" style="display: none;">Sudah Dinilai</span>
+                </div>
+                <form id="reviewForm">
+                    <input type="hidden" id="reviewReportId">
+                    <input type="hidden" id="reviewRating" value="0">
+                    <div class="rating-stars" id="ratingStars" aria-label="Pilih rating">
+                        <button type="button" class="rating-star" data-rating="1" aria-label="1 bintang"><i data-lucide="star"></i></button>
+                        <button type="button" class="rating-star" data-rating="2" aria-label="2 bintang"><i data-lucide="star"></i></button>
+                        <button type="button" class="rating-star" data-rating="3" aria-label="3 bintang"><i data-lucide="star"></i></button>
+                        <button type="button" class="rating-star" data-rating="4" aria-label="4 bintang"><i data-lucide="star"></i></button>
+                        <button type="button" class="rating-star" data-rating="5" aria-label="5 bintang"><i data-lucide="star"></i></button>
+                    </div>
+                    <textarea id="reviewText" class="review-textarea" maxlength="500" placeholder="Tulis pengalaman Anda setelah perbaikan selesai..."></textarea>
+                    <div class="review-actions">
+                        <span class="review-status" id="reviewStatus">Penilaian Anda dapat tampil di halaman utama.</span>
+                        <button type="submit" class="btn btn-primary" id="submitReviewBtn">
+                            <i data-lucide="send"></i> Kirim
+                        </button>
+                    </div>
+                </form>
+            </div>
+
             <div class="detail-footer">
-                <a id="detailContactLink" href="#" class="btn btn-primary">
-                    <i data-lucide="mail"></i> Hubungi Penanggung Jawab
-                </a>
+                <button type="button" id="detailContactLink" class="btn btn-primary">
+                    <i data-lucide="messages-square"></i> Hubungi CS
+                </button>
             </div>
         </div>
+    </div>
+
+    <button type="button" class="cs-floating-btn" id="csFloatingBtn" aria-label="Buka chat CS">
+        <i data-lucide="headphones"></i>
+    </button>
+
+    <div class="cs-chat-modal" id="csChatModal" aria-hidden="true">
+        <div class="cs-chat-header">
+            <div>
+                <div class="cs-chat-title">SmartRoad CS</div>
+                <div class="cs-chat-subtitle" id="csChatSubtitle">Pilih laporan untuk mulai chat.</div>
+            </div>
+            <button type="button" class="cs-chat-close" id="csChatCloseBtn" aria-label="Tutup chat">&times;</button>
+        </div>
+        <select id="csReportSelect" class="cs-report-select" aria-label="Pilih laporan">
+            <option value="">Pilih laporan...</option>
+        </select>
+        <div class="cs-message-list" id="csMessageList">
+            <div class="cs-message admin">Pilih laporan untuk melihat percakapan CS.</div>
+        </div>
+        <form class="cs-chat-form" id="csChatForm">
+            <textarea id="csMessageInput" placeholder="Tulis pertanyaan terkait laporan..." maxlength="1000"></textarea>
+            <button type="submit" aria-label="Kirim pesan"><i data-lucide="send"></i></button>
+        </form>
     </div>
 
     <!-- 6. Professional Footer Section (100% Identical to dashboard.html) -->
@@ -2138,7 +2487,7 @@
 
     <!-- FILE JS ANDA -->
     <script src="/static/js/auth-utility.js"></script>
-    <script src="/static/js/riwayat.js"></script>
+    <script src="/static/js/riwayat.js?v=4"></script>
 
     <!-- Unified Event Handlers, Dynamic Searching/Filtering & Modals -->
     <script>

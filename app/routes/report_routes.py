@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from app.controllers.report_controller import (
     save_report,
     get_user_reports,
@@ -8,10 +8,20 @@ from app.controllers.report_controller import (
     get_user_notifications,
     mark_notifications_read,
     get_assigned_reports,
-    complete_assigned_report
+    complete_assigned_report,
+    get_public_report_summary,
+    submit_report_review,
+    get_report_cs_messages,
+    send_report_cs_message,
+    get_admin_cs_conversations
 )
 
 report_bp = Blueprint('reports', __name__)
+
+@report_bp.route('/public-summary', methods=['GET'])
+def get_public_summary_route():
+    result, status_code = get_public_report_summary()
+    return jsonify(result), status_code
 
 @report_bp.route('/submit', methods=['POST', 'OPTIONS'])
 @jwt_required()
@@ -39,7 +49,28 @@ def get_user_reports_route():
     result, status_code = get_user_reports(email)
     return jsonify(result), status_code
 
+@report_bp.route('/<report_id>/review', methods=['POST', 'OPTIONS'])
+@jwt_required()
+def submit_review_route(report_id):
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+
+    email = get_jwt_identity()
+    data = request.get_json(silent=True) or {}
+    result, status_code = submit_report_review(report_id, email, data)
+    return jsonify(result), status_code
+
 from app.utils.decorators import admin_required, petugas_required
+
+@report_bp.route('/cs/conversations', methods=['GET', 'OPTIONS'])
+@jwt_required()
+@admin_required()
+def get_cs_conversations_route():
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+
+    result, status_code = get_admin_cs_conversations()
+    return jsonify(result), status_code
 
 @report_bp.route('/all', methods=['GET', 'OPTIONS'])
 @jwt_required()
@@ -69,6 +100,22 @@ def update_status_route(report_id):
 
     assigned_petugas_email = data.get("assigned_petugas_email")
     result, status_code = update_report_status(report_id, new_status, assigned_petugas_email)
+    return jsonify(result), status_code
+
+@report_bp.route('/<report_id>/cs-messages', methods=['GET', 'POST', 'OPTIONS'])
+@jwt_required()
+def cs_messages_route(report_id):
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+
+    email = get_jwt_identity()
+    role = (get_jwt() or {}).get("role", "user")
+
+    if request.method == 'GET':
+        result, status_code = get_report_cs_messages(report_id, email, role)
+    else:
+        data = request.get_json(silent=True) or {}
+        result, status_code = send_report_cs_message(report_id, email, role, data)
     return jsonify(result), status_code
 
 @report_bp.route('/assigned', methods=['GET', 'OPTIONS'])

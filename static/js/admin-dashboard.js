@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const allowedStatuses = new Set(['Menunggu', 'Proses', 'Selesai']);
     let cachedReports = [];
     let cachedPetugas = [];
+    let csConversations = [];
+    let activeCsReportId = '';
 
     const escape = window.escapeHtml || (value => String(value ?? '').replace(/[&<>"']/g, char => ({
         '&': '&amp;',
@@ -227,28 +229,161 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const fetchPetugas = async () => {
         const select = document.getElementById('modalPetugasSelect');
+        const batchSelect = document.getElementById('batchPetugasSelect');
         try {
             const response = await window.authFetch('/api/admin/petugas');
             if (!response) return;
 
             const data = await response.json();
             cachedPetugas = response.ok && Array.isArray(data.data) ? data.data : [];
-            if (!select) return;
 
-            select.innerHTML = '<option value="">Pilih petugas lapangan...</option>';
-            cachedPetugas.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item.email;
-                option.textContent = `${item.nama || item.email} - ${item.email}`;
-                select.appendChild(option);
+            [select, batchSelect].forEach(target => {
+                if (!target) return;
+                target.innerHTML = '<option value="">Pilih petugas lapangan...</option>';
+                cachedPetugas.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.email;
+                    option.textContent = `${item.nama || item.email} - ${item.email}`;
+                    target.appendChild(option);
+                });
+
+                if (cachedPetugas.length === 0) {
+                    target.innerHTML = '<option value="">Belum ada akun petugas</option>';
+                }
             });
-
-            if (cachedPetugas.length === 0) {
-                select.innerHTML = '<option value="">Belum ada akun petugas</option>';
-            }
         } catch (error) {
             console.error('Failed to fetch petugas:', error);
             if (select) select.innerHTML = '<option value="">Gagal memuat petugas</option>';
+            if (batchSelect) batchSelect.innerHTML = '<option value="">Gagal memuat petugas</option>';
+        }
+    };
+
+    const formatDateTime = (value) => {
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return '-';
+        return date.toLocaleString('id-ID', {
+            day: '2-digit',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
+    const updateCsBadge = () => {
+        const badge = document.getElementById('sidebar-cs-badge');
+        if (!badge) return;
+        const unread = csConversations.reduce((sum, item) => sum + Number(item.unread_count || 0), 0);
+        badge.textContent = unread;
+        badge.classList.toggle('hidden', unread === 0);
+    };
+
+    const renderCsConversations = () => {
+        const list = document.getElementById('csConversationList');
+        if (!list) return;
+
+        updateCsBadge();
+
+        if (csConversations.length === 0) {
+            list.innerHTML = '<div class="p-5 text-sm text-gray-500">Belum ada percakapan CS.</div>';
+            return;
+        }
+
+        list.innerHTML = csConversations.map(item => {
+            const activeClass = item.report_id === activeCsReportId ? 'bg-orange-50 border-l-4 border-safety' : 'hover:bg-gray-50 border-l-4 border-transparent';
+            const unreadBadge = Number(item.unread_count || 0) > 0
+                ? `<span class="ml-auto bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">${item.unread_count}</span>`
+                : '';
+            return `
+                <button type="button" class="w-full text-left p-4 transition-colors ${activeClass}" data-cs-report-id="${escape(item.report_id)}">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-orange-50 text-safety flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-headset"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-2">
+                                <p class="font-bold text-gray-900 text-sm truncate">${escape(item.report_title || 'Laporan')}</p>
+                                ${unreadBadge}
+                            </div>
+                            <p class="text-xs text-gray-500 truncate mt-0.5">${escape(item.reporter_email || '-')}</p>
+                            <p class="text-xs text-gray-600 truncate mt-2">${escape(item.last_message || '')}</p>
+                            <p class="text-[11px] text-gray-400 mt-2">${escape(formatDateTime(item.last_at))}</p>
+                        </div>
+                    </div>
+                </button>
+            `;
+        }).join('');
+
+        list.querySelectorAll('[data-cs-report-id]').forEach(button => {
+            button.addEventListener('click', () => openAdminCsChat(button.dataset.csReportId));
+        });
+    };
+
+    const renderAdminCsMessages = (messages) => {
+        const panel = document.getElementById('adminCsMessages');
+        if (!panel) return;
+
+        if (!messages.length) {
+            panel.innerHTML = '<div class="text-sm text-gray-500 bg-white border border-gray-100 rounded-xl p-4">Belum ada pesan pada laporan ini.</div>';
+            return;
+        }
+
+        panel.innerHTML = messages.map(message => {
+            const isAdmin = message.sender_role === 'admin';
+            return `
+                <div class="flex ${isAdmin ? 'justify-end' : 'justify-start'}">
+                    <div class="max-w-[78%] rounded-2xl px-4 py-3 text-sm shadow-sm ${isAdmin ? 'bg-safety text-white rounded-br-md' : 'bg-white border border-gray-100 text-gray-700 rounded-bl-md'}">
+                        <p>${escape(message.message || '')}</p>
+                        <p class="text-[11px] mt-2 ${isAdmin ? 'text-white/75' : 'text-gray-400'}">${escape(message.sender_name || (isAdmin ? 'Admin CS' : 'Warga'))} • ${escape(formatDateTime(message.created_at))}</p>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        panel.scrollTop = panel.scrollHeight;
+    };
+
+    const fetchCsConversations = async () => {
+        try {
+            const response = await window.authFetch('/api/reports/cs/conversations');
+            if (!response) return;
+            const data = await response.json();
+            csConversations = response.ok && Array.isArray(data.data) ? data.data : [];
+            renderCsConversations();
+        } catch (error) {
+            console.error('Failed to fetch CS conversations:', error);
+        }
+    };
+
+    const openAdminCsChat = async (reportId) => {
+        activeCsReportId = reportId;
+        renderCsConversations();
+
+        const titleEl = document.getElementById('adminCsTitle');
+        const metaEl = document.getElementById('adminCsMeta');
+        const statusEl = document.getElementById('adminCsStatus');
+        const panel = document.getElementById('adminCsMessages');
+        const conversation = csConversations.find(item => item.report_id === reportId);
+
+        if (titleEl) titleEl.textContent = conversation?.report_title || 'Chat Laporan';
+        if (metaEl) metaEl.textContent = `${conversation?.reporter_email || '-'} • ${conversation?.report_address || '-'}`;
+        if (statusEl) {
+            statusEl.textContent = conversation?.report_status || '-';
+            statusEl.classList.remove('hidden');
+        }
+        if (panel) panel.innerHTML = '<div class="text-sm text-gray-500 bg-white border border-gray-100 rounded-xl p-4">Memuat pesan...</div>';
+
+        try {
+            const response = await window.authFetch(`/api/reports/${encodeURIComponent(reportId)}/cs-messages`);
+            if (!response) return;
+            const data = await response.json();
+            if (!response.ok) {
+                if (panel) panel.innerHTML = `<div class="text-sm text-red-500 bg-red-50 border border-red-100 rounded-xl p-4">${escape(data.message || 'Gagal memuat pesan.')}</div>`;
+                return;
+            }
+            renderAdminCsMessages(data.data?.messages || []);
+            await fetchCsConversations();
+        } catch (error) {
+            console.error(error);
+            if (panel) panel.innerHTML = '<div class="text-sm text-red-500 bg-red-50 border border-red-100 rounded-xl p-4">Gagal terhubung ke server chat.</div>';
         }
     };
 
@@ -460,6 +595,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedCountEl = document.getElementById('selectedCount');
         const applyBatchBtn = document.getElementById('applyBatchStatusBtn');
         const batchStatusSelect = document.getElementById('batchStatusSelect');
+        const batchPetugasSelect = document.getElementById('batchPetugasSelect');
 
         const updateBatchUI = () => {
             const checkedCount = document.querySelectorAll('.row-checkbox:checked').length;
@@ -469,6 +605,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (selectedCountEl) selectedCountEl.textContent = checkedCount;
             if (selectAllCb) selectAllCb.checked = checkedCount === rowCbs.length && rowCbs.length > 0;
+        };
+
+        const updateBatchPetugasUI = () => {
+            const shouldAssign = normalizeStatus(batchStatusSelect?.value) === 'Proses';
+            batchPetugasSelect?.classList.toggle('hidden', !shouldAssign);
+            if (!shouldAssign && batchPetugasSelect) batchPetugasSelect.value = '';
         };
 
         if (selectAllCb && !selectAllCb.dataset.handlerAttached) {
@@ -482,6 +624,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         rowCbs.forEach(cb => cb.addEventListener('change', updateBatchUI));
+        batchStatusSelect?.addEventListener('change', updateBatchPetugasUI);
 
         if (applyBatchBtn && !applyBatchBtn.dataset.handlerAttached) {
             applyBatchBtn.dataset.handlerAttached = 'true';
@@ -491,8 +634,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert('Silakan pilih status baru terlebih dahulu.');
                     return;
                 }
-                if (newStatus === 'Proses') {
-                    alert('Status Proses membutuhkan penugasan petugas. Gunakan tombol ubah status pada masing-masing laporan.');
+                const assignedPetugasEmail = batchPetugasSelect?.value || '';
+                if (newStatus === 'Proses' && !assignedPetugasEmail) {
+                    alert('Pilih petugas penanggung jawab untuk batch status Proses.');
                     return;
                 }
 
@@ -508,7 +652,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         const response = await window.authFetch(`/api/reports/${encodeURIComponent(id)}/status`, {
                             method: 'PUT',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ status: newStatus })
+                            body: JSON.stringify({
+                                status: newStatus,
+                                assigned_petugas_email: assignedPetugasEmail
+                            })
                         });
 
                         if (!response) return { ok: false, id, message: 'Sesi tidak valid' };
@@ -530,6 +677,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     if (selectAllCb) selectAllCb.checked = false;
                     batchStatusSelect.value = '';
+                    if (batchPetugasSelect) batchPetugasSelect.value = '';
+                    updateBatchPetugasUI();
                     await fetchAllReports();
                 } catch (error) {
                     console.error(error);
@@ -604,7 +753,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const togglePetugasAssign = () => {
         const shouldAssign = normalizeStatus(modalStatusSelect?.value) === 'Proses';
-        petugasAssignGroup?.classList.toggle('hidden', !shouldAssign);
+        if (modalPetugasSelect) modalPetugasSelect.disabled = !shouldAssign;
+        petugasAssignGroup?.classList.toggle('opacity-60', !shouldAssign);
+        const hint = document.getElementById('petugasAssignHint');
+        if (hint) {
+            hint.textContent = shouldAssign
+                ? 'Petugas wajib dipilih untuk menerima laporan ini.'
+                : 'Pilih status Proses untuk mengaktifkan penugasan petugas.';
+        }
     };
 
     window.openStatusModal = (id, currentStatus) => {
@@ -676,6 +832,39 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     exportReportsBtn?.addEventListener('click', exportReportsCsv);
+    document.getElementById('refreshCsBtn')?.addEventListener('click', fetchCsConversations);
+    document.getElementById('adminCsForm')?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const input = document.getElementById('adminCsInput');
+        const message = input?.value.trim() || '';
+        if (!activeCsReportId) {
+            alert('Pilih percakapan terlebih dahulu.');
+            return;
+        }
+        if (!message) return;
+
+        try {
+            const response = await window.authFetch(`/api/reports/${encodeURIComponent(activeCsReportId)}/cs-messages`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message,
+                    sender_name: sessionStorage.getItem('userName') || 'Admin CS'
+                })
+            });
+            if (!response) return;
+            const data = await response.json();
+            if (!response.ok) {
+                alert(data.message || 'Gagal mengirim balasan CS.');
+                return;
+            }
+            if (input) input.value = '';
+            await openAdminCsChat(activeCsReportId);
+        } catch (error) {
+            console.error(error);
+            alert('Gagal terhubung ke server chat.');
+        }
+    });
 
     coordinateCategoryFilter?.addEventListener('change', () => {
         updateDashboardStats(cachedReports);
@@ -685,4 +874,5 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchAllReports();
     fetchUsers();
     fetchPetugas();
+    fetchCsConversations();
 });

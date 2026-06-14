@@ -26,10 +26,21 @@
     <!-- Leaflet CSS & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <!-- Leaflet.heat -->
-    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
-
     <style>
+        :root {
+            --admin-bg: #eef2f6;
+            --admin-panel: #ffffff;
+            --admin-border: #d9e1ea;
+            --admin-text: #111827;
+            --admin-muted: #64748b;
+            --admin-ink: #17191c;
+            --admin-ink-soft: #24272d;
+            --admin-accent: #FF6B00;
+            --admin-accent-soft: #fff3eb;
+            --admin-success: #16a34a;
+            --admin-danger: #dc2626;
+        }
+
         /* Custom scrollbar for better UX */
         ::-webkit-scrollbar {
             width: 8px;
@@ -67,22 +78,198 @@
         }
 
         /* Fix Leaflet map taking up height */
-        #overviewMapContainer, #heatmapMap {
+        #overviewMapContainer, #coordinateMap {
             height: 100%;
             width: 100%;
             z-index: 1;
+        }
+
+        body.admin-page {
+            background: var(--admin-bg);
+            color: var(--admin-text);
+        }
+
+        .admin-sidebar {
+            background: var(--admin-ink);
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: none;
+        }
+
+        .brand-mark {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            background: var(--admin-accent);
+            box-shadow: 0 10px 20px rgba(255, 107, 0, 0.22);
+        }
+
+        .nav-link {
+            border-radius: 8px;
+            border: 1px solid transparent;
+            min-height: 44px;
+        }
+
+        .nav-active {
+            background-color: var(--admin-accent) !important;
+            color: #ffffff !important;
+            box-shadow: none !important;
+        }
+
+        .nav-inactive {
+            color: #c2c8d0;
+        }
+
+        .nav-inactive:hover {
+            background-color: var(--admin-ink-soft);
+            color: #ffffff !important;
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .admin-main {
+            background: var(--admin-bg);
+            padding: 24px;
+        }
+
+        .view-section > header {
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+            padding: 16px 18px;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+
+        .view-section > header h2 {
+            font-size: 1.35rem;
+            line-height: 1.25;
+            letter-spacing: 0;
+        }
+
+        .metric-card,
+        .data-panel {
+            border: 1px solid var(--admin-border) !important;
+            border-radius: 8px !important;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+        }
+
+        .metric-card {
+            padding: 18px !important;
+            overflow: hidden;
+        }
+
+        .metric-card h3 {
+            font-size: 2rem;
+            letter-spacing: 0;
+        }
+
+        .metric-card .metric-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+        }
+
+        .data-panel-header {
+            padding: 16px 18px !important;
+            border-bottom: 1px solid var(--admin-border) !important;
+        }
+
+        table thead {
+            background: #f6f8fb !important;
+        }
+
+        table th {
+            color: #526071 !important;
+            letter-spacing: 0.03em !important;
+        }
+
+        table td,
+        table th {
+            padding-top: 12px !important;
+            padding-bottom: 12px !important;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc !important;
+        }
+
+        .admin-control,
+        .admin-search {
+            border-radius: 8px !important;
+            border-color: var(--admin-border) !important;
+            box-shadow: none !important;
+        }
+
+        .admin-control:focus,
+        .admin-search:focus {
+            border-color: var(--admin-accent) !important;
+            box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.14) !important;
+        }
+
+        .admin-primary {
+            background: var(--admin-accent) !important;
+            border-radius: 8px !important;
+            box-shadow: none !important;
+        }
+
+        .admin-primary:hover {
+            background: #e65f00 !important;
+        }
+
+        .admin-icon-button {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+        }
+
+        .admin-modal-panel {
+            border-radius: 8px !important;
+        }
+
+        .leaflet-container {
+            background: #e5ebf2;
+        }
+
+        @media (max-width: 900px) {
+            body.admin-page {
+                height: auto;
+                overflow: auto;
+                display: block;
+            }
+
+            .admin-sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            #sidebar-nav {
+                display: flex;
+                overflow-x: auto;
+                padding-bottom: 12px;
+            }
+
+            #sidebar-nav .nav-link {
+                flex: 0 0 auto;
+                white-space: nowrap;
+            }
+
+            .admin-main {
+                height: auto;
+                min-height: 100vh;
+                overflow: visible;
+                padding: 16px;
+            }
         }
     </style>
     <!-- Auth Guard Middleware -->
     <script src="static/js/auth-utility.js"></script>
     <script src="static/js/auth-guard.js"></script>
 </head>
-<body class="bg-concrete font-sans text-gray-800 h-screen overflow-hidden flex">
+<body class="admin-page bg-concrete font-sans text-gray-800 h-screen overflow-hidden flex">
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-asphalt text-white flex-shrink-0 flex flex-col h-full z-20 shadow-xl transition-all duration-300 relative">
+    <aside class="admin-sidebar w-64 bg-asphalt text-white flex-shrink-0 flex flex-col h-full z-20 shadow-xl transition-all duration-300 relative">
         <div class="p-6 flex items-center gap-3 border-b border-gray-800">
-            <div class="w-10 h-10 bg-safety rounded-lg flex items-center justify-center shadow-lg shadow-safety/20">
+            <div class="brand-mark flex items-center justify-center">
                 <i class="fa-solid fa-road text-white text-xl"></i>
             </div>
             <h1 class="text-2xl font-bold tracking-wider">Smart<span class="text-safety">Road</span></h1>
@@ -101,9 +288,9 @@
                 Laporan Masuk
                 <span id="sidebar-laporan-badge" class="ml-auto bg-safety/20 text-safety py-0.5 px-2 rounded-full text-xs font-bold group-hover:bg-safety group-hover:text-white transition-colors">0</span>
             </a>
-            <a href="#" data-target="view-heatmap" class="nav-link nav-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200">
+            <a href="#" data-target="view-coordinate" class="nav-link nav-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200">
                 <i class="fa-solid fa-map-location-dot w-5 text-center transition-colors"></i>
-                Peta Heatmap
+                Peta Koordinat
             </a>
             <a href="#" data-target="view-user" class="nav-link nav-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200">
                 <i class="fa-solid fa-users w-5 text-center transition-colors"></i>
@@ -118,11 +305,11 @@
         <div class="p-4 border-t border-gray-800 bg-gray-900/50">
             <div class="flex items-center gap-3 px-2 py-2">
                 <div class="w-10 h-10 rounded-full bg-gray-700 border-2 border-gray-600 flex items-center justify-center overflow-hidden">
-                    <img src="https://ui-avatars.com/api/?name=Admin+Pusat&background=FF6B00&color=fff" alt="Admin" class="w-full h-full object-cover">
+                    <img id="adminAvatar" src="https://ui-avatars.com/api/?name=Admin&background=FF6B00&color=fff" alt="Admin" class="w-full h-full object-cover">
                 </div>
                 <div class="flex-1 overflow-hidden">
-                    <p class="text-sm font-bold text-white truncate">Admin Pusat</p>
-                    <p class="text-xs text-gray-400 truncate">admin@smartroad.gov</p>
+                    <p id="adminName" class="text-sm font-bold text-white truncate">Admin</p>
+                    <p id="adminEmail" class="text-xs text-gray-400 truncate">admin@smartroad.gov</p>
                 </div>
             </div>
             <button onclick="window.logout()" class="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm text-gray-400 hover:bg-red-500/10 hover:text-red-500 border border-transparent hover:border-red-500/20 transition-all">
@@ -133,7 +320,7 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 h-full overflow-y-auto p-8 relative scroll-smooth bg-concrete">
+    <main class="admin-main flex-1 h-full overflow-y-auto p-8 relative scroll-smooth bg-concrete">
         
         <!-- ================= VIEW: OVERVIEW ================= -->
         <div id="view-overview" class="view-section block">
@@ -146,9 +333,9 @@
                 <div class="flex items-center gap-4 w-full md:w-auto">
                     <div class="relative w-full md:w-72">
                         <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" placeholder="Cari laporan, ID, lokasi..." class="w-full pl-10 pr-4 py-2.5 bg-white rounded-xl border border-gray-200 focus:outline-none focus:border-safety focus:ring-4 focus:ring-safety/10 transition-all text-sm shadow-sm">
+                        <input id="adminSearchInput" type="text" placeholder="Cari laporan, ID, lokasi..." class="admin-search w-full pl-10 pr-4 py-2.5 bg-white rounded-xl border border-gray-200 focus:outline-none focus:border-safety focus:ring-4 focus:ring-safety/10 transition-all text-sm shadow-sm">
                     </div>
-                    <button class="relative p-3 bg-white border border-gray-200 rounded-xl text-gray-500 hover:text-safety hover:border-safety/30 hover:bg-orange-50 transition-all shadow-sm">
+                    <button class="admin-icon-button relative p-3 bg-white border border-gray-200 rounded-xl text-gray-500 hover:text-safety hover:border-safety/30 hover:bg-orange-50 transition-all shadow-sm">
                         <i class="fa-solid fa-bell text-lg"></i>
                         <span class="absolute top-2 right-2.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white shadow-sm"></span>
                     </button>
@@ -161,14 +348,14 @@
             <!-- Stat Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
                 <!-- Card 1: Total Laporan -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all group relative overflow-hidden">
+                <div class="metric-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all group relative overflow-hidden">
                     <div class="absolute top-0 right-0 w-24 h-24 bg-gray-50 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
                     <div class="flex justify-between items-start">
                         <div>
                             <p class="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">Total Laporan</p>
                             <h3 id="total-laporan-count" class="text-3xl font-extrabold text-gray-900">0</h3>
                         </div>
-                        <div class="w-12 h-12 bg-gray-100 rounded-xl text-gray-600 flex items-center justify-center group-hover:bg-gray-200 transition-colors">
+                        <div class="metric-icon w-12 h-12 bg-gray-100 rounded-xl text-gray-600 flex items-center justify-center group-hover:bg-gray-200 transition-colors">
                             <i class="fa-solid fa-file-lines text-xl"></i>
                         </div>
                     </div>
@@ -181,14 +368,14 @@
                 </div>
 
                 <!-- Card 2: Diproses -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all group relative overflow-hidden">
+                <div class="metric-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all group relative overflow-hidden">
                     <div class="absolute top-0 right-0 w-24 h-24 bg-orange-50 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
                     <div class="flex justify-between items-start">
                         <div>
                             <p class="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">Proses</p>
                             <h3 id="proses-count" class="text-3xl font-extrabold text-gray-900">0</h3>
                         </div>
-                        <div class="w-12 h-12 bg-orange-100 rounded-xl text-safety flex items-center justify-center group-hover:bg-safety group-hover:text-white transition-colors shadow-sm">
+                        <div class="metric-icon w-12 h-12 bg-orange-100 rounded-xl text-safety flex items-center justify-center group-hover:bg-safety group-hover:text-white transition-colors shadow-sm">
                             <i class="fa-solid fa-person-digging text-xl"></i>
                         </div>
                     </div>
@@ -201,14 +388,14 @@
                 </div>
 
                 <!-- Card 3: Selesai -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all group relative overflow-hidden">
+                <div class="metric-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all group relative overflow-hidden">
                     <div class="absolute top-0 right-0 w-24 h-24 bg-green-50 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
                     <div class="flex justify-between items-start">
                         <div>
                             <p class="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">Selesai</p>
                             <h3 id="selesai-count" class="text-3xl font-extrabold text-gray-900">0</h3>
                         </div>
-                        <div class="w-12 h-12 bg-green-100 rounded-xl text-green-600 flex items-center justify-center group-hover:bg-green-500 group-hover:text-white transition-colors shadow-sm">
+                        <div class="metric-icon w-12 h-12 bg-green-100 rounded-xl text-green-600 flex items-center justify-center group-hover:bg-green-500 group-hover:text-white transition-colors shadow-sm">
                             <i class="fa-solid fa-check-double text-xl"></i>
                         </div>
                     </div>
@@ -220,23 +407,23 @@
                     </div>
                 </div>
 
-                <!-- Card 4: Kritis -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all group relative overflow-hidden">
+                <!-- Card 4: Menunggu -->
+                <div class="metric-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all group relative overflow-hidden">
                     <div class="absolute top-0 right-0 w-24 h-24 bg-red-50 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
                     <div class="flex justify-between items-start">
                         <div>
-                            <p class="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">Kritis</p>
+                            <p class="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">Menunggu</p>
                             <h3 id="kritis-count" class="text-3xl font-extrabold text-red-600">0</h3>
                         </div>
-                        <div class="w-12 h-12 bg-red-100 rounded-xl text-red-600 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-colors shadow-sm animate-pulse">
+                        <div class="metric-icon w-12 h-12 bg-red-100 rounded-xl text-red-600 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-colors shadow-sm animate-pulse">
                             <i class="fa-solid fa-triangle-exclamation text-xl"></i>
                         </div>
                     </div>
                     <div class="mt-4 flex items-center gap-2">
                         <span class="inline-flex items-center gap-1 text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded-md">
-                            <i class="fa-solid fa-circle-exclamation"></i> Segera
+                            <i class="fa-solid fa-circle-exclamation"></i> Verifikasi
                         </span>
-                        <span class="text-xs text-gray-400 font-medium">Butuh tindakan</span>
+                        <span class="text-xs text-gray-400 font-medium">Perlu ditinjau</span>
                     </div>
                 </div>
             </div>
@@ -244,13 +431,13 @@
             <!-- Charts Section -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <!-- Line Chart -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <div class="flex justify-between items-center mb-6">
+                <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="data-panel-header flex justify-between items-center mb-6">
                         <div>
                             <h3 class="text-lg font-bold text-gray-900">Tren Laporan Mingguan</h3>
                             <p class="text-xs text-gray-500">Statistik laporan masuk 7 hari terakhir</p>
                         </div>
-                        <select class="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-safety focus:border-safety block px-3 py-2 font-medium cursor-pointer">
+                        <select class="admin-control bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-safety focus:border-safety block px-3 py-2 font-medium cursor-pointer">
                             <option>7 Hari Terakhir</option>
                             <option>Bulan Ini</option>
                             <option>Tahun Ini</option>
@@ -262,8 +449,8 @@
                 </div>
 
                 <!-- Bar Chart -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <div class="flex justify-between items-center mb-6">
+                <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="data-panel-header flex justify-between items-center mb-6">
                         <div>
                             <h3 class="text-lg font-bold text-gray-900">Kategori Kerusakan</h3>
                             <p class="text-xs text-gray-500">Distribusi tipe kerusakan terbanyak</p>
@@ -282,8 +469,8 @@
             <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
                 
                 <!-- Recent Reports Table -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden xl:col-span-2 flex flex-col">
-                    <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
+                <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden xl:col-span-2 flex flex-col">
+                    <div class="data-panel-header p-6 border-b border-gray-100 flex justify-between items-center bg-white">
                         <div>
                             <h3 class="text-lg font-bold text-gray-900">Laporan Terbaru</h3>
                             <p class="text-xs text-gray-500 mt-1">Daftar laporan yang masuk hari ini</p>
@@ -321,7 +508,7 @@
                                     </td>
                                     <td class="px-6 py-4">
                                         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold bg-red-50 text-red-700 border border-red-100">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Kritis
+                                            <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Menunggu
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 text-center">
@@ -362,13 +549,13 @@
                 </div>
 
                 <!-- Map Preview (Leaflet) -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col overflow-hidden h-full min-h-[400px] xl:min-h-0 relative">
-                    <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-white z-20 relative shadow-sm">
+                <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col overflow-hidden h-full min-h-[400px] xl:min-h-0 relative">
+                    <div class="data-panel-header p-6 border-b border-gray-100 flex justify-between items-center bg-white z-20 relative shadow-sm">
                         <div>
-                            <h3 class="text-lg font-bold text-gray-900">Peta Kepadatan</h3>
-                            <p class="text-xs text-gray-500 mt-1">Titik insiden terkini</p>
+                            <h3 class="text-lg font-bold text-gray-900">Peta Koordinat</h3>
+                            <p class="text-xs text-gray-500 mt-1">Titik laporan terkini</p>
                         </div>
-                        <button class="w-8 h-8 rounded-lg text-gray-400 hover:text-safety hover:bg-orange-50 flex items-center justify-center transition-colors border border-transparent hover:border-safety/20" onclick="document.querySelector('[data-target=\'view-heatmap\']').click()">
+                        <button class="w-8 h-8 rounded-lg text-gray-400 hover:text-safety hover:bg-orange-50 flex items-center justify-center transition-colors border border-transparent hover:border-safety/20" onclick="document.querySelector('[data-target=\'view-coordinate\']').click()">
                             <i class="fa-solid fa-expand"></i>
                         </button>
                     </div>
@@ -379,7 +566,7 @@
                         <div class="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-3.5 rounded-xl shadow-lg border border-gray-100/50 flex justify-between items-center z-[1000]">
                             <div class="flex items-center gap-2">
                                 <span class="w-3 h-3 rounded-full bg-red-600 shadow-sm shadow-red-500/50"></span> 
-                                <span class="text-[10px] font-bold text-gray-700">Kritis</span>
+                                <span class="text-[10px] font-bold text-gray-700">Menunggu</span>
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="w-3 h-3 rounded-full bg-safety shadow-sm shadow-safety/50"></span> 
@@ -402,11 +589,11 @@
                     <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Laporan Masuk</h2>
                     <p class="text-gray-500 mt-1 text-sm">Kelola dan tindak lanjuti laporan kerusakan dari warga.</p>
                 </div>
-                <button class="px-4 py-2 bg-safety text-white rounded-xl shadow-md shadow-safety/30 hover:bg-orange-600 transition-colors font-medium flex items-center gap-2">
+                <button id="exportReportsBtn" class="admin-primary px-4 py-2 bg-safety text-white rounded-xl shadow-md shadow-safety/30 hover:bg-orange-600 transition-colors font-medium flex items-center gap-2">
                     <i class="fa-solid fa-file-export"></i> Export Data
                 </button>
             </header>
-            <div class="flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col overflow-hidden relative">
+            <div class="data-panel flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col overflow-hidden relative">
                 <!-- Batch Actions (Hidden by default) -->
                 <div id="batchActionsBar" class="hidden absolute top-0 left-0 right-0 bg-orange-50 border-b border-orange-100 px-6 py-3 z-20 flex justify-between items-center transition-all">
                     <div class="flex items-center gap-3">
@@ -414,13 +601,13 @@
                         <span class="text-sm text-gray-700 font-medium">Laporan Terpilih</span>
                     </div>
                     <div class="flex items-center gap-3">
-                        <select id="batchStatusSelect" class="bg-white border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-safety focus:border-safety px-3 py-1.5 font-medium shadow-sm cursor-pointer outline-none transition-all">
+                        <select id="batchStatusSelect" class="admin-control bg-white border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-safety focus:border-safety px-3 py-1.5 font-medium shadow-sm cursor-pointer outline-none transition-all">
                             <option value="">-- Pilih Status --</option>
                             <option value="Menunggu">Menunggu</option>
                             <option value="Proses">Proses</option>
                             <option value="Selesai">Selesai</option>
                         </select>
-                        <button id="applyBatchStatusBtn" class="px-4 py-1.5 bg-safety text-white text-sm font-bold rounded-lg shadow-sm hover:bg-orange-600 transition-colors">Terapkan</button>
+                        <button id="applyBatchStatusBtn" class="admin-primary px-4 py-1.5 bg-safety text-white text-sm font-bold rounded-lg shadow-sm hover:bg-orange-600 transition-colors">Terapkan</button>
                     </div>
                 </div>
                 
@@ -448,7 +635,7 @@
 
         <!-- Status Update Modal -->
         <div id="statusModal" class="fixed inset-0 bg-gray-900/50 hidden items-center justify-center z-[9999] backdrop-blur-sm transition-opacity">
-            <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-md overflow-hidden animate-[scale_0.2s_ease-in-out]">
+            <div class="admin-modal-panel bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-md overflow-hidden animate-[scale_0.2s_ease-in-out]">
                 <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                     <h3 class="text-lg font-bold text-gray-900">Ubah Status Laporan</h3>
                     <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors">
@@ -459,13 +646,20 @@
                     <input type="hidden" id="modalReportId">
                     <div class="mb-4">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Status Baru</label>
-                        <select id="modalStatusSelect" class="w-full bg-white border border-gray-200 text-gray-700 text-sm rounded-xl focus:ring-safety focus:border-safety px-4 py-3 font-medium shadow-sm cursor-pointer outline-none transition-all">
+                        <select id="modalStatusSelect" class="admin-control w-full bg-white border border-gray-200 text-gray-700 text-sm rounded-xl focus:ring-safety focus:border-safety px-4 py-3 font-medium shadow-sm cursor-pointer outline-none transition-all">
                             <option value="Menunggu">Menunggu</option>
                             <option value="Proses">Proses</option>
                             <option value="Selesai">Selesai</option>
                         </select>
                     </div>
-                    <button id="saveStatusBtn" class="w-full bg-safety hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-xl shadow-md shadow-safety/30 transition-all">
+                    <div class="mb-4 hidden" id="petugasAssignGroup">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Petugas Penanggung Jawab</label>
+                        <select id="modalPetugasSelect" class="admin-control w-full bg-white border border-gray-200 text-gray-700 text-sm rounded-xl focus:ring-safety focus:border-safety px-4 py-3 font-medium shadow-sm cursor-pointer outline-none transition-all">
+                            <option value="">Memuat daftar petugas...</option>
+                        </select>
+                        <p class="text-xs text-gray-500 mt-2">Wajib dipilih ketika status diubah menjadi Proses.</p>
+                    </div>
+                    <button id="saveStatusBtn" class="admin-primary w-full bg-safety hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-xl shadow-md shadow-safety/30 transition-all">
                         Simpan Perubahan
                     </button>
                 </div>
@@ -474,7 +668,7 @@
 
         <!-- Detail Modal -->
         <div id="detailModal" class="fixed inset-0 bg-gray-900/50 hidden items-center justify-center z-[9999] backdrop-blur-sm transition-opacity">
-            <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col animate-[scale_0.2s_ease-in-out]">
+            <div class="admin-modal-panel bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col animate-[scale_0.2s_ease-in-out]">
                 <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 shrink-0">
                     <h3 class="text-lg font-bold text-gray-900">Detail Laporan</h3>
                     <button id="closeDetailModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors">
@@ -500,6 +694,9 @@
 
                             <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Lokasi Kejadian</p>
                             <p id="detailAddress" class="text-gray-900 font-medium text-sm leading-relaxed mb-4">-</p>
+
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Koordinat</p>
+                            <p id="detailCoords" class="text-gray-900 font-medium text-sm leading-relaxed mb-4">-</p>
                         </div>
                     </div>
                     <div class="mt-2 border-t border-gray-100 pt-4">
@@ -508,42 +705,45 @@
                     </div>
                 </div>
                 <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end shrink-0 gap-3">
-                    <button id="detailCloseBtn" class="px-6 py-2.5 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-colors shadow-sm">Tutup</button>
+                    <button id="detailCloseBtn" class="admin-control px-6 py-2.5 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-colors shadow-sm">Tutup</button>
                 </div>
             </div>
         </div>
 
-        <!-- ================= VIEW: PETA HEATMAP ================= -->
-        <div id="view-heatmap" class="view-section hidden h-full flex-col">
+        <!-- ================= VIEW: PETA KOORDINAT ================= -->
+        <div id="view-coordinate" class="view-section hidden h-full flex-col">
             <header class="flex justify-between items-center mb-6 shrink-0">
                 <div>
-                    <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Peta Heatmap Interaktif</h2>
-                    <p class="text-gray-500 mt-1 text-sm">Visualisasi kepadatan pelaporan kerusakan infrastruktur jalan di berbagai area.</p>
+                    <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Peta Koordinat Laporan</h2>
+                    <p class="text-gray-500 mt-1 text-sm">Titik lokasi laporan masuk berdasarkan koordinat yang dikirim warga.</p>
                 </div>
                 <div class="flex gap-2">
-                    <select class="bg-white border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-safety focus:border-safety px-4 py-2 font-medium shadow-sm cursor-pointer">
-                        <option>Semua Kategori</option>
-                        <option>Jalan Berlubang</option>
-                        <option>Lampu Mati</option>
+                    <select id="coordinateCategoryFilter" class="admin-control bg-white border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-safety focus:border-safety px-4 py-2 font-medium shadow-sm cursor-pointer">
+                        <option value="Semua Kategori">Semua Kategori</option>
+                        <option value="Berlubang">Berlubang</option>
+                        <option value="Retak">Retak</option>
+                        <option value="Lampu Mati">Lampu Mati</option>
+                        <option value="Rambu">Rambu</option>
+                        <option value="Genangan">Genangan</option>
                     </select>
                 </div>
             </header>
-            <div class="flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
-                <div id="heatmapMap" class="w-full h-full z-10"></div>
+            <div class="data-panel flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
+                <div id="coordinateMap" class="w-full h-full z-10"></div>
                 
                 <div class="absolute top-4 right-4 bg-white/95 backdrop-blur-md p-4 rounded-xl shadow-lg border border-gray-100 z-[1000] w-48">
-                    <h4 class="text-xs font-bold text-gray-800 uppercase tracking-wider mb-3">Intensitas</h4>
+                    <h4 class="text-xs font-bold text-gray-800 uppercase tracking-wider mb-3">Status</h4>
                     <div class="flex items-center justify-between mb-1">
-                        <span class="text-xs text-gray-500 font-medium">Tinggi</span>
-                        <span class="w-4 h-4 rounded-full bg-red-600"></span>
+                        <span class="text-xs text-gray-500 font-medium">Menunggu</span>
+                        <span class="w-4 h-4 rounded-full bg-red-500"></span>
                     </div>
                     <div class="flex items-center justify-between mb-1">
-                        <span class="text-xs text-gray-500 font-medium">Sedang</span>
-                        <span class="w-4 h-4 rounded-full bg-yellow-400"></span>
+                        <span class="text-xs text-gray-500 font-medium">Proses</span>
+                        <span class="w-4 h-4 rounded-full bg-orange-500"></span>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-xs text-gray-500 font-medium">Rendah</span>
-                        <span class="w-4 h-4 rounded-full bg-blue-500"></span>
+                        <span class="text-xs text-gray-500 font-medium">Selesai</span>
+                        <span class="w-4 h-4 rounded-full bg-green-500"></span>
                     </div>
                 </div>
             </div>
@@ -554,19 +754,28 @@
             <header class="flex justify-between items-center mb-8 shrink-0">
                 <div>
                     <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Manajemen User</h2>
-                    <p class="text-gray-500 mt-1 text-sm">Kelola peran dan hak akses pengguna sistem.</p>
+                    <p class="text-gray-500 mt-1 text-sm">Pantau akun pengguna yang terdaftar di sistem.</p>
                 </div>
-                <button class="px-4 py-2 bg-safety text-white rounded-xl shadow-md shadow-safety/30 hover:bg-orange-600 transition-colors font-medium flex items-center gap-2">
-                    <i class="fa-solid fa-plus"></i> Tambah User
-                </button>
+                <span id="userCountBadge" class="admin-control px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-600 shadow-sm">0 user</span>
             </header>
-            <div class="flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center">
-                <div class="text-center p-8">
-                    <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-100">
-                        <i class="fa-solid fa-users-gear text-3xl text-gray-300"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-700">Halaman Manajemen User</h3>
-                    <p class="text-gray-500 text-sm mt-2 max-w-sm mx-auto">Daftar Admin, Petugas Lapangan, dan pengaturan RBAC (Role-Based Access Control) akan ditempatkan di sini.</p>
+            <div class="data-panel flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="overflow-x-auto h-full">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead class="bg-gray-50/50 text-gray-500 uppercase text-xs font-bold tracking-wider sticky top-0 z-10">
+                            <tr>
+                                <th class="px-6 py-4 border-b border-gray-100">Nama</th>
+                                <th class="px-6 py-4 border-b border-gray-100">Email</th>
+                                <th class="px-6 py-4 border-b border-gray-100">Role</th>
+                                <th class="px-6 py-4 border-b border-gray-100">Kontak</th>
+                                <th class="px-6 py-4 border-b border-gray-100">Bergabung</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody" class="divide-y divide-gray-100">
+                            <tr>
+                                <td colspan="5" class="px-6 py-8 text-center text-gray-500">Memuat data user...</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -579,13 +788,28 @@
                     <p class="text-gray-500 mt-1 text-sm">Konfigurasi Command Center dan preferensi aplikasi.</p>
                 </div>
             </header>
-            <div class="flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center">
-                <div class="text-center p-8">
-                    <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-100">
-                        <i class="fa-solid fa-sliders text-3xl text-gray-300"></i>
+            <div class="data-panel flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="border border-gray-100 rounded-xl p-5">
+                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Autentikasi</p>
+                        <h3 class="text-lg font-bold text-gray-900">JWT Role Guard Aktif</h3>
+                        <p class="text-sm text-gray-500 mt-2">Halaman admin dilindungi token dan role admin di frontend serta backend.</p>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-700">Halaman Pengaturan</h3>
-                    <p class="text-gray-500 text-sm mt-2 max-w-sm mx-auto">Pengaturan notifikasi, integrasi API eksternal, dan preferensi tampilan (tema) dapat diakses dari halaman ini.</p>
+                    <div class="border border-gray-100 rounded-xl p-5">
+                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Peta</p>
+                        <h3 class="text-lg font-bold text-gray-900">Koordinat Laporan</h3>
+                        <p class="text-sm text-gray-500 mt-2">Peta menampilkan titik laporan yang memiliki koordinat valid.</p>
+                    </div>
+                    <div class="border border-gray-100 rounded-xl p-5">
+                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Status Laporan</p>
+                        <h3 class="text-lg font-bold text-gray-900">Menunggu, Proses, Selesai</h3>
+                        <p class="text-sm text-gray-500 mt-2">Perubahan status dibatasi ke tiga nilai resmi sistem.</p>
+                    </div>
+                    <div class="border border-gray-100 rounded-xl p-5">
+                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Notifikasi</p>
+                        <h3 class="text-lg font-bold text-gray-900">Anti Duplikasi Status Sama</h3>
+                        <p class="text-sm text-gray-500 mt-2">User hanya mendapat notifikasi ketika status laporan benar-benar berubah.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -631,8 +855,8 @@
                     }
                     
                     // Critical: Trigger Leaflet map resize when its container becomes visible
-                    if (targetId === 'view-heatmap' && typeof heatmapMap !== 'undefined') {
-                        setTimeout(() => heatmapMap.invalidateSize(), 100);
+                    if (targetId === 'view-coordinate' && typeof coordinateMap !== 'undefined') {
+                        setTimeout(() => coordinateMap.invalidateSize(), 100);
                     } else if (targetId === 'view-overview' && typeof overviewMap !== 'undefined') {
                         setTimeout(() => overviewMap.invalidateSize(), 100);
                     }
@@ -658,16 +882,16 @@
         // FeatureGroup to hold markers
         window.overviewMarkers = L.featureGroup().addTo(window.overviewMap);
 
-        // B. Heatmap Map (Large Map on Peta Heatmap Tab)
-        window.heatmapMap = L.map('heatmapMap').setView([-6.22, 106.83], 12);
+        // B. Coordinate Map (Large Map on Peta Koordinat Tab)
+        window.coordinateMap = L.map('coordinateMap').setView([-6.22, 106.83], 12);
         
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
-        }).addTo(window.heatmapMap);
+        }).addTo(window.coordinateMap);
 
-        // FeatureGroup to hold markers for heatmap
-        window.heatmapMarkers = L.featureGroup().addTo(window.heatmapMap);
+        // FeatureGroup to hold coordinate markers
+        window.coordinateMarkers = L.featureGroup().addTo(window.coordinateMap);
 
         // --- 3. Chart.js Initialization (Overview Tab) ---
         Chart.defaults.font.family = "'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";

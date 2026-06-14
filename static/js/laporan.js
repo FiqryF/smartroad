@@ -126,49 +126,51 @@ document.addEventListener('DOMContentLoaded', () => {
     const previewSize = document.getElementById('previewSize');
     const removeUploadBtn = document.getElementById('removeUploadBtn');
 
-    uploadBox.addEventListener('click', () => fileInput.click());
-    uploadBox.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        uploadBox.classList.add('drag-over');
-    });
-    uploadBox.addEventListener('dragleave', () => uploadBox.classList.remove('drag-over'));
-    uploadBox.addEventListener('drop', (e) => {
-        e.preventDefault();
-        uploadBox.classList.remove('drag-over');
-        if (e.dataTransfer.files.length > 0) {
-            fileInput.files = e.dataTransfer.files;
-            handleFileSelect(e.dataTransfer.files[0]);
-        }
-    });
+    if (uploadBox && fileInput) {
+        uploadBox.addEventListener('click', () => fileInput.click());
+        uploadBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadBox.classList.add('drag-over');
+        });
+        uploadBox.addEventListener('dragleave', () => uploadBox.classList.remove('drag-over'));
+        uploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadBox.classList.remove('drag-over');
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelect(e.dataTransfer.files[0]);
+            }
+        });
 
-    fileInput.addEventListener('change', () => {
-        if (fileInput.files.length > 0) handleFileSelect(fileInput.files[0]);
-    });
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) handleFileSelect(fileInput.files[0]);
+        });
+    }
 
     const handleFileSelect = (file) => {
         const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
         if (file && allowedTypes.includes(file.type) && file.size <= 5 * 1024 * 1024) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                previewImg.src = e.target.result;
-                previewName.textContent = file.name;
+                if (previewImg) previewImg.src = e.target.result;
+                if (previewName) previewName.textContent = file.name;
                 const sizeKB = (file.size / 1024).toFixed(1);
-                previewSize.textContent = sizeKB > 1024 ? `${(sizeKB / 1024).toFixed(1)} MB` : `${sizeKB} KB`;
-                uploadPreview.style.display = 'flex';
-                uploadBox.style.display = 'none';
+                if (previewSize) previewSize.textContent = sizeKB > 1024 ? `${(sizeKB / 1024).toFixed(1)} MB` : `${sizeKB} KB`;
+                if (uploadPreview) uploadPreview.style.display = 'flex';
+                if (uploadBox) uploadBox.style.display = 'none';
             };
             reader.readAsDataURL(file);
         } else {
-            fileInput.value = '';
+            if (fileInput) fileInput.value = '';
             Swal.fire('Error', 'Mohon unggah gambar JPG, PNG, atau WEBP dengan ukuran maksimal 5 MB.', 'error');
         }
     };
 
-    removeUploadBtn.addEventListener('click', () => {
+    removeUploadBtn?.addEventListener('click', () => {
         fileInput.value = '';
-        previewImg.src = '';
-        uploadPreview.style.display = 'none';
-        uploadBox.style.display = 'flex';
+        if (previewImg) previewImg.src = '';
+        if (uploadPreview) uploadPreview.style.display = 'none';
+        if (uploadBox) uploadBox.style.display = 'flex';
     });
 
     // 3. EMSIFA API Wilayah Indonesia (Cascading Dropdowns)
@@ -176,6 +178,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const provinsiSelect = document.getElementById("provinsiLaporan");
     const kotaSelect = document.getElementById("kotaLaporan");
     const kecamatanSelect = document.getElementById("kecamatanLaporan");
+
+    const setLocationFallback = () => {
+        const fallbackOption = '<option value="manual" selected>Mengikuti alamat lengkap</option>';
+        if (provinsiSelect) {
+            provinsiSelect.innerHTML = fallbackOption;
+            provinsiSelect.disabled = false;
+        }
+        if (kotaSelect) {
+            kotaSelect.innerHTML = fallbackOption;
+            kotaSelect.disabled = false;
+        }
+        if (kecamatanSelect) {
+            kecamatanSelect.innerHTML = fallbackOption;
+            kecamatanSelect.disabled = false;
+        }
+    };
 
     // Load Provinces
     fetch(urlProvinsi)
@@ -188,7 +206,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 option.textContent = provinsi.name;
                 provinsiSelect.appendChild(option);
             });
-        }).catch(err => console.error("Error loading provinces:", err));
+        }).catch(err => {
+            console.error("Error loading provinces:", err);
+            setLocationFallback();
+        });
 
     // Province changed -> Load Cities
     provinsiSelect.addEventListener("change", (e) => {
@@ -209,7 +230,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     kotaSelect.appendChild(option);
                 });
                 kotaSelect.disabled = false;
-            }).catch(err => console.error("Error loading cities:", err));
+            }).catch(err => {
+                console.error("Error loading cities:", err);
+                setLocationFallback();
+            });
     });
 
     // City changed -> Load Districts
@@ -229,7 +253,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     kecamatanSelect.appendChild(option);
                 });
                 kecamatanSelect.disabled = false;
-            }).catch(err => console.error("Error loading districts:", err));
+            }).catch(err => {
+                console.error("Error loading districts:", err);
+                setLocationFallback();
+            });
     });
 
     // 4. Leaflet Geolocation Map Integration
@@ -244,29 +271,6 @@ document.addEventListener('DOMContentLoaded', () => {
         defaultLng = parseFloat(userLngStr);
     }
 
-    const map = L.map('map', {
-        center: [defaultLat, defaultLng],
-        zoom: 15,
-        zoomControl: true
-    });
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    const orangeIcon = L.divIcon({
-        className: 'custom-orange-pin',
-        html: '<div style="background-color: #FF6B00; width: 14px; height: 14px; border: 2.5px solid #FFFFFF; border-radius: 50%; box-shadow: 0 0 8px rgba(255, 107, 0, 0.65);"></div>',
-        iconSize: [14, 14],
-        iconAnchor: [7, 7]
-    });
-
-    let marker = L.marker([defaultLat, defaultLng], {
-        draggable: true,
-        icon: orangeIcon
-    }).addTo(map);
-
     const valLat = document.getElementById('valLat');
     const valLng = document.getElementById('valLng');
     const latInput = document.getElementById('latInput');
@@ -275,26 +279,53 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateCoordsDisplay = (lat, lng) => {
         const fixedLat = Number(lat).toFixed(6);
         const fixedLng = Number(lng).toFixed(6);
-        valLat.textContent = fixedLat;
-        valLng.textContent = fixedLng;
-        latInput.value = fixedLat;
-        lngInput.value = fixedLng;
+        if (valLat) valLat.textContent = fixedLat;
+        if (valLng) valLng.textContent = fixedLng;
+        if (latInput) latInput.value = fixedLat;
+        if (lngInput) lngInput.value = fixedLng;
     };
     
     updateCoordsDisplay(defaultLat, defaultLng);
+    
+    let map = null;
+    let marker = null;
+    if (window.L && document.getElementById('map')) {
+        map = L.map('map', {
+            center: [defaultLat, defaultLng],
+            zoom: 15,
+            zoomControl: true
+        });
 
-    marker.on('dragend', (e) => {
-        const pos = marker.getLatLng();
-        updateCoordsDisplay(pos.lat, pos.lng);
-    });
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
 
-    map.on('click', (e) => {
-        marker.setLatLng(e.latlng);
-        updateCoordsDisplay(e.latlng.lat, e.latlng.lng);
-    });
+        const orangeIcon = L.divIcon({
+            className: 'custom-orange-pin',
+            html: '<div style="background-color: #FF6B00; width: 14px; height: 14px; border: 2.5px solid #FFFFFF; border-radius: 50%; box-shadow: 0 0 8px rgba(255, 107, 0, 0.65);"></div>',
+            iconSize: [14, 14],
+            iconAnchor: [7, 7]
+        });
+
+        marker = L.marker([defaultLat, defaultLng], {
+            draggable: true,
+            icon: orangeIcon
+        }).addTo(map);
+
+        marker.on('dragend', () => {
+            const pos = marker.getLatLng();
+            updateCoordsDisplay(pos.lat, pos.lng);
+        });
+
+        map.on('click', (e) => {
+            marker.setLatLng(e.latlng);
+            updateCoordsDisplay(e.latlng.lat, e.latlng.lng);
+        });
+    }
 
     const btnGps = document.getElementById('btnGps');
-    btnGps.addEventListener('click', () => {
+    btnGps?.addEventListener('click', () => {
         btnGps.innerHTML = '<i data-lucide="loader" class="spin-icon"></i> Mencari...';
         if (window.lucide) window.lucide.createIcons();
 
@@ -303,8 +334,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 (position) => {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
-                    map.setView([lat, lng], 16);
-                    marker.setLatLng([lat, lng]);
+                    if (map && marker) {
+                        map.setView([lat, lng], 16);
+                        marker.setLatLng([lat, lng]);
+                    }
                     updateCoordsDisplay(lat, lng);
                     localStorage.setItem('userLat', lat);
                     localStorage.setItem('userLng', lng);
@@ -331,7 +364,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // 5. Handle Form Submission
     const laporanForm = document.getElementById('laporanForm');
     
-    laporanForm.addEventListener('submit', async (e) => {
+    const getRequiredValue = (id, label) => {
+        const element = document.getElementById(id);
+        const value = element ? element.value.trim() : '';
+        if (!value) throw new Error(`${label} wajib diisi.`);
+        return value;
+    };
+
+    const getSelectedText = (select, label) => {
+        if (!select || select.selectedIndex < 0 || !select.value) {
+            throw new Error(`${label} wajib dipilih.`);
+        }
+        return select.options[select.selectedIndex].text;
+    };
+
+    laporanForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
         
         const userEmail = sessionStorage.getItem('userEmail');
@@ -340,26 +387,29 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if (fileInput.files.length === 0) {
+        if (!fileInput || fileInput.files.length === 0) {
             Swal.fire('Peringatan', 'Harap unggah foto bukti kerusakan.', 'warning');
             return;
         }
 
         const formData = new FormData();
-        formData.append('title', document.getElementById('judulLaporan').value);
-        formData.append('address', document.getElementById('alamatLengkap').value);
-        formData.append('category', document.getElementById('kategoriKerusakan').value);
-        
-        // Get text from dropdowns instead of ID
-        formData.append('province', provinsiSelect.options[provinsiSelect.selectedIndex].text);
-        formData.append('city', kotaSelect.options[kotaSelect.selectedIndex].text);
-        formData.append('district', kecamatanSelect.options[kecamatanSelect.selectedIndex].text);
-        
-        formData.append('hazard_level', document.getElementById('tingkatKeparahan').value);
-        formData.append('dimensions', document.getElementById('estimasiUkuran').value);
-        formData.append('description', document.getElementById('deskripsiKerusakan').value);
-        formData.append('lat', latInput.value);
-        formData.append('lng', lngInput.value);
+        try {
+            formData.append('title', getRequiredValue('judulLaporan', 'Judul pelaporan'));
+            formData.append('address', getRequiredValue('alamatLengkap', 'Alamat lengkap lokasi'));
+            formData.append('category', getRequiredValue('kategoriKerusakan', 'Kategori aduan'));
+            formData.append('province', getSelectedText(provinsiSelect, 'Provinsi'));
+            formData.append('city', getSelectedText(kotaSelect, 'Kota / Kabupaten'));
+            formData.append('district', getSelectedText(kecamatanSelect, 'Kecamatan'));
+            formData.append('hazard_level', getRequiredValue('tingkatKeparahan', 'Tingkat keparahan'));
+            formData.append('dimensions', getRequiredValue('estimasiUkuran', 'Estimasi dimensi'));
+            formData.append('description', getRequiredValue('deskripsiKerusakan', 'Deskripsi masalah'));
+        } catch (validationError) {
+            Swal.fire('Data Belum Lengkap', validationError.message, 'warning');
+            return;
+        }
+
+        formData.append('lat', latInput ? latInput.value : String(defaultLat));
+        formData.append('lng', lngInput ? lngInput.value : String(defaultLng));
         formData.append('photo', fileInput.files[0]);
 
         // Loading state
@@ -370,7 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.lucide) window.lucide.createIcons();
 
         try {
-            const response = await fetchWithAuth('http://127.0.0.1:5000/api/reports/submit', {
+            const response = await fetchWithAuth('/api/reports/submit', {
                 method: 'POST',
                 body: formData
             });

@@ -37,6 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (result.isConfirmed) {
                             if (response.data.user_data.role === 'admin') {
                                 window.location.href = "dashboard-admin.html";
+                            } else if (response.data.user_data.role === 'petugas') {
+                                window.location.href = "petugas.html";
                             } else {
                                 window.location.href = "dashboard.html";
                             }

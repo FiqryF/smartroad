@@ -12,3 +12,14 @@ def admin_required():
             return fn(*args, **kwargs)
         return decorator
     return wrapper
+
+def petugas_required():
+    def wrapper(fn):
+        @wraps(fn)
+        def decorator(*args, **kwargs):
+            claims = get_jwt()
+            if claims.get("role") != "petugas":
+                return jsonify({"status": "error", "message": "Akses ditolak. Membutuhkan peran petugas."}), 403
+            return fn(*args, **kwargs)
+        return decorator
+    return wrapper

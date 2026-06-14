@@ -2,6 +2,10 @@
 
 // Pastikan DOM sudah dimuat sebelum menambahkan event listener
 document.addEventListener('DOMContentLoaded', () => {
+    const authKeys = ['jwtToken', 'isLoggedIn', 'userName', 'userEmail', 'userAvatar', 'userRole', 'profileStatus'];
+    const clearLegacyAuthStorage = () => {
+        authKeys.forEach(key => localStorage.removeItem(key));
+    };
     
     // Form Login
     const loginForm = document.getElementById('loginForm');
@@ -16,12 +20,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const response = await ApiService.post('/auth/login', { email, password });
                 
                 if (response.ok) {
-                    // Menyimpan status sesi, nama pengguna, dan email ke localStorage
-                    localStorage.setItem('jwtToken', response.data.access_token);
-                    localStorage.setItem('isLoggedIn', 'true');
-                    localStorage.setItem('userName', response.data.user_data.nama);
-                    localStorage.setItem('userEmail', response.data.user_data.email);
-                    localStorage.setItem('userRole', response.data.user_data.role);
+                    clearLegacyAuthStorage();
+                    // Menyimpan status sesi per tab agar akun berbeda tidak saling menimpa.
+                    sessionStorage.setItem('jwtToken', response.data.access_token);
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    sessionStorage.setItem('userName', response.data.user_data.nama);
+                    sessionStorage.setItem('userEmail', response.data.user_data.email);
+                    sessionStorage.setItem('userRole', response.data.user_data.role);
 
                     Swal.fire({
                         icon: 'success',

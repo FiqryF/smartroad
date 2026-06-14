@@ -384,6 +384,121 @@
             line-height: 1.45;
         }
 
+        .notification-panel {
+            width: min(360px, calc(100vw - 2rem));
+            overflow: hidden;
+        }
+
+        .notification-panel .panel-card {
+            padding: 0;
+        }
+
+        .notification-panel .panel-title {
+            margin: 0;
+            padding: 1rem 1.1rem 0.75rem;
+            border-bottom: 1px solid var(--concrete-border);
+        }
+
+        .notification-panel .panel-list {
+            display: block;
+            max-height: min(420px, calc(100vh - 190px));
+            overflow-y: auto;
+            padding: 0.35rem;
+            overscroll-behavior: contain;
+        }
+
+        .notification-panel .panel-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .notification-panel .panel-list::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 999px;
+            border: 2px solid #fff;
+        }
+
+        .notification-item {
+            display: grid;
+            grid-template-columns: 24px 1fr;
+            gap: 0.6rem;
+            padding: 0.75rem;
+            border-radius: 10px;
+        }
+
+        .notification-item:hover {
+            background: #f8fafc;
+        }
+
+        .notification-icon-wrap {
+            width: 24px;
+            height: 24px;
+            display: grid;
+            place-items: center;
+            color: var(--safety-orange);
+        }
+
+        .notification-icon-wrap svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        .notification-copy {
+            min-width: 0;
+        }
+
+        .notification-copy strong,
+        .notification-copy span,
+        .notification-copy small {
+            display: block;
+        }
+
+        .notification-copy strong {
+            color: var(--text-dark);
+            font-size: 0.86rem;
+            line-height: 1.25;
+            margin-bottom: 0.2rem;
+        }
+
+        .notification-copy span {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            line-height: 1.45;
+        }
+
+        .notification-copy small {
+            color: #94a3b8;
+            font-size: 0.72rem;
+            margin-top: 0.3rem;
+        }
+
+        .notification-copy a {
+            color: var(--safety-orange);
+            font-weight: 700;
+        }
+
+        .notification-empty {
+            display: grid;
+            place-items: center;
+            gap: 0.5rem;
+            padding: 1.4rem 0.75rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .notification-empty svg {
+            width: 26px;
+            height: 26px;
+            color: var(--success-green);
+        }
+
+        .notification-panel .panel-link {
+            display: block;
+            margin: 0;
+            padding: 0.85rem 1.1rem;
+            border-top: 1px solid var(--concrete-border);
+            background: #fff;
+        }
+
         .panel-link {
             display: inline-block;
             margin-top: 1rem;
@@ -1751,7 +1866,7 @@
                         </div>
                         <div class="panel-actions">
                             <a href="profile.html" class="btn btn-outline-primary">Lihat Profil</a>
-                            <a href="#" class="btn btn-secondary">Keluar</a>
+                            <a href="javascript:void(0)" onclick="logout()" class="btn btn-secondary">Keluar</a>
                         </div>
                     </div>
                 </div>
@@ -2019,6 +2134,7 @@
 
     <!-- Lucide Icons Bundle -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- FILE JS ANDA -->
     <script src="/static/js/auth-utility.js"></script>

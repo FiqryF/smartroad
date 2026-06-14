@@ -8,8 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.status === 403) {
                 alert('Akses Ditolak: Sesi Anda bermasalah atau Anda bukan admin!');
-                localStorage.removeItem('jwtToken');
-                localStorage.removeItem('userRole');
+                sessionStorage.removeItem('jwtToken');
+                sessionStorage.removeItem('userRole');
                 window.location.replace('login.html');
                 return;
             }

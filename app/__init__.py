@@ -24,7 +24,7 @@ def create_app():
     CORS(app, resources={r"/*": {"origins": "*"}})
     
     from datetime import timedelta
-    app.config["JWT_SECRET_KEY"] = "super-secret-jwt-key"
+    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "smartroad-dev-only-change-me")
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=24)
     jwt = JWTManager(app)
     

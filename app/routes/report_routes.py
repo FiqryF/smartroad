@@ -5,6 +5,7 @@ from app.controllers.report_controller import save_report, get_user_reports, get
 report_bp = Blueprint('reports', __name__)
 
 @report_bp.route('/submit', methods=['POST', 'OPTIONS'])
+@jwt_required()
 def submit_report():
     if request.method == 'OPTIONS':
         return jsonify({}), 200
@@ -14,6 +15,7 @@ def submit_report():
         
     file = request.files['photo']
     data = request.form.to_dict()
+    data['reporter_email'] = get_jwt_identity()
     
     result, status_code = save_report(data, file)
     return jsonify(result), status_code
@@ -61,7 +63,7 @@ def get_notifications_route():
     if request.method == 'OPTIONS':
         return jsonify({}), 200
         
-    email = request.args.get('email')
+    email = get_jwt_identity()
     if not email:
         return jsonify({"status": "error", "message": "Email diperlukan"}), 400
         
@@ -74,9 +76,9 @@ def read_notifications_route():
     if request.method == 'OPTIONS':
         return jsonify({}), 200
         
-    data = request.json
-    if not data or 'email' not in data:
+    email = get_jwt_identity()
+    if not email:
         return jsonify({"status": "error", "message": "Email diperlukan"}), 400
         
-    result, status_code = mark_notifications_read(data['email'])
+    result, status_code = mark_notifications_read(email)
     return jsonify(result), status_code

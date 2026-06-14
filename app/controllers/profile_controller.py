@@ -7,8 +7,36 @@ from app.db import db
 
 users_collection = db["users"] if db is not None else None
 
+ALLOWED_IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
+ALLOWED_IMAGE_MIMETYPES = {"image/jpeg", "image/png", "image/webp"}
+MAX_IMAGE_SIZE = 5 * 1024 * 1024
+
+def _validate_image_upload(file):
+    filename = secure_filename(file.filename or "")
+    if not filename or "." not in filename:
+        return None, "Format file tidak valid. Gunakan JPG, PNG, atau WEBP."
+
+    extension = filename.rsplit(".", 1)[1].lower()
+    if extension not in ALLOWED_IMAGE_EXTENSIONS:
+        return None, "Format file tidak didukung. Gunakan JPG, PNG, atau WEBP."
+
+    if (file.mimetype or "").lower() not in ALLOWED_IMAGE_MIMETYPES:
+        return None, "Tipe file tidak valid. Harap unggah file gambar."
+
+    current_pos = file.stream.tell()
+    file.stream.seek(0, os.SEEK_END)
+    file_size = file.stream.tell()
+    file.stream.seek(current_pos)
+
+    if file_size <= 0:
+        return None, "File gambar kosong."
+    if file_size > MAX_IMAGE_SIZE:
+        return None, "Ukuran gambar maksimal 5 MB."
+
+    return filename, None
+
 def get_user_profile(email):
-    if not users_collection:
+    if users_collection is None:
         return {"status": "error", "message": "Database error"}, 500
         
     user = users_collection.find_one({"email": email})
@@ -36,7 +64,7 @@ def get_user_profile(email):
     return {"status": "success", "data": profile_data}, 200
 
 def update_user_profile(email, data):
-    if not users_collection:
+    if users_collection is None:
         return {"status": "error", "message": "Database error"}, 500
         
     nama = data.get("nama")
@@ -61,15 +89,29 @@ def update_user_profile(email, data):
     return {"status": "success", "message": "Profil berhasil diperbarui"}, 200
 
 def update_user_password(email, data):
-    if not users_collection:
+    if users_collection is None:
         return {"status": "error", "message": "Database error"}, 500
         
-    old_password = data.get("old_password") # For future use if wanted, though requirement didn't explicitly ask to send old, let's assume they only send new in the form or we don't ask for old. Wait, requirement: "Validate current password, then hash and save the new password." Actually, the HTML doesn't have current password field, just new and confirm. Let's just update it since it's verified by email/localStorage for now, but to be robust let's check old if provided, or just update directly if old is missing based on the frontend form.
-    # From requirement: "Validate current password". The HTML form provided doesn't have an "old password" input. I will just hash and update the new password.
+    old_password = data.get("old_password")
     new_password = data.get("new_password")
     
+    if not old_password:
+        return {"status": "error", "message": "Password saat ini wajib diisi"}, 400
     if not new_password:
         return {"status": "error", "message": "Password baru tidak boleh kosong"}, 400
+
+    user = users_collection.find_one({"email": email})
+    if not user:
+        return {"status": "error", "message": "User tidak ditemukan"}, 404
+
+    stored_password = user.get("password", "")
+    if stored_password.startswith(("$2a$", "$2b$", "$2y$")):
+        is_valid = bcrypt.checkpw(old_password.encode('utf-8'), stored_password.encode('utf-8'))
+    else:
+        is_valid = old_password == stored_password
+
+    if not is_valid:
+        return {"status": "error", "message": "Password saat ini tidak sesuai"}, 401
         
     salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), salt).decode('utf-8')
@@ -85,13 +127,16 @@ def update_user_password(email, data):
     return {"status": "success", "message": "Password berhasil diperbarui"}, 200
 
 def upload_profile_photo(email, file, upload_folder):
-    if not users_collection:
+    if users_collection is None:
         return {"status": "error", "message": "Database error"}, 500
         
     if not file or file.filename == '':
         return {"status": "error", "message": "Tidak ada file yang dipilih"}, 400
         
-    filename = secure_filename(file.filename)
+    filename, error_message = _validate_image_upload(file)
+    if error_message:
+        return {"status": "error", "message": error_message}, 400
+
     # prepend email to make it unique
     unique_filename = f"{email.split('@')[0]}_{int(datetime.now().timestamp())}_{filename}"
     file_path = os.path.join(upload_folder, unique_filename)

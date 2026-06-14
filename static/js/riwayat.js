@@ -1,8 +1,15 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const userName = localStorage.getItem('userName');
-    const userEmail = localStorage.getItem('userEmail');
-    const userAvatar = localStorage.getItem('userAvatar');
-    const profileStatus = localStorage.getItem('profileStatus');
+    const userName = sessionStorage.getItem('userName');
+    const userEmail = sessionStorage.getItem('userEmail');
+    const userAvatar = sessionStorage.getItem('userAvatar');
+    const profileStatus = sessionStorage.getItem('profileStatus');
+    const escape = window.escapeHtml || (value => String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    }[char])));
 
     // --- 1. SINKRONISASI NAMA & INISIAL ---
     if (userName) {
@@ -17,13 +24,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const popupName = document.getElementById('popupName');
         if (popupName) popupName.textContent = userName;
 
-        // Logika Avatar Cerdas (Mengikuti LocalStorage)
+        // Logika Avatar Cerdas (Mengikuti sessionStorage)
         let finalAvatarUrl;
 
         if (userAvatar) {
             finalAvatarUrl = userAvatar;
         } else {
-            // Fallback jika tidak ada di localStorage
+            // Fallback jika tidak ada di sessionStorage
             const initials = userName.length >= 2 ? userName.substring(0, 2).toUpperCase() : userName.toUpperCase();
             finalAvatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=FF6B00&color=FFFFFF`;
         }
@@ -47,94 +54,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (popupEmail) popupEmail.textContent = userEmail;
     }
 
-    // --- 2. SINKRONISASI NOTIFIKASI ---
-    const notifDot = document.getElementById('notifDot');
-    const notifDropdown = document.getElementById('notifDropdown');
-    const notificationBtn = document.querySelector('.notification-btn');
-
-    const loadNotifications = async () => {
-        if (!userEmail) return;
-        try {
-            const res = await fetchWithAuth(`http://127.0.0.1:5000/api/reports/notifications/user?email=${encodeURIComponent(userEmail)}`);
-            if (res && res.ok) {
-                const resData = await res.json();
-                const notifs = resData.data || [];
-                const unread = notifs.some(n => !n.is_read);
-
-                if (unread || profileStatus === 'incomplete') {
-                    if (notifDot) notifDot.style.display = 'block';
-                } else {
-                    if (notifDot) notifDot.style.display = 'none';
-                }
-
-                if (notifDropdown) {
-                    notifDropdown.innerHTML = '';
-                    if (profileStatus === 'incomplete') {
-                        notifDropdown.insertAdjacentHTML('beforeend', `
-                            <li>
-                                <div style="display: flex; gap: 0.5rem; align-items: start;">
-                                    <i data-lucide="alert-circle" style="color: var(--danger-red); width: 16px; margin-top: 2px;"></i>
-                                    <div>
-                                        <strong style="color: var(--asphalt-dark);">Profil Belum Lengkap</strong><br>
-                                        <span style="font-size: 0.8rem; color: var(--text-muted);">Silakan <a href="profile.html" style="color: var(--safety-orange); font-weight: 600;">lengkapi data diri Anda</a></span>
-                                    </div>
-                                </div>
-                            </li>
-                        `);
-                    }
-
-                    if (notifs.length > 0) {
-                        notifs.forEach(n => {
-                            const dateObj = new Date(n.created_at);
-                            const dateStr = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-                            const timeStr = dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-                            
-                            notifDropdown.insertAdjacentHTML('beforeend', `
-                                <li>
-                                    <div style="display: flex; gap: 0.5rem; align-items: start;">
-                                        <i data-lucide="bell" style="color: var(--safety-orange); width: 16px; margin-top: 2px;"></i>
-                                        <div>
-                                            <strong style="color: var(--asphalt-dark);">${n.title}</strong><br>
-                                            <span style="font-size: 0.8rem; color: var(--text-muted);">${n.message}</span><br>
-                                            <span style="font-size: 0.7rem; color: #9ca3af; margin-top: 4px; display: block;">${dateStr} • ${timeStr}</span>
-                                        </div>
-                                    </div>
-                                </li>
-                            `);
-                        });
-                    } else if (profileStatus !== 'incomplete') {
-                        notifDropdown.insertAdjacentHTML('beforeend', `
-                            <li>
-                                <div style="text-align: center; padding: 1rem 0; color: var(--text-muted);">
-                                    <i data-lucide="check-circle" style="color: var(--success-green); width: 24px; margin-bottom: 0.5rem;"></i><br>
-                                    Tidak ada notifikasi baru
-                                </div>
-                            </li>
-                        `);
-                    }
-                }
-                if (typeof lucide !== 'undefined') lucide.createIcons();
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    // Mark as read when notification panel opens
-    if (notificationBtn) {
-        notificationBtn.addEventListener('click', async () => {
-            if (notifDot && profileStatus !== 'incomplete') notifDot.style.display = 'none';
-            try {
-                await fetchWithAuth('http://127.0.0.1:5000/api/reports/notifications/user/read', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: userEmail })
-                });
-            } catch (err) { console.error(err); }
-        });
+    if (window.loadUserNotifications) {
+        await window.loadUserNotifications();
     }
-
-    loadNotifications();
 
 
     // --- 3. FETCH RIWAYAT LAPORAN ---
@@ -148,7 +70,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        const response = await fetchWithAuth(`/api/reports/user?email=${encodeURIComponent(userEmail)}`);
+        const response = await fetchWithAuth('/api/reports/user');
         if (!response) return;
 
         const resData = await response.json();
@@ -168,29 +90,37 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (report.status === 'Sedang Diproses' || report.status === 'Proses') { badgeClass = 'badge-processing'; iconName = 'loader'; }
                 if (report.status === 'Selesai') { badgeClass = 'badge-done'; iconName = 'check-circle'; }
 
+                const safeStatus = escape(report.status || 'Menunggu');
+                const safeTitle = escape(report.title || 'Laporan');
+                const safeAddress = escape(report.address || '-');
+                const safeDescription = escape(report.description || '');
+                const safeCreatedAt = escape(report.created_at || '');
+                const safeDateDisplay = escape(`${dateStr} - ${timeStr} WIB`);
                 const imgSrc = report.image_path ? `/static/${report.image_path}` : 'https://images.unsplash.com/photo-1526481280690-9f10f80d63b2?auto=format&fit=crop&w=900&q=80';
+                const safeImgSrc = escape(imgSrc);
+                const safeRepairImgSrc = escape(report.repair_image_path ? `/static/${report.repair_image_path}` : '');
 
                 const card = `
-                    <article class="history-card" data-status="${report.status}" data-title="${report.title}" data-date="${report.created_at}">
+                    <article class="history-card" data-status="${safeStatus}" data-title="${safeTitle}" data-date="${safeCreatedAt}">
                         <div class="card-img-container">
-                            <img src="${imgSrc}" alt="Foto Laporan" class="history-img">
-                            <span class="badge-overlay ${badgeClass}"><i data-lucide="${iconName}"></i> ${report.status}</span>
+                            <img src="${safeImgSrc}" alt="Foto Laporan" class="history-img">
+                            <span class="badge-overlay ${badgeClass}"><i data-lucide="${iconName}"></i> ${safeStatus}</span>
                         </div>
                         <div class="history-body">
-                            <div class="history-date"><i data-lucide="calendar"></i> ${dateStr} • ${timeStr} WIB</div>
-                            <h3 class="history-card-title">${report.title}</h3>
-                            <div class="history-address"><i data-lucide="map-pin"></i> ${report.address || '-'}</div>
-                            <p class="history-desc-text">${report.description}</p>
+                            <div class="history-date"><i data-lucide="calendar"></i> ${safeDateDisplay}</div>
+                            <h3 class="history-card-title">${safeTitle}</h3>
+                            <div class="history-address"><i data-lucide="map-pin"></i> ${safeAddress}</div>
+                            <p class="history-desc-text">${safeDescription}</p>
                             <div class="card-divider"></div>
                             <div class="history-actions">
                                 <button class="btn btn-outline-orange detail-button" 
-                                    data-title="${report.title.replace(/"/g, '&quot;')}" 
-                                    data-status="${report.status}" 
-                                    data-date="${dateStr} • ${timeStr} WIB" 
-                                    data-address="${(report.address || '-').replace(/"/g, '&quot;')}" 
-                                    data-desc="${report.description.replace(/"/g, '&quot;')}" 
-                                    data-img="${imgSrc}"
-                                    data-img-repair="${report.repair_image_path ? `/static/${report.repair_image_path}` : ''}"
+                                    data-title="${safeTitle}" 
+                                    data-status="${safeStatus}" 
+                                    data-date="${safeDateDisplay}" 
+                                    data-address="${safeAddress}" 
+                                    data-desc="${safeDescription}" 
+                                    data-img="${safeImgSrc}"
+                                    data-img-repair="${safeRepairImgSrc}"
                                 >Lihat Detail</button>
                             </div>
                         </div>
@@ -299,24 +229,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 window.logout = function () {
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('userName');
-    localStorage.removeItem('userAvatar');
-    localStorage.removeItem('profileStatus');
-
-    if (typeof Swal !== 'undefined') {
-        Swal.fire({
-            icon: 'info',
-            title: 'Berhasil Keluar',
-            text: 'Anda telah keluar dari sistem.',
-            confirmButtonColor: '#FF6B00',
-            timer: 1500,
-            showConfirmButton: false
-        }).then(() => {
-            window.location.href = 'login.html';
-        });
-    } else {
-        window.location.href = 'login.html';
-    }
+    if (window.clearAuthSession) window.clearAuthSession();
+    if (window.showLogoutNotice) window.showLogoutNotice();
+    else window.location.href = 'login.html';
 };

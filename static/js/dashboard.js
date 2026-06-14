@@ -2,9 +2,9 @@
 
 // 1. Validasi Sesi saat halaman dimuat
 window.onload = async () => {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const userEmail = localStorage.getItem('userEmail');
-    let userName = localStorage.getItem('userName');
+    const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+    const userEmail = sessionStorage.getItem('userEmail');
+    let userName = sessionStorage.getItem('userName');
 
     // Cek proteksi
     if (isLoggedIn !== 'true') {
@@ -15,12 +15,13 @@ window.onload = async () => {
     // Ambil Profil dari Backend
     if (userEmail) {
         try {
-            const response = await fetch(`http://127.0.0.1:5000/api/auth/api/profile/user-profile?email=${encodeURIComponent(userEmail)}`);
+            const response = await fetchWithAuth('/api/profile/user-profile');
+            if (!response) return;
             const resData = await response.json();
 
             if (response.ok && resData.data) {
                 const profile = resData.data;
-                localStorage.setItem('userName', profile.nama);
+                sessionStorage.setItem('userName', profile.nama);
                 userName = profile.nama;
 
                 // Tentukan URL Avatar
@@ -28,55 +29,16 @@ window.onload = async () => {
                     ? `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.nama)}&background=FF6B00&color=FFFFFF`
                     : `http://127.0.0.1:5000/static/${profile.profile_pic}`; // Pastikan base URL backend benar
 
-                // SIMPAN KE LOCAL STORAGE
-                localStorage.setItem('userAvatar', profilePic);
+                // SIMPAN KE SESSION STORAGE
+                sessionStorage.setItem('userAvatar', profilePic);
 
                 // Update Avatar di halaman dashboard
                 document.querySelectorAll('.avatar-img, .profile-avatar').forEach(img => {
                     img.src = profilePic;
                 });
 
-                // Di dalam dashboard.js (Bagian Evaluasi Profil Kosong)
-                const notifDot = document.getElementById('notifDot');
-                const notifDropdown = document.getElementById('notifDropdown');
-
-                if (!profile.telepon || !profile.alamat) {
-                    // Simpan status tidak lengkap ke localStorage
-                    localStorage.setItem('profileStatus', 'incomplete');
-
-                    // Profil INCOMPLETE (Kode aslimu)
-                    if (notifDot) notifDot.style.display = 'block';
-                    if (notifDropdown) {
-                        notifDropdown.innerHTML = `
-            <li>
-                <div style="display: flex; gap: 0.5rem; align-items: start;">
-                    <i data-lucide="alert-circle" style="color: var(--danger-red); width: 16px; margin-top: 2px;"></i>
-                    <div>
-                        <strong style="color: var(--asphalt-dark);">Profil Belum Lengkap</strong><br>
-                        <span style="font-size: 0.8rem; color: var(--text-muted);">Silakan <a href="profile.html" style="color: var(--safety-orange); font-weight: 600;">lengkapi data diri Anda</a> (Opsional)</span>
-                    </div>
-                </div>
-            </li>
-        `;
-                        if (typeof lucide !== 'undefined') lucide.createIcons();
-                    }
-                } else {
-                    // Simpan status lengkap ke localStorage
-                    localStorage.setItem('profileStatus', 'complete');
-
-                    // Profil COMPLETE (Kode aslimu)
-                    if (notifDot) notifDot.style.display = 'none';
-                    if (notifDropdown) {
-                        notifDropdown.innerHTML = `
-            <li>
-                <div style="text-align: center; padding: 1rem 0; color: var(--text-muted);">
-                    <i data-lucide="check-circle" style="color: var(--success-green); width: 24px; margin-bottom: 0.5rem;"></i><br>
-                    Tidak ada notifikasi baru
-                </div>
-            </li>
-        `;
-                        if (typeof lucide !== 'undefined') lucide.createIcons();
-                    }
+                if (window.loadUserNotifications) {
+                    await window.loadUserNotifications({ profile });
                 }
             } else {
                 console.error("Gagal mengambil data dari server:", resData);
@@ -154,24 +116,7 @@ window.onload = async () => {
 
 // 4. Fungsi Logout
 window.logout = function () {
-    // Menghapus data sesi dari localStorage
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userName');
-
-    // Redirect dengan notifikasi jika SweetAlert2 tersedia (opsional tapi disarankan)
-    if (typeof Swal !== 'undefined') {
-        Swal.fire({
-            icon: 'info',
-            title: 'Berhasil Keluar',
-            text: 'Anda telah keluar dari sistem.',
-            confirmButtonColor: '#FF6B00',
-            timer: 1500,
-            showConfirmButton: false
-        }).then(() => {
-            window.location.href = 'login.html';
-        });
-    } else {
-        // Fallback jika SweetAlert2 tidak ter-load
-        window.location.href = 'login.html';
-    }
+    if (window.clearAuthSession) window.clearAuthSession();
+    if (window.showLogoutNotice) window.showLogoutNotice();
+    else window.location.href = 'login.html';
 };

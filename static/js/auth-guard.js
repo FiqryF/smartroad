@@ -1,7 +1,7 @@
 // auth-guard.js
 
-// 1. Instantly check if the JWT token exists in localStorage
-const jwtToken = localStorage.getItem('jwtToken');
+// 1. Instantly check if the JWT token exists in this tab's session
+const jwtToken = sessionStorage.getItem('jwtToken');
 
 if (!jwtToken) {
     // Redirect immediately to login.html if there's no token
@@ -16,7 +16,7 @@ window.authFetch = async function(url, options = {}) {
     }
 
     // Retrieve the token and inject it into the Authorization header
-    const currentToken = localStorage.getItem('jwtToken');
+    const currentToken = sessionStorage.getItem('jwtToken');
     if (currentToken) {
         options.headers['Authorization'] = 'Bearer ' + currentToken;
     }
@@ -30,8 +30,8 @@ window.authFetch = async function(url, options = {}) {
             console.warn('Session expired or unauthorized. Redirecting to login.');
             
             // Clear the invalid/expired token and redirect
-            localStorage.removeItem('jwtToken');
-            localStorage.removeItem('userRole');
+            sessionStorage.removeItem('jwtToken');
+            sessionStorage.removeItem('userRole');
             window.location.replace('login.html');
             return null; // Return null to indicate failure
         }

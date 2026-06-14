@@ -1,14 +1,14 @@
 (function() {
     document.addEventListener('DOMContentLoaded', async () => {
-        const userEmail = localStorage.getItem('userEmail');
+        const userEmail = sessionStorage.getItem('userEmail');
 
         if (!userEmail) {
-            console.error("navbar-manager: Email tidak ditemukan di localStorage. Pengguna mungkin belum login.");
+            console.error("navbar-manager: Email tidak ditemukan di sessionStorage. Pengguna mungkin belum login.");
             return;
         }
 
         try {
-            const response = await fetchWithAuth(`/api/profile/user-profile?email=${encodeURIComponent(userEmail)}`);
+            const response = await fetchWithAuth('/api/profile/user-profile');
             
             if (!response) {
                 console.warn("navbar-manager: Sesi tidak valid atau token kedaluwarsa. Mengalihkan ke halaman login.");

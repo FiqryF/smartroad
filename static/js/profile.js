@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const userEmail = localStorage.getItem('userEmail');
+    const userEmail = sessionStorage.getItem('userEmail');
     if (!userEmail) {
         window.location.href = 'login.html';
         return;
@@ -22,15 +22,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Elemen Password
     const passwordForm = document.getElementById('passwordForm');
 
-    // 1. Mengisi Data Awal secara instan dari LocalStorage (Agar tidak muncul "Memuat...")
-    const userName = localStorage.getItem('userName');
+    // 1. Mengisi Data Awal secara instan dari sessionStorage (Agar tidak muncul "Memuat...")
+    const userName = sessionStorage.getItem('userName');
     if (heroNama && userName) heroNama.textContent = userName;
     if (inputNama && userName) inputNama.value = userName;
     if (inputEmail && userEmail) inputEmail.value = userEmail;
 
     // 2. Fetch Profil Lanjutan dari Server saat dimuat (Untuk mengambil Telepon, Alamat, dan Tanggal Bergabung)
     try {
-        const response = await fetch(`http://127.0.0.1:5000/api/auth/api/profile/user-profile?email=${encodeURIComponent(userEmail)}`);
+        const response = await fetchWithAuth('/api/profile/user-profile');
+        if (!response) return;
         const resData = await response.json();
         
         if (response.ok && resData.data) {
@@ -58,20 +59,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             e.preventDefault();
             
             try {
-                const response = await fetch('http://127.0.0.1:5000/api/auth/api/profile/update-profile', {
+                const response = await fetchWithAuth('/api/profile/update-profile', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        email: userEmail,
                         nama: inputNama.value,
                         telepon: inputTelepon.value,
                         alamat: inputAlamat.value
                     })
                 });
+                if (!response) return;
                 
                 const data = await response.json();
                 if (response.ok) {
-                    localStorage.setItem('userName', inputNama.value);
+                    sessionStorage.setItem('userName', inputNama.value);
                     Swal.fire('Berhasil', data.message, 'success');
                 } else {
                     Swal.fire('Gagal', data.message, 'error');
@@ -87,23 +88,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         passwordForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            const oldPassword = document.getElementById('oldPassword').value;
             const newPassword = document.getElementById('newPassword').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             
+            if (!oldPassword) {
+                Swal.fire('Validasi Gagal', 'Password saat ini wajib diisi!', 'error');
+                return;
+            }
+
             if (newPassword !== confirmPassword) {
                 Swal.fire('Validasi Gagal', 'Konfirmasi password tidak cocok!', 'error');
                 return;
             }
             
             try {
-                const response = await fetch('http://127.0.0.1:5000/api/auth/api/profile/update-password', {
+                const response = await fetchWithAuth('/api/profile/update-password', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        email: userEmail,
+                        old_password: oldPassword,
                         new_password: newPassword
                     })
                 });
+                if (!response) return;
                 
                 const data = await response.json();
                 if (response.ok) {
@@ -127,15 +135,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         photoInput.addEventListener('change', async () => {
             if (photoInput.files.length > 0) {
                 const file = photoInput.files[0];
+                const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+                if (!allowedTypes.includes(file.type)) {
+                    Swal.fire('Gagal', 'Format foto harus JPG, PNG, atau WEBP.', 'error');
+                    photoInput.value = '';
+                    return;
+                }
+                if (file.size > 5 * 1024 * 1024) {
+                    Swal.fire('Gagal', 'Ukuran foto maksimal 5 MB.', 'error');
+                    photoInput.value = '';
+                    return;
+                }
+
                 const formData = new FormData();
-                formData.append('email', userEmail);
                 formData.append('photo', file);
                 
                 try {
-                    const response = await fetch('http://127.0.0.1:5000/api/auth/api/profile/upload-photo', {
+                    const response = await fetchWithAuth('/api/profile/upload-photo', {
                         method: 'POST',
                         body: formData
                     });
+                    if (!response) return;
                     
                     const data = await response.json();
                     if (response.ok) {

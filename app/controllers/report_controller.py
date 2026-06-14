@@ -7,6 +7,34 @@ from flask import current_app
 
 reports_collection = db["reports"] if db is not None else None
 
+ALLOWED_IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
+ALLOWED_IMAGE_MIMETYPES = {"image/jpeg", "image/png", "image/webp"}
+MAX_IMAGE_SIZE = 5 * 1024 * 1024
+
+def _validate_report_image(file):
+    filename = secure_filename(file.filename or "")
+    if not filename or "." not in filename:
+        return None, "Format file tidak valid. Gunakan JPG, PNG, atau WEBP."
+
+    extension = filename.rsplit(".", 1)[1].lower()
+    if extension not in ALLOWED_IMAGE_EXTENSIONS:
+        return None, "Format file tidak didukung. Gunakan JPG, PNG, atau WEBP."
+
+    if (file.mimetype or "").lower() not in ALLOWED_IMAGE_MIMETYPES:
+        return None, "Tipe file tidak valid. Harap unggah file gambar."
+
+    current_pos = file.stream.tell()
+    file.stream.seek(0, os.SEEK_END)
+    file_size = file.stream.tell()
+    file.stream.seek(current_pos)
+
+    if file_size <= 0:
+        return None, "File gambar kosong."
+    if file_size > MAX_IMAGE_SIZE:
+        return None, "Ukuran gambar maksimal 5 MB."
+
+    return filename, None
+
 def save_report(data, file):
     if reports_collection is None:
         return {"status": "error", "message": "Database tidak terhubung"}, 500
@@ -18,7 +46,10 @@ def save_report(data, file):
 
         image_path = ""
         if file and file.filename != '':
-            filename = secure_filename(file.filename)
+            filename, error_message = _validate_report_image(file)
+            if error_message:
+                return {"status": "error", "message": error_message}, 400
+
             unique_filename = f"{int(datetime.now().timestamp())}_{filename}"
             upload_folder = os.path.join(current_app.static_folder, 'uploads', 'reports')
             

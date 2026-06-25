@@ -130,6 +130,248 @@ Backend menyediakan REST API dengan response JSON. Frontend mengambil dan mengir
 
 ---
 
+## Diagram Sistem
+
+Bagian ini menggunakan sintaks **Mermaid**. Jika Markdown viewer mendukung Mermaid, diagram akan tampil otomatis.
+
+### 1. ERD Database
+
+```mermaid
+erDiagram
+    USERS ||--o{ REPORTS : membuat
+    USERS ||--o{ NOTIFICATIONS : menerima
+    USERS ||--o{ CS_MESSAGES : mengirim
+    USERS ||--o{ REPORTS : ditugaskan_sebagai_petugas
+    REPORTS ||--o{ CS_MESSAGES : memiliki
+
+    USERS {
+        ObjectId _id
+        string nama
+        string email
+        string password
+        string telepon
+        string alamat
+        string profile_pic
+        string role
+        datetime created_at
+    }
+
+    REPORTS {
+        ObjectId _id
+        string title
+        string address
+        string province
+        string city
+        string district
+        string category
+        string hazard_level
+        string dimensions
+        string description
+        float lat
+        float lng
+        string image_path
+        string reporter_email
+        string status
+        string assigned_petugas_email
+        string assigned_petugas_name
+        string repair_image_path
+        string completion_note
+        int review_rating
+        string review_text
+        datetime created_at
+        datetime assigned_at
+        datetime completed_at
+        datetime reviewed_at
+    }
+
+    NOTIFICATIONS {
+        ObjectId _id
+        string email
+        string title
+        string message
+        boolean is_read
+        datetime created_at
+    }
+
+    CS_MESSAGES {
+        ObjectId _id
+        string report_id
+        string report_title
+        string reporter_email
+        string sender_email
+        string sender_name
+        string sender_role
+        string message
+        boolean is_read
+        datetime created_at
+    }
+```
+
+### 2. Flowchart Alur Sistem
+
+```mermaid
+flowchart TD
+    A[Pengunjung membuka SmartRoad] --> B{Sudah punya akun?}
+    B -- Belum --> C[Registrasi]
+    B -- Sudah --> D[Login]
+    C --> D
+    D --> E{Role pengguna}
+
+    E -- User --> F[Dashboard User]
+    F --> G[Buat laporan kerusakan jalan]
+    G --> H[Upload foto dan lokasi]
+    H --> I[Simpan laporan ke MongoDB]
+    I --> J[Status: Menunggu]
+    J --> K[User melihat riwayat dan notifikasi]
+
+    E -- Admin --> L[Dashboard Admin]
+    L --> M[Lihat semua laporan]
+    M --> N{Update status}
+    N -- Menunggu --> J
+    N -- Proses --> O[Pilih petugas]
+    O --> P[Kirim notifikasi ke user dan petugas]
+
+    E -- Petugas --> Q[Panel Petugas]
+    Q --> R[Lihat tugas yang diberikan]
+    R --> S[Tangani laporan di lapangan]
+    S --> T[Upload bukti perbaikan]
+    T --> U[Status: Selesai]
+    U --> V[User memberi review]
+```
+
+### 3. Use Case Diagram
+
+```mermaid
+flowchart LR
+    User((User / Masyarakat))
+    Admin((Admin))
+    Petugas((Petugas))
+
+    UC1[Registrasi]
+    UC2[Login]
+    UC3[Mengelola profil]
+    UC4[Membuat laporan]
+    UC5[Upload foto kerusakan]
+    UC6[Melihat riwayat laporan]
+    UC7[Menerima notifikasi]
+    UC8[Chat CS]
+    UC9[Memberi review]
+
+    UC10[Melihat semua laporan]
+    UC11[Mengelola status laporan]
+    UC12[Menugaskan petugas]
+    UC13[Melihat data user]
+    UC14[Mengelola percakapan CS]
+
+    UC15[Melihat tugas]
+    UC16[Melihat lokasi tugas]
+    UC17[Upload bukti perbaikan]
+    UC18[Menyelesaikan laporan]
+
+    User --> UC1
+    User --> UC2
+    User --> UC3
+    User --> UC4
+    User --> UC5
+    User --> UC6
+    User --> UC7
+    User --> UC8
+    User --> UC9
+
+    Admin --> UC2
+    Admin --> UC10
+    Admin --> UC11
+    Admin --> UC12
+    Admin --> UC13
+    Admin --> UC14
+
+    Petugas --> UC2
+    Petugas --> UC7
+    Petugas --> UC15
+    Petugas --> UC16
+    Petugas --> UC17
+    Petugas --> UC18
+```
+
+### 4. Sequence Diagram Pembuatan Laporan
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Frontend as Frontend HTML/JS
+    participant API as Flask REST API
+    participant DB as MongoDB
+    participant File as Static Upload Folder
+
+    User->>Frontend: Mengisi form laporan
+    User->>Frontend: Upload foto kerusakan
+    Frontend->>API: POST /api/reports/submit
+    API->>API: Validasi JWT
+    API->>API: Validasi data dan file gambar
+    API->>File: Simpan foto ke static/uploads/reports
+    API->>DB: Insert dokumen laporan
+    DB-->>API: inserted_id
+    API-->>Frontend: Response success + report_id
+    Frontend-->>User: Tampilkan laporan berhasil dikirim
+```
+
+### 5. Sequence Diagram Update Status dan Penugasan Petugas
+
+```mermaid
+sequenceDiagram
+    actor Admin
+    participant Frontend as Dashboard Admin
+    participant API as Flask REST API
+    participant DB as MongoDB
+    participant User as User Pelapor
+    participant Petugas
+
+    Admin->>Frontend: Pilih laporan
+    Admin->>Frontend: Ubah status menjadi Proses
+    Admin->>Frontend: Pilih petugas
+    Frontend->>API: PUT /api/reports/{id}/status
+    API->>API: Validasi JWT dan role admin
+    API->>DB: Cek laporan
+    API->>DB: Cek user role petugas
+    API->>DB: Update status dan assigned_petugas
+    API->>DB: Insert notifikasi untuk user
+    API->>DB: Insert notifikasi untuk petugas
+    API-->>Frontend: Response success
+    Frontend-->>Admin: Status berhasil diperbarui
+    DB-->>User: Notifikasi status laporan
+    DB-->>Petugas: Notifikasi tugas baru
+```
+
+### 6. Activity Diagram Petugas Menyelesaikan Laporan
+
+```mermaid
+flowchart TD
+    A[Petugas login] --> B[Validasi JWT dan role petugas]
+    B --> C[Ambil daftar tugas dari /api/reports/assigned]
+    C --> D[Pilih laporan]
+    D --> E[Lihat detail dan lokasi]
+    E --> F[Tangani kerusakan di lapangan]
+    F --> G[Upload foto bukti perbaikan]
+    G --> H{File valid?}
+    H -- Tidak --> I[Tampilkan error]
+    H -- Ya --> J[Simpan foto ke static/uploads/repairs]
+    J --> K[Update status laporan menjadi Selesai]
+    K --> L[Buat notifikasi untuk user]
+    L --> M[Laporan selesai]
+```
+
+### 7. State Diagram Status Laporan
+
+```mermaid
+stateDiagram-v2
+    [*] --> Menunggu: User membuat laporan
+    Menunggu --> Proses: Admin menugaskan petugas
+    Proses --> Selesai: Petugas upload bukti perbaikan
+    Selesai --> [*]
+```
+
+---
+
 ## Struktur Project
 
 ```text

@@ -301,6 +301,10 @@
                 <i class="fa-solid fa-users w-5 text-center transition-colors"></i>
                 Manajemen User
             </a>
+            <a href="#" data-target="view-api" class="nav-link nav-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200">
+                <i class="fa-solid fa-code w-5 text-center transition-colors"></i>
+                API & Tech Stack
+            </a>
             <a href="#" data-target="view-pengaturan" class="nav-link nav-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200">
                 <i class="fa-solid fa-gear w-5 text-center transition-colors"></i>
                 Pengaturan
@@ -825,6 +829,857 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= VIEW: API & TECH STACK ================= -->
+        <div id="view-api" class="view-section hidden h-full flex-col">
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 shrink-0 gap-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 tracking-tight">API & Tech Stack</h2>
+                    <p class="text-gray-500 mt-1 text-sm">Dokumentasi teknis endpoint, autentikasi, role akses, dan teknologi yang dipakai SmartRoad.</p>
+                </div>
+                <span class="admin-control px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-600 shadow-sm">
+                    Admin Protected
+                </span>
+            </header>
+
+            <div class="space-y-6 pb-8">
+                <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-5">
+                        <div>
+                            <p class="text-xs font-bold text-safety uppercase tracking-wider mb-2">Panduan Cepat</p>
+                            <h3 class="text-2xl font-extrabold text-gray-900">Peta API SmartRoad</h3>
+                            <p class="text-sm text-gray-500 mt-2 max-w-3xl">Bagian ini membantu admin melihat API berdasarkan fungsi utama: login, profil, laporan, notifikasi, chat CS, petugas, admin, halaman web, dan API eksternal.</p>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3 w-full xl:w-auto">
+                            <div class="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-center">
+                                <p class="text-2xl font-extrabold text-gray-900">23</p>
+                                <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Endpoint</p>
+                            </div>
+                            <div class="bg-orange-50 border border-orange-100 rounded-xl px-4 py-3 text-center">
+                                <p class="text-2xl font-extrabold text-safety">4</p>
+                                <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Prefix API</p>
+                            </div>
+                            <div class="bg-green-50 border border-green-100 rounded-xl px-4 py-3 text-center">
+                                <p class="text-2xl font-extrabold text-green-700">JWT</p>
+                                <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Auth</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                        <div class="flex items-start justify-between gap-4 mb-4">
+                            <div>
+                                <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Auth</p>
+                                <h3 class="text-lg font-bold text-gray-900 mt-1">Login & Register</h3>
+                            </div>
+                            <span class="w-10 h-10 rounded-lg bg-orange-50 text-safety flex items-center justify-center">
+                                <i class="fa-solid fa-key"></i>
+                            </span>
+                        </div>
+                        <div class="space-y-2 text-sm">
+                            <code class="block bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">POST /api/auth/login</code>
+                            <code class="block bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">POST /api/auth/register</code>
+                        </div>
+                    </div>
+
+                    <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                        <div class="flex items-start justify-between gap-4 mb-4">
+                            <div>
+                                <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Profile</p>
+                                <h3 class="text-lg font-bold text-gray-900 mt-1">Data Akun User</h3>
+                            </div>
+                            <span class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                                <i class="fa-solid fa-user"></i>
+                            </span>
+                        </div>
+                        <div class="space-y-2 text-sm">
+                            <code class="block bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">GET /api/profile/user-profile</code>
+                            <code class="block bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">POST /api/profile/update-profile</code>
+                            <code class="block bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">POST /api/profile/upload-photo</code>
+                        </div>
+                    </div>
+
+                    <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                        <div class="flex items-start justify-between gap-4 mb-4">
+                            <div>
+                                <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Reports</p>
+                                <h3 class="text-lg font-bold text-gray-900 mt-1">Laporan Jalan</h3>
+                            </div>
+                            <span class="w-10 h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
+                                <i class="fa-solid fa-file-lines"></i>
+                            </span>
+                        </div>
+                        <div class="space-y-2 text-sm">
+                            <code class="block bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">POST /api/reports/submit</code>
+                            <code class="block bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">GET /api/reports/user</code>
+                            <code class="block bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">GET /api/reports/all</code>
+                        </div>
+                    </div>
+
+                    <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                        <div class="flex items-start justify-between gap-4 mb-4">
+                            <div>
+                                <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Admin</p>
+                                <h3 class="text-lg font-bold text-gray-900 mt-1">Manajemen Sistem</h3>
+                            </div>
+                            <span class="w-10 h-10 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center">
+                                <i class="fa-solid fa-user-shield"></i>
+                            </span>
+                        </div>
+                        <div class="space-y-2 text-sm">
+                            <code class="block bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">GET /api/admin/users</code>
+                            <code class="block bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">GET /api/admin/petugas</code>
+                            <code class="block bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">PUT /api/reports/&lt;id&gt;/status</code>
+                        </div>
+                    </div>
+
+                    <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                        <div class="flex items-start justify-between gap-4 mb-4">
+                            <div>
+                                <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Petugas & CS</p>
+                                <h3 class="text-lg font-bold text-gray-900 mt-1">Tugas dan Chat</h3>
+                            </div>
+                            <span class="w-10 h-10 rounded-lg bg-green-50 text-green-700 flex items-center justify-center">
+                                <i class="fa-solid fa-headset"></i>
+                            </span>
+                        </div>
+                        <div class="space-y-2 text-sm">
+                            <code class="block bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">GET /api/reports/assigned</code>
+                            <code class="block bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">POST /api/reports/&lt;id&gt;/complete</code>
+                            <code class="block bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">GET/POST /api/reports/&lt;id&gt;/cs-messages</code>
+                        </div>
+                    </div>
+
+                    <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                        <div class="flex items-start justify-between gap-4 mb-4">
+                            <div>
+                                <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Public & External</p>
+                                <h3 class="text-lg font-bold text-gray-900 mt-1">Halaman dan API Luar</h3>
+                            </div>
+                            <span class="w-10 h-10 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center">
+                                <i class="fa-solid fa-globe"></i>
+                            </span>
+                        </div>
+                        <div class="space-y-2 text-sm">
+                            <code class="block bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">GET /api/reports/public-summary</code>
+                            <code class="block bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">GET /&lt;page&gt;.html</code>
+                            <code class="block bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">Emsifa, UI Avatars, Leaflet</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                        <div class="w-10 h-10 rounded-lg bg-orange-50 text-safety flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-server"></i>
+                        </div>
+                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Base API</p>
+                        <h3 class="text-lg font-bold text-gray-900">Internal Flask API</h3>
+                        <code class="mt-3 block text-sm bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 text-gray-700">/api</code>
+                    </div>
+
+                    <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                        <div class="w-10 h-10 rounded-lg bg-green-50 text-green-600 flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Autentikasi</p>
+                        <h3 class="text-lg font-bold text-gray-900">JWT Bearer Token</h3>
+                        <code class="mt-3 block text-sm bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 text-gray-700">Authorization: Bearer &lt;token&gt;</code>
+                    </div>
+
+                    <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                        <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-user-lock"></i>
+                        </div>
+                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Akses Admin</p>
+                        <h3 class="text-lg font-bold text-gray-900">Role Guard</h3>
+                        <code class="mt-3 block text-sm bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 text-gray-700">role = admin</code>
+                    </div>
+                </div>
+
+                <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="mb-6">
+                        <p class="text-xs font-bold text-safety uppercase tracking-wider mb-2">Endpoint Internal</p>
+                        <h3 class="text-xl font-extrabold text-gray-900">API Backend Berdasarkan Bagian</h3>
+                        <p class="text-sm text-gray-500 mt-1">Setiap bagian di bawah menjelaskan fungsi modul, endpoint yang dipakai, autentikasi, role akses, dan file backend tempat endpoint dibuat.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-5">
+                        <section class="border border-gray-100 rounded-xl p-5 bg-gray-50/60">
+                            <div class="flex items-start gap-3 mb-4">
+                                <span class="w-10 h-10 rounded-lg bg-orange-50 text-safety flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-key"></i>
+                                </span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Auth API</h4>
+                                    <p class="text-sm text-gray-500">Bagian ini dipakai untuk registrasi akun dan login. Login menghasilkan JWT token untuk akses halaman user, petugas, dan admin.</p>
+                                    <p class="text-xs text-gray-400 mt-1 font-mono">File: app/routes/auth_routes.py</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="bg-white border border-gray-100 rounded-lg p-3">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="text-xs font-bold text-safety">POST</span>
+                                        <code class="text-sm text-gray-900">/api/auth/register</code>
+                                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-md">Publik</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-2">Membuat akun user baru.</p>
+                                </div>
+                                <div class="bg-white border border-gray-100 rounded-lg p-3">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="text-xs font-bold text-safety">POST</span>
+                                        <code class="text-sm text-gray-900">/api/auth/login</code>
+                                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-md">Publik</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-2">Login dan mengembalikan access token JWT.</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="border border-gray-100 rounded-xl p-5 bg-gray-50/60">
+                            <div class="flex items-start gap-3 mb-4">
+                                <span class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-user"></i>
+                                </span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Profile API</h4>
+                                    <p class="text-sm text-gray-500">Bagian ini dipakai untuk mengambil dan mengubah data profil user, termasuk password dan foto profil.</p>
+                                    <p class="text-xs text-gray-400 mt-1 font-mono">File: app/routes/profile_routes.py</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="bg-white border border-gray-100 rounded-lg p-3"><span class="text-xs font-bold text-green-700 mr-2">GET</span><code class="text-sm text-gray-900">/api/profile/user-profile</code><p class="text-xs text-gray-500 mt-2">Mengambil profil user login. Auth: JWT.</p></div>
+                                <div class="bg-white border border-gray-100 rounded-lg p-3"><span class="text-xs font-bold text-safety mr-2">POST</span><code class="text-sm text-gray-900">/api/profile/update-profile</code><p class="text-xs text-gray-500 mt-2">Update nama, telepon, dan alamat. Auth: JWT.</p></div>
+                                <div class="bg-white border border-gray-100 rounded-lg p-3"><span class="text-xs font-bold text-safety mr-2">POST</span><code class="text-sm text-gray-900">/api/profile/update-password</code><p class="text-xs text-gray-500 mt-2">Update password. Auth: JWT.</p></div>
+                                <div class="bg-white border border-gray-100 rounded-lg p-3"><span class="text-xs font-bold text-safety mr-2">POST</span><code class="text-sm text-gray-900">/api/profile/upload-photo</code><p class="text-xs text-gray-500 mt-2">Upload foto profil. Auth: JWT.</p></div>
+                            </div>
+                        </section>
+
+                        <section class="border border-gray-100 rounded-xl p-5 bg-gray-50/60">
+                            <div class="flex items-start gap-3 mb-4">
+                                <span class="w-10 h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-file-lines"></i>
+                                </span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Reports API</h4>
+                                    <p class="text-sm text-gray-500">Bagian ini mengelola laporan kerusakan jalan, riwayat laporan, status, review, notifikasi, dan ringkasan publik.</p>
+                                    <p class="text-xs text-gray-400 mt-1 font-mono">File: app/routes/report_routes.py</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="bg-white border border-gray-100 rounded-lg p-3"><span class="text-xs font-bold text-green-700 mr-2">GET</span><code class="text-sm text-gray-900">/api/reports/public-summary</code><p class="text-xs text-gray-500 mt-2">Statistik publik di halaman utama. Auth: tidak.</p></div>
+                                <div class="bg-white border border-gray-100 rounded-lg p-3"><span class="text-xs font-bold text-safety mr-2">POST</span><code class="text-sm text-gray-900">/api/reports/submit</code><p class="text-xs text-gray-500 mt-2">Kirim laporan kerusakan jalan. Auth: JWT user.</p></div>
+                                <div class="bg-white border border-gray-100 rounded-lg p-3"><span class="text-xs font-bold text-green-700 mr-2">GET</span><code class="text-sm text-gray-900">/api/reports/user</code><p class="text-xs text-gray-500 mt-2">Riwayat laporan milik user login. Auth: JWT.</p></div>
+                                <div class="bg-white border border-gray-100 rounded-lg p-3"><span class="text-xs font-bold text-safety mr-2">POST</span><code class="text-sm text-gray-900">/api/reports/&lt;report_id&gt;/review</code><p class="text-xs text-gray-500 mt-2">Review laporan selesai. Auth: JWT pemilik laporan.</p></div>
+                                <div class="bg-white border border-gray-100 rounded-lg p-3"><span class="text-xs font-bold text-green-700 mr-2">GET</span><code class="text-sm text-gray-900">/api/reports/notifications/user</code><p class="text-xs text-gray-500 mt-2">Ambil notifikasi user. Auth: JWT.</p></div>
+                                <div class="bg-white border border-gray-100 rounded-lg p-3"><span class="text-xs font-bold text-blue-700 mr-2">PUT</span><code class="text-sm text-gray-900">/api/reports/notifications/user/read</code><p class="text-xs text-gray-500 mt-2">Tandai notifikasi sudah dibaca. Auth: JWT.</p></div>
+                            </div>
+                        </section>
+
+                        <section class="border border-gray-100 rounded-xl p-5 bg-gray-50/60">
+                            <div class="flex items-start gap-3 mb-4">
+                                <span class="w-10 h-10 rounded-lg bg-orange-50 text-safety flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-user-shield"></i>
+                                </span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Admin API</h4>
+                                    <p class="text-sm text-gray-500">Bagian ini hanya untuk admin: melihat semua laporan, mengubah status, melihat user, memilih petugas, dan memantau chat CS.</p>
+                                    <p class="text-xs text-gray-400 mt-1 font-mono">File: app/routes/admin_routes.py dan app/routes/report_routes.py</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="bg-white border border-gray-100 rounded-lg p-3"><span class="text-xs font-bold text-green-700 mr-2">GET</span><code class="text-sm text-gray-900">/api/reports/all</code><p class="text-xs text-gray-500 mt-2">Semua laporan untuk dashboard admin. Auth: JWT admin.</p></div>
+                                <div class="bg-white border border-gray-100 rounded-lg p-3"><span class="text-xs font-bold text-blue-700 mr-2">PUT</span><code class="text-sm text-gray-900">/api/reports/&lt;report_id&gt;/status</code><p class="text-xs text-gray-500 mt-2">Update status dan assign petugas. Auth: JWT admin.</p></div>
+                                <div class="bg-white border border-gray-100 rounded-lg p-3"><span class="text-xs font-bold text-green-700 mr-2">GET</span><code class="text-sm text-gray-900">/api/admin/users</code><p class="text-xs text-gray-500 mt-2">Daftar semua user. Auth: JWT admin.</p></div>
+                                <div class="bg-white border border-gray-100 rounded-lg p-3"><span class="text-xs font-bold text-green-700 mr-2">GET</span><code class="text-sm text-gray-900">/api/admin/petugas</code><p class="text-xs text-gray-500 mt-2">Daftar petugas. Auth: JWT admin.</p></div>
+                                <div class="bg-white border border-gray-100 rounded-lg p-3"><span class="text-xs font-bold text-green-700 mr-2">GET</span><code class="text-sm text-gray-900">/api/admin/dashboard-stats</code><p class="text-xs text-gray-500 mt-2">Statistik dashboard contoh. Auth: JWT admin.</p></div>
+                            </div>
+                        </section>
+
+                        <section class="border border-gray-100 rounded-xl p-5 bg-gray-50/60">
+                            <div class="flex items-start gap-3 mb-4">
+                                <span class="w-10 h-10 rounded-lg bg-green-50 text-green-700 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-person-digging"></i>
+                                </span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Petugas API</h4>
+                                    <p class="text-sm text-gray-500">Bagian ini dipakai petugas lapangan untuk melihat tugas dan menyelesaikan laporan dengan bukti perbaikan.</p>
+                                    <p class="text-xs text-gray-400 mt-1 font-mono">File: app/routes/report_routes.py</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="bg-white border border-gray-100 rounded-lg p-3"><span class="text-xs font-bold text-green-700 mr-2">GET</span><code class="text-sm text-gray-900">/api/reports/assigned</code><p class="text-xs text-gray-500 mt-2">Laporan yang ditugaskan. Auth: JWT petugas.</p></div>
+                                <div class="bg-white border border-gray-100 rounded-lg p-3"><span class="text-xs font-bold text-safety mr-2">POST</span><code class="text-sm text-gray-900">/api/reports/&lt;report_id&gt;/complete</code><p class="text-xs text-gray-500 mt-2">Selesaikan laporan dan upload bukti. Auth: JWT petugas.</p></div>
+                            </div>
+                        </section>
+
+                        <section class="border border-gray-100 rounded-xl p-5 bg-gray-50/60">
+                            <div class="flex items-start gap-3 mb-4">
+                                <span class="w-10 h-10 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-headset"></i>
+                                </span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">CS Chat API</h4>
+                                    <p class="text-sm text-gray-500">Bagian ini dipakai user dan admin untuk percakapan CS berdasarkan laporan tertentu.</p>
+                                    <p class="text-xs text-gray-400 mt-1 font-mono">File: app/routes/report_routes.py</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="bg-white border border-gray-100 rounded-lg p-3"><span class="text-xs font-bold text-green-700 mr-2">GET</span><code class="text-sm text-gray-900">/api/reports/cs/conversations</code><p class="text-xs text-gray-500 mt-2">Daftar percakapan CS. Auth: JWT admin.</p></div>
+                                <div class="bg-white border border-gray-100 rounded-lg p-3"><span class="text-xs font-bold text-green-700 mr-2">GET</span><code class="text-sm text-gray-900">/api/reports/&lt;report_id&gt;/cs-messages</code><p class="text-xs text-gray-500 mt-2">Ambil pesan chat laporan. Auth: JWT admin/pemilik laporan.</p></div>
+                                <div class="bg-white border border-gray-100 rounded-lg p-3"><span class="text-xs font-bold text-safety mr-2">POST</span><code class="text-sm text-gray-900">/api/reports/&lt;report_id&gt;/cs-messages</code><p class="text-xs text-gray-500 mt-2">Kirim pesan chat laporan. Auth: JWT admin/pemilik laporan.</p></div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+
+                <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hidden">
+                    <div class="data-panel-header px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">Tech Stack</h3>
+                            <p class="text-sm text-gray-500 mt-1">Teknologi utama yang digunakan pada aplikasi ini.</p>
+                        </div>
+                        <i class="fa-solid fa-layer-group text-safety"></i>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 p-6">
+                        <div class="border border-gray-100 rounded-xl p-4">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Backend</p>
+                            <h4 class="font-bold text-gray-900">Python Flask</h4>
+                            <p class="text-sm text-gray-500 mt-1">Blueprint route, controller, JSON response, dan upload file.</p>
+                        </div>
+                        <div class="border border-gray-100 rounded-xl p-4">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Database</p>
+                            <h4 class="font-bold text-gray-900">MongoDB</h4>
+                            <p class="text-sm text-gray-500 mt-1">Koleksi utama: users, reports, notifications, cs_messages.</p>
+                        </div>
+                        <div class="border border-gray-100 rounded-xl p-4">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Auth</p>
+                            <h4 class="font-bold text-gray-900">Flask JWT Extended</h4>
+                            <p class="text-sm text-gray-500 mt-1">Token login menyimpan identity email dan claim role.</p>
+                        </div>
+                        <div class="border border-gray-100 rounded-xl p-4">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Password</p>
+                            <h4 class="font-bold text-gray-900">bcrypt</h4>
+                            <p class="text-sm text-gray-500 mt-1">Hash dan verifikasi password user.</p>
+                        </div>
+                        <div class="border border-gray-100 rounded-xl p-4">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Frontend</p>
+                            <h4 class="font-bold text-gray-900">HTML, Tailwind, JavaScript</h4>
+                            <p class="text-sm text-gray-500 mt-1">Dashboard admin memakai template HTML dan vanilla JS.</p>
+                        </div>
+                        <div class="border border-gray-100 rounded-xl p-4">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Chart</p>
+                            <h4 class="font-bold text-gray-900">Chart.js</h4>
+                            <p class="text-sm text-gray-500 mt-1">Grafik tren laporan dan kategori kerusakan.</p>
+                        </div>
+                        <div class="border border-gray-100 rounded-xl p-4">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Map</p>
+                            <h4 class="font-bold text-gray-900">Leaflet</h4>
+                            <p class="text-sm text-gray-500 mt-1">Peta koordinat laporan dan marker status.</p>
+                        </div>
+                        <div class="border border-gray-100 rounded-xl p-4">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Icon</p>
+                            <h4 class="font-bold text-gray-900">Font Awesome</h4>
+                            <p class="text-sm text-gray-500 mt-1">Ikon navigasi, tombol, dan panel admin.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="data-panel-header px-6 py-4 border-b border-gray-100">
+                        <h3 class="text-lg font-bold text-gray-900">Detail Endpoint Internal</h3>
+                        <p class="text-sm text-gray-500 mt-1">Referensi lengkap endpoint backend. Gunakan kartu kategori di atas untuk membaca cepat.</p>
+                    </div>
+                    <div class="overflow-x-auto max-h-[520px] overflow-y-auto">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="bg-gray-50/50 text-gray-500 uppercase text-xs font-bold tracking-wider">
+                                <tr>
+                                    <th class="px-6 py-4 border-b border-gray-100">Method</th>
+                                    <th class="px-6 py-4 border-b border-gray-100">Endpoint</th>
+                                    <th class="px-6 py-4 border-b border-gray-100">Auth</th>
+                                    <th class="px-6 py-4 border-b border-gray-100">Role</th>
+                                    <th class="px-6 py-4 border-b border-gray-100">Fungsi</th>
+                                    <th class="px-6 py-4 border-b border-gray-100">File Backend</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr>
+                                    <td class="px-6 py-4 font-bold text-safety">POST</td>
+                                    <td class="px-6 py-4 font-mono text-gray-800">/api/auth/register</td>
+                                    <td class="px-6 py-4">Tidak</td>
+                                    <td class="px-6 py-4">Publik</td>
+                                    <td class="px-6 py-4 text-gray-600">Registrasi user baru dengan role default user.</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">app/routes/auth_routes.py</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-bold text-safety">POST</td>
+                                    <td class="px-6 py-4 font-mono text-gray-800">/api/auth/login</td>
+                                    <td class="px-6 py-4">Tidak</td>
+                                    <td class="px-6 py-4">Publik</td>
+                                    <td class="px-6 py-4 text-gray-600">Login user dan menghasilkan JWT access token.</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">app/routes/auth_routes.py</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-bold text-green-700">GET</td>
+                                    <td class="px-6 py-4 font-mono text-gray-800">/api/profile/user-profile</td>
+                                    <td class="px-6 py-4">JWT</td>
+                                    <td class="px-6 py-4">User login</td>
+                                    <td class="px-6 py-4 text-gray-600">Mengambil data profil user berdasarkan email dari token.</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">app/routes/profile_routes.py</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-bold text-safety">POST</td>
+                                    <td class="px-6 py-4 font-mono text-gray-800">/api/profile/update-profile</td>
+                                    <td class="px-6 py-4">JWT</td>
+                                    <td class="px-6 py-4">User login</td>
+                                    <td class="px-6 py-4 text-gray-600">Update nama, telepon, dan alamat user.</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">app/routes/profile_routes.py</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-bold text-safety">POST</td>
+                                    <td class="px-6 py-4 font-mono text-gray-800">/api/profile/update-password</td>
+                                    <td class="px-6 py-4">JWT</td>
+                                    <td class="px-6 py-4">User login</td>
+                                    <td class="px-6 py-4 text-gray-600">Mengubah password setelah password lama valid.</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">app/routes/profile_routes.py</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-bold text-safety">POST</td>
+                                    <td class="px-6 py-4 font-mono text-gray-800">/api/profile/upload-photo</td>
+                                    <td class="px-6 py-4">JWT</td>
+                                    <td class="px-6 py-4">User login</td>
+                                    <td class="px-6 py-4 text-gray-600">Upload foto profil user ke folder static/uploads.</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">app/routes/profile_routes.py</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-bold text-green-700">GET</td>
+                                    <td class="px-6 py-4 font-mono text-gray-800">/api/reports/public-summary</td>
+                                    <td class="px-6 py-4">Tidak</td>
+                                    <td class="px-6 py-4">Publik</td>
+                                    <td class="px-6 py-4 text-gray-600">Mengambil statistik publik, laporan selesai, dan review.</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">app/routes/report_routes.py</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-bold text-safety">POST</td>
+                                    <td class="px-6 py-4 font-mono text-gray-800">/api/reports/submit</td>
+                                    <td class="px-6 py-4">JWT</td>
+                                    <td class="px-6 py-4">User login</td>
+                                    <td class="px-6 py-4 text-gray-600">Mengirim laporan kerusakan jalan dengan foto dan koordinat.</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">app/routes/report_routes.py</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-bold text-green-700">GET</td>
+                                    <td class="px-6 py-4 font-mono text-gray-800">/api/reports/user</td>
+                                    <td class="px-6 py-4">JWT</td>
+                                    <td class="px-6 py-4">User login</td>
+                                    <td class="px-6 py-4 text-gray-600">Mengambil daftar laporan milik user login.</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">app/routes/report_routes.py</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-bold text-safety">POST</td>
+                                    <td class="px-6 py-4 font-mono text-gray-800">/api/reports/&lt;report_id&gt;/review</td>
+                                    <td class="px-6 py-4">JWT</td>
+                                    <td class="px-6 py-4">Pemilik laporan</td>
+                                    <td class="px-6 py-4 text-gray-600">Memberi rating dan review pada laporan yang sudah selesai.</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">app/routes/report_routes.py</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-bold text-green-700">GET</td>
+                                    <td class="px-6 py-4 font-mono text-gray-800">/api/reports/&lt;report_id&gt;/cs-messages</td>
+                                    <td class="px-6 py-4">JWT</td>
+                                    <td class="px-6 py-4">Admin/Pemilik laporan</td>
+                                    <td class="px-6 py-4 text-gray-600">Mengambil isi chat CS untuk laporan tertentu.</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">app/routes/report_routes.py</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-bold text-safety">POST</td>
+                                    <td class="px-6 py-4 font-mono text-gray-800">/api/reports/&lt;report_id&gt;/cs-messages</td>
+                                    <td class="px-6 py-4">JWT</td>
+                                    <td class="px-6 py-4">Admin/Pemilik laporan</td>
+                                    <td class="px-6 py-4 text-gray-600">Mengirim pesan chat CS pada laporan tertentu.</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">app/routes/report_routes.py</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-bold text-green-700">GET</td>
+                                    <td class="px-6 py-4 font-mono text-gray-800">/api/reports/notifications/user</td>
+                                    <td class="px-6 py-4">JWT</td>
+                                    <td class="px-6 py-4">User login</td>
+                                    <td class="px-6 py-4 text-gray-600">Mengambil semua notifikasi untuk user login.</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">app/routes/report_routes.py</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-bold text-blue-700">PUT</td>
+                                    <td class="px-6 py-4 font-mono text-gray-800">/api/reports/notifications/user/read</td>
+                                    <td class="px-6 py-4">JWT</td>
+                                    <td class="px-6 py-4">User login</td>
+                                    <td class="px-6 py-4 text-gray-600">Menandai notifikasi user sebagai sudah dibaca.</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">app/routes/report_routes.py</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-bold text-green-700">GET</td>
+                                    <td class="px-6 py-4 font-mono text-gray-800">/api/reports/all</td>
+                                    <td class="px-6 py-4">JWT</td>
+                                    <td class="px-6 py-4"><span class="px-2 py-1 rounded-md bg-orange-50 text-safety font-bold text-xs">admin</span></td>
+                                    <td class="px-6 py-4 text-gray-600">Mengambil semua laporan untuk dashboard admin.</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">app/routes/report_routes.py</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-bold text-blue-700">PUT</td>
+                                    <td class="px-6 py-4 font-mono text-gray-800">/api/reports/&lt;report_id&gt;/status</td>
+                                    <td class="px-6 py-4">JWT</td>
+                                    <td class="px-6 py-4"><span class="px-2 py-1 rounded-md bg-orange-50 text-safety font-bold text-xs">admin</span></td>
+                                    <td class="px-6 py-4 text-gray-600">Mengubah status laporan dan menugaskan petugas.</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">app/routes/report_routes.py</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-bold text-green-700">GET</td>
+                                    <td class="px-6 py-4 font-mono text-gray-800">/api/reports/cs/conversations</td>
+                                    <td class="px-6 py-4">JWT</td>
+                                    <td class="px-6 py-4"><span class="px-2 py-1 rounded-md bg-orange-50 text-safety font-bold text-xs">admin</span></td>
+                                    <td class="px-6 py-4 text-gray-600">Mengambil daftar semua percakapan CS untuk admin.</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">app/routes/report_routes.py</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-bold text-green-700">GET</td>
+                                    <td class="px-6 py-4 font-mono text-gray-800">/api/reports/assigned</td>
+                                    <td class="px-6 py-4">JWT</td>
+                                    <td class="px-6 py-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 font-bold text-xs">petugas</span></td>
+                                    <td class="px-6 py-4 text-gray-600">Mengambil laporan yang ditugaskan kepada petugas login.</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">app/routes/report_routes.py</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-bold text-safety">POST</td>
+                                    <td class="px-6 py-4 font-mono text-gray-800">/api/reports/&lt;report_id&gt;/complete</td>
+                                    <td class="px-6 py-4">JWT</td>
+                                    <td class="px-6 py-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 font-bold text-xs">petugas</span></td>
+                                    <td class="px-6 py-4 text-gray-600">Menyelesaikan laporan dan upload foto bukti perbaikan.</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">app/routes/report_routes.py</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-bold text-green-700">GET</td>
+                                    <td class="px-6 py-4 font-mono text-gray-800">/api/admin/dashboard-stats</td>
+                                    <td class="px-6 py-4">JWT</td>
+                                    <td class="px-6 py-4"><span class="px-2 py-1 rounded-md bg-orange-50 text-safety font-bold text-xs">admin</span></td>
+                                    <td class="px-6 py-4 text-gray-600">Mengambil statistik dashboard contoh.</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">app/routes/admin_routes.py</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-bold text-green-700">GET</td>
+                                    <td class="px-6 py-4 font-mono text-gray-800">/api/admin/users</td>
+                                    <td class="px-6 py-4">JWT</td>
+                                    <td class="px-6 py-4"><span class="px-2 py-1 rounded-md bg-orange-50 text-safety font-bold text-xs">admin</span></td>
+                                    <td class="px-6 py-4 text-gray-600">Mengambil semua user tanpa password.</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">app/routes/admin_routes.py</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-bold text-green-700">GET</td>
+                                    <td class="px-6 py-4 font-mono text-gray-800">/api/admin/petugas</td>
+                                    <td class="px-6 py-4">JWT</td>
+                                    <td class="px-6 py-4"><span class="px-2 py-1 rounded-md bg-orange-50 text-safety font-bold text-xs">admin</span></td>
+                                    <td class="px-6 py-4 text-gray-600">Mengambil daftar user dengan role petugas.</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">app/routes/admin_routes.py</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="mb-6">
+                        <p class="text-xs font-bold text-safety uppercase tracking-wider mb-2">API Eksternal</p>
+                        <h3 class="text-xl font-extrabold text-gray-900">API dari Luar Aplikasi</h3>
+                        <p class="text-sm text-gray-500 mt-1">Bagian ini adalah layanan pihak luar yang dipakai frontend untuk data wilayah, avatar, chart, dan peta.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                        <div class="border border-gray-100 rounded-xl p-4 bg-gray-50/60">
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                                    <i class="fa-solid fa-map"></i>
+                                </span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Emsifa Wilayah Indonesia</h4>
+                                    <p class="text-xs text-gray-500">Dipakai di halaman laporan.</p>
+                                </div>
+                            </div>
+                            <code class="block text-xs bg-white border border-gray-100 rounded-lg p-2 text-gray-700 mb-2">/provinces.json</code>
+                            <code class="block text-xs bg-white border border-gray-100 rounded-lg p-2 text-gray-700 mb-2">/regencies/&lt;idProvinsi&gt;.json</code>
+                            <code class="block text-xs bg-white border border-gray-100 rounded-lg p-2 text-gray-700">/districts/&lt;idKota&gt;.json</code>
+                            <p class="text-xs text-gray-500 mt-3">Fungsi: mengambil provinsi, kota/kabupaten, dan kecamatan.</p>
+                        </div>
+
+                        <div class="border border-gray-100 rounded-xl p-4 bg-gray-50/60">
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="w-9 h-9 rounded-lg bg-orange-50 text-safety flex items-center justify-center">
+                                    <i class="fa-solid fa-id-badge"></i>
+                                </span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">UI Avatars</h4>
+                                    <p class="text-xs text-gray-500">Dipakai di template dan file JS.</p>
+                                </div>
+                            </div>
+                            <code class="block text-xs bg-white border border-gray-100 rounded-lg p-2 text-gray-700">https://ui-avatars.com/api/</code>
+                            <p class="text-xs text-gray-500 mt-3">Fungsi: membuat avatar otomatis dari nama user, admin, atau petugas.</p>
+                        </div>
+
+                        <div class="border border-gray-100 rounded-xl p-4 bg-gray-50/60">
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="w-9 h-9 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center">
+                                    <i class="fa-solid fa-user-group"></i>
+                                </span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">RandomUser Portraits</h4>
+                                    <p class="text-xs text-gray-500">Dipakai di halaman utama.</p>
+                                </div>
+                            </div>
+                            <code class="block text-xs bg-white border border-gray-100 rounded-lg p-2 text-gray-700">https://randomuser.me/api/portraits/...</code>
+                            <p class="text-xs text-gray-500 mt-3">Fungsi: gambar avatar testimoni statis di landing page.</p>
+                        </div>
+
+                        <div class="border border-gray-100 rounded-xl p-4 bg-gray-50/60">
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="w-9 h-9 rounded-lg bg-green-50 text-green-700 flex items-center justify-center">
+                                    <i class="fa-solid fa-chart-line"></i>
+                                </span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Chart.js CDN</h4>
+                                    <p class="text-xs text-gray-500">Dipakai di dashboard admin.</p>
+                                </div>
+                            </div>
+                            <code class="block text-xs bg-white border border-gray-100 rounded-lg p-2 text-gray-700">https://cdn.jsdelivr.net/npm/chart.js</code>
+                            <p class="text-xs text-gray-500 mt-3">Fungsi: membuat grafik tren laporan dan kategori kerusakan.</p>
+                        </div>
+
+                        <div class="border border-gray-100 rounded-xl p-4 bg-gray-50/60">
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="w-9 h-9 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                </span>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Leaflet CDN</h4>
+                                    <p class="text-xs text-gray-500">Dipakai di dashboard admin.</p>
+                                </div>
+                            </div>
+                            <code class="block text-xs bg-white border border-gray-100 rounded-lg p-2 text-gray-700">https://unpkg.com/leaflet@1.9.4/...</code>
+                            <p class="text-xs text-gray-500 mt-3">Fungsi: menampilkan peta dan titik koordinat laporan.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">Alur Autentikasi Admin</h3>
+                        <div class="space-y-4">
+                            <div class="flex gap-3">
+                                <span class="w-7 h-7 rounded-lg bg-orange-50 text-safety flex items-center justify-center text-xs font-bold shrink-0">1</span>
+                                <p class="text-sm text-gray-600">Admin login melalui endpoint <code class="font-mono text-gray-800">POST /api/auth/login</code>.</p>
+                            </div>
+                            <div class="flex gap-3">
+                                <span class="w-7 h-7 rounded-lg bg-orange-50 text-safety flex items-center justify-center text-xs font-bold shrink-0">2</span>
+                                <p class="text-sm text-gray-600">Backend membuat JWT dengan identity email dan claim <code class="font-mono text-gray-800">role=admin</code>.</p>
+                            </div>
+                            <div class="flex gap-3">
+                                <span class="w-7 h-7 rounded-lg bg-orange-50 text-safety flex items-center justify-center text-xs font-bold shrink-0">3</span>
+                                <p class="text-sm text-gray-600">Token disimpan di <code class="font-mono text-gray-800">sessionStorage.jwtToken</code>.</p>
+                            </div>
+                            <div class="flex gap-3">
+                                <span class="w-7 h-7 rounded-lg bg-orange-50 text-safety flex items-center justify-center text-xs font-bold shrink-0">4</span>
+                                <p class="text-sm text-gray-600"><code class="font-mono text-gray-800">window.authFetch()</code> mengirim header Authorization ke setiap request admin.</p>
+                            </div>
+                            <div class="flex gap-3">
+                                <span class="w-7 h-7 rounded-lg bg-orange-50 text-safety flex items-center justify-center text-xs font-bold shrink-0">5</span>
+                                <p class="text-sm text-gray-600">Backend mengecek JWT dan decorator <code class="font-mono text-gray-800">@admin_required()</code>.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">Payload Penting</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Update Status</p>
+                                <pre class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-sm text-gray-700 overflow-x-auto"><code>{
+  "status": "Proses",
+  "assigned_petugas_email": "petugas@email.com"
+}</code></pre>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Balasan CS</p>
+                                <pre class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-sm text-gray-700 overflow-x-auto"><code>{
+  "message": "Laporan sedang kami tindak lanjuti.",
+  "sender_name": "Admin CS"
+}</code></pre>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Status Valid</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-3 py-1 rounded-md bg-red-50 text-red-700 text-xs font-bold">Menunggu</span>
+                                    <span class="px-3 py-1 rounded-md bg-orange-50 text-safety text-xs font-bold">Proses</span>
+                                    <span class="px-3 py-1 rounded-md bg-green-50 text-green-700 text-xs font-bold">Selesai</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 hidden">
+                    <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="data-panel-header px-6 py-4 border-b border-gray-100">
+                            <h3 class="text-lg font-bold text-gray-900">Route Halaman Web</h3>
+                            <p class="text-sm text-gray-500 mt-1">Route HTML yang dirender oleh Flask dari folder templates.</p>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm whitespace-nowrap">
+                                <thead class="bg-gray-50/50 text-gray-500 uppercase text-xs font-bold tracking-wider">
+                                    <tr>
+                                        <th class="px-6 py-4 border-b border-gray-100">Method</th>
+                                        <th class="px-6 py-4 border-b border-gray-100">Route</th>
+                                        <th class="px-6 py-4 border-b border-gray-100">Template</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    <tr>
+                                        <td class="px-6 py-4 font-bold text-green-700">GET</td>
+                                        <td class="px-6 py-4 font-mono text-gray-800">/</td>
+                                        <td class="px-6 py-4 font-mono text-gray-600">templates/index.html</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 font-bold text-green-700">GET</td>
+                                        <td class="px-6 py-4 font-mono text-gray-800">/&lt;page&gt;.html</td>
+                                        <td class="px-6 py-4 font-mono text-gray-600">templates/&lt;page&gt;.html</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 font-bold text-green-700">GET</td>
+                                        <td class="px-6 py-4 font-mono text-gray-800">/dashboard-admin.html</td>
+                                        <td class="px-6 py-4 font-mono text-gray-600">templates/dashboard-admin.html</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 font-bold text-green-700">GET</td>
+                                        <td class="px-6 py-4 font-mono text-gray-800">/dashboard.html</td>
+                                        <td class="px-6 py-4 font-mono text-gray-600">templates/dashboard.html</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 font-bold text-green-700">GET</td>
+                                        <td class="px-6 py-4 font-mono text-gray-800">/laporan.html</td>
+                                        <td class="px-6 py-4 font-mono text-gray-600">templates/laporan.html</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 font-bold text-green-700">GET</td>
+                                        <td class="px-6 py-4 font-mono text-gray-800">/riwayat.html</td>
+                                        <td class="px-6 py-4 font-mono text-gray-600">templates/riwayat.html</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 font-bold text-green-700">GET</td>
+                                        <td class="px-6 py-4 font-mono text-gray-800">/profile.html</td>
+                                        <td class="px-6 py-4 font-mono text-gray-600">templates/profile.html</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 font-bold text-green-700">GET</td>
+                                        <td class="px-6 py-4 font-mono text-gray-800">/petugas.html</td>
+                                        <td class="px-6 py-4 font-mono text-gray-600">templates/petugas.html</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 font-bold text-green-700">GET</td>
+                                        <td class="px-6 py-4 font-mono text-gray-800">/login.html</td>
+                                        <td class="px-6 py-4 font-mono text-gray-600">templates/login.html</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 font-bold text-green-700">GET</td>
+                                        <td class="px-6 py-4 font-mono text-gray-800">/register.html</td>
+                                        <td class="px-6 py-4 font-mono text-gray-600">templates/register.html</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="data-panel-header px-6 py-4 border-b border-gray-100">
+                            <h3 class="text-lg font-bold text-gray-900">API Eksternal</h3>
+                            <p class="text-sm text-gray-500 mt-1">API dari luar aplikasi yang dipanggil langsung oleh frontend.</p>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm whitespace-nowrap">
+                                <thead class="bg-gray-50/50 text-gray-500 uppercase text-xs font-bold tracking-wider">
+                                    <tr>
+                                        <th class="px-6 py-4 border-b border-gray-100">Endpoint/API</th>
+                                        <th class="px-6 py-4 border-b border-gray-100">Lokasi</th>
+                                        <th class="px-6 py-4 border-b border-gray-100">Fungsi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    <tr>
+                                        <td class="px-6 py-4 font-mono text-gray-800">https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json</td>
+                                        <td class="px-6 py-4 font-mono text-gray-600">static/js/laporan.js</td>
+                                        <td class="px-6 py-4 text-gray-600">Mengambil daftar provinsi.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 font-mono text-gray-800">https://www.emsifa.com/api-wilayah-indonesia/api/regencies/&lt;idProvinsi&gt;.json</td>
+                                        <td class="px-6 py-4 font-mono text-gray-600">static/js/laporan.js</td>
+                                        <td class="px-6 py-4 text-gray-600">Mengambil daftar kota/kabupaten.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 font-mono text-gray-800">https://www.emsifa.com/api-wilayah-indonesia/api/districts/&lt;idKota&gt;.json</td>
+                                        <td class="px-6 py-4 font-mono text-gray-600">static/js/laporan.js</td>
+                                        <td class="px-6 py-4 text-gray-600">Mengambil daftar kecamatan.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 font-mono text-gray-800">https://ui-avatars.com/api/</td>
+                                        <td class="px-6 py-4 text-gray-600">Template HTML dan beberapa file JS</td>
+                                        <td class="px-6 py-4 text-gray-600">Membuat avatar otomatis berdasarkan nama.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 font-mono text-gray-800">https://randomuser.me/api/portraits/...</td>
+                                        <td class="px-6 py-4 font-mono text-gray-600">templates/index.html</td>
+                                        <td class="px-6 py-4 text-gray-600">Avatar testimoni statis di halaman utama.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 font-mono text-gray-800">https://cdn.jsdelivr.net/npm/chart.js</td>
+                                        <td class="px-6 py-4 font-mono text-gray-600">templates/dashboard-admin.html</td>
+                                        <td class="px-6 py-4 text-gray-600">Library grafik dashboard admin.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 font-mono text-gray-800">https://unpkg.com/leaflet@1.9.4/...</td>
+                                        <td class="px-6 py-4 font-mono text-gray-600">templates/dashboard-admin.html</td>
+                                        <td class="px-6 py-4 text-gray-600">Library peta koordinat laporan.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="data-panel bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Lokasi File Penting</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                        <div class="border border-gray-100 rounded-xl p-4">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Tampilan Admin</p>
+                            <code class="text-sm text-gray-800">templates/dashboard-admin.html</code>
+                        </div>
+                        <div class="border border-gray-100 rounded-xl p-4">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Logic Admin</p>
+                            <code class="text-sm text-gray-800">static/js/admin-dashboard.js</code>
+                        </div>
+                        <div class="border border-gray-100 rounded-xl p-4">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Auth Guard Frontend</p>
+                            <code class="text-sm text-gray-800">static/js/auth-guard.js</code>
+                        </div>
+                        <div class="border border-gray-100 rounded-xl p-4">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Route Admin</p>
+                            <code class="text-sm text-gray-800">app/routes/admin_routes.py</code>
+                        </div>
+                        <div class="border border-gray-100 rounded-xl p-4">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Route Laporan</p>
+                            <code class="text-sm text-gray-800">app/routes/report_routes.py</code>
+                        </div>
+                        <div class="border border-gray-100 rounded-xl p-4">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Role Decorator</p>
+                            <code class="text-sm text-gray-800">app/utils/decorators.py</code>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

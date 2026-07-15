@@ -8,6 +8,7 @@ from app.routes.view_routes import view_bp
 from app.routes.profile_routes import profile_bp
 from app.routes.report_routes import report_bp
 from app.routes.admin_routes import admin_bp
+from app.routes.docs_routes import docs_bp
 
 def create_app():
     # Setup logging
@@ -33,6 +34,7 @@ def create_app():
     app.register_blueprint(profile_bp, url_prefix='/api/profile')
     app.register_blueprint(report_bp, url_prefix='/api/reports')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
+    app.register_blueprint(docs_bp, url_prefix='/api')
     app.register_blueprint(view_bp)
     
     # Global error handlers

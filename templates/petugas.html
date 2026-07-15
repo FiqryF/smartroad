@@ -645,6 +645,74 @@
             color: #1e40af;
         }
 
+        .status-completed {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .history-section {
+            padding: 4rem 0;
+            background: var(--text-white);
+            border-top: 1px solid var(--concrete-border);
+        }
+
+        .petugas-view-hidden {
+            display: none !important;
+        }
+
+        .history-section.history-view-active {
+            min-height: 100vh;
+            padding-top: 8.5rem;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .history-count {
+            min-width: 92px;
+            padding: 0.9rem 1.15rem;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            color: #166534;
+            text-align: center;
+            font-weight: 800;
+        }
+
+        .history-list {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1.5rem;
+        }
+
+        .history-card .task-card-image::after {
+            content: 'SELESAI';
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            padding: 0.35rem 0.6rem;
+            border-radius: 999px;
+            background: #16a34a;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+        }
+
+        @media (max-width: 992px) {
+            .history-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 640px) {
+            .history-header { align-items: flex-start; flex-direction: column; }
+            .history-list { grid-template-columns: 1fr; }
+        }
+
         .task-details-list {
             list-style: none;
             display: flex;
@@ -1438,9 +1506,10 @@
             </a>
 
             <ul class="nav-menu" id="navMenu">
-                <li><a href="petugas.html" class="nav-link active">Beranda Petugas</a></li>
-                <li><a href="#peta-tugas" class="nav-link">Peta Tugas</a></li>
-                <li><a href="#tugas-aktif" class="nav-link">Daftar Pekerjaan</a></li>
+                <li><a href="#beranda-petugas" class="nav-link active" data-petugas-view="work">Beranda Petugas</a></li>
+                <li><a href="#peta-tugas" class="nav-link" data-petugas-view="work">Peta Tugas</a></li>
+                <li><a href="#tugas-aktif" class="nav-link" data-petugas-view="work">Daftar Pekerjaan</a></li>
+                <li><a href="#riwayat-pekerjaan" class="nav-link" data-petugas-view="history">Riwayat</a></li>
                 <!-- Mobile only profile menu drawer link -->
                 <li style="margin-top: 1.5rem; width: 100%; display: none;" id="mobileUserItem">
                     <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
@@ -1508,7 +1577,7 @@
     </header>
 
     <!-- Hero Section -->
-    <section class="hero">
+    <section class="hero" id="beranda-petugas">
         <div class="hero-overlay"></div>
         <div class="container">
             <div class="hero-content">
@@ -1560,6 +1629,25 @@
                     </div>
                 </div>
 
+            </div>
+        </div>
+    </section>
+
+    <!-- Riwayat pekerjaan yang telah diselesaikan -->
+    <section class="history-section petugas-view-hidden" id="riwayat-pekerjaan">
+        <div class="container">
+            <div class="history-header">
+                <div>
+                    <span class="section-badge">Dokumentasi Lapangan</span>
+                    <h2 class="section-title">Riwayat Pekerjaan</h2>
+                    <p class="section-desc" style="margin-bottom: 0;">Daftar penugasan yang telah selesai beserta bukti dan waktu penyelesaiannya.</p>
+                </div>
+                <div class="history-count"><span id="historyCount">0</span> Selesai</div>
+            </div>
+            <div id="historyList" class="history-list">
+                <div class="task-card">
+                    <div class="task-card-body">Memuat riwayat pekerjaan...</div>
+                </div>
             </div>
         </div>
     </section>
@@ -1739,9 +1827,10 @@
                 <div>
                     <h4 class="footer-title">Tautan Petugas</h4>
                     <ul class="footer-links">
-                        <li><a href="petugas.html">Beranda Operasional</a></li>
-                        <li><a href="#peta-tugas">Peta Geospasial</a></li>
-                        <li><a href="#tugas-aktif">Daftar Pekerjaan</a></li>
+                        <li><a href="#beranda-petugas" data-petugas-view="work">Beranda Operasional</a></li>
+                        <li><a href="#peta-tugas" data-petugas-view="work">Peta Geospasial</a></li>
+                        <li><a href="#tugas-aktif" data-petugas-view="work">Daftar Pekerjaan</a></li>
+                        <li><a href="#riwayat-pekerjaan" data-petugas-view="history">Riwayat Pekerjaan</a></li>
                         <li><a href="login.html">Keluar Sesi</a></li>
                     </ul>
                 </div>
@@ -1796,7 +1885,7 @@
     <!-- Leaflet.js Library for Map rendering -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-    <script src="{{ url_for('static', filename='js/petugas.js') }}?v=3"></script>
+    <script src="{{ url_for('static', filename='js/petugas.js') }}?v=5"></script>
 </body>
 
 </html>

@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const taskList = document.getElementById('taskList');
+    const historyList = document.getElementById('historyList');
+    const historyCount = document.getElementById('historyCount');
     const notificationPanel = document.getElementById('notificationPanel');
     const profileMenu = document.getElementById('profileMenu');
     const notificationBtn = document.getElementById('notificationBtn');
@@ -14,6 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const toastWrap = document.getElementById('appToastWrap');
     const notificationBadge = document.getElementById('notificationBadge');
     const showIdCardBtn = document.getElementById('showIdCardBtn');
+    const heroSection = document.getElementById('beranda-petugas');
+    const workspaceSection = document.getElementById('peta-tugas');
+    const historySection = document.getElementById('riwayat-pekerjaan');
 
     let reports = [];
     let notifications = [];
@@ -146,6 +151,53 @@ document.addEventListener('DOMContentLoaded', () => {
         const navMenu = document.getElementById('navMenu');
         const drawerOverlay = document.getElementById('drawerOverlay');
 
+        const closeMobileMenu = () => {
+            navMenu?.classList.remove('active');
+            drawerOverlay?.classList.remove('active');
+            document.body.style.overflow = '';
+            menuToggle?.querySelector('i')?.setAttribute('data-lucide', 'menu');
+            if (window.lucide) window.lucide.createIcons();
+        };
+
+        const showPetugasView = (view, targetHash = '') => {
+            const showHistory = view === 'history';
+            heroSection?.classList.toggle('petugas-view-hidden', showHistory);
+            workspaceSection?.classList.toggle('petugas-view-hidden', showHistory);
+            historySection?.classList.toggle('petugas-view-hidden', !showHistory);
+            historySection?.classList.toggle('history-view-active', showHistory);
+
+            document.querySelectorAll('.nav-link[data-petugas-view]').forEach(link => {
+                const linkView = link.dataset.petugasView;
+                const exactHash = link.getAttribute('href') === targetHash;
+                link.classList.toggle('active', exactHash || (!targetHash && linkView === view));
+            });
+
+            closeMobileMenu();
+            window.setTimeout(() => {
+                const target = targetHash ? document.querySelector(targetHash) : null;
+                if (target && !target.classList.contains('petugas-view-hidden')) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+                if (!showHistory && mainMap) window.setTimeout(() => mainMap.invalidateSize(), 150);
+            }, 20);
+        };
+
+        document.querySelectorAll('[data-petugas-view]').forEach(link => {
+            link.addEventListener('click', event => {
+                event.preventDefault();
+                const targetHash = link.getAttribute('href') || '';
+                const view = link.dataset.petugasView || 'work';
+                if (history.replaceState) history.replaceState(null, '', targetHash);
+                showPetugasView(view, targetHash);
+            });
+        });
+
+        if (window.location.hash === '#riwayat-pekerjaan') {
+            showPetugasView('history', '#riwayat-pekerjaan');
+        }
+
         const toggleMobileMenu = () => {
             navMenu?.classList.toggle('active');
             drawerOverlay?.classList.toggle('active');
@@ -160,11 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleMobileMenu();
         });
         drawerOverlay?.addEventListener('click', () => {
-            navMenu?.classList.remove('active');
-            drawerOverlay?.classList.remove('active');
-            document.body.style.overflow = '';
-            menuToggle?.querySelector('i')?.setAttribute('data-lucide', 'menu');
-            if (window.lucide) window.lucide.createIcons();
+            closeMobileMenu();
         });
 
         notificationBtn?.addEventListener('click', (event) => {
@@ -228,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!mainMap || !mainMarkers) return;
         mainMarkers.clearLayers();
 
-        reports.forEach(report => {
+        reports.filter(report => report.status !== 'Selesai').forEach(report => {
             const lat = Number(report.lat);
             const lng = Number(report.lng);
             if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
@@ -301,7 +349,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderTasks = () => {
         if (!taskList) return;
 
-        if (reports.length === 0) {
+        const activeReports = reports.filter(report => report.status !== 'Selesai');
+
+        if (activeReports.length === 0) {
             taskList.innerHTML = `
                 <div class="task-card">
                     <div class="task-card-body">
@@ -319,11 +369,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        taskList.innerHTML = reports.map(report => {
+        taskList.innerHTML = activeReports.map(report => {
             const id = escape(getReportId(report));
-            const status = report.status === 'Selesai' ? 'Selesai' : 'Dalam Pengerjaan';
             const image = staticPath(report.image_path) || 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?q=80&w=800';
-            const disabled = report.status === 'Selesai' ? 'disabled style="opacity: 0.55; cursor: not-allowed;"' : '';
 
             return `
                 <div class="task-card">
@@ -333,7 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="task-card-body">
                         <div class="task-card-top">
                             <span class="task-id">${escape(shortId(report))}</span>
-                            <span class="task-status status-processing">${escape(status)}</span>
+                            <span class="task-status status-processing">Dalam Pengerjaan</span>
                         </div>
                         <ul class="task-details-list">
                             <li><i data-lucide="map-pin"></i> <span>${escape(report.address || '-')}</span></li>
@@ -344,7 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <button class="btn btn-outline-dark" onclick="openDetailModal('${id}')">
                                 <i data-lucide="eye"></i> Detail
                             </button>
-                            <button class="btn btn-primary" onclick="openConfirmModal('${id}')" ${disabled}>
+                            <button class="btn btn-primary" onclick="openConfirmModal('${id}')">
                                 <i data-lucide="check"></i> Selesai
                             </button>
                         </div>
@@ -353,6 +401,57 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }).join('');
 
+        if (window.lucide) window.lucide.createIcons();
+    };
+
+    const renderHistory = () => {
+        if (!historyList) return;
+        const completedReports = reports
+            .filter(report => report.status === 'Selesai')
+            .sort((a, b) => new Date(b.completed_at || b.assigned_at || 0) - new Date(a.completed_at || a.assigned_at || 0));
+
+        if (historyCount) historyCount.textContent = completedReports.length;
+
+        if (completedReports.length === 0) {
+            historyList.innerHTML = `
+                <div class="task-card" style="grid-column: 1 / -1;">
+                    <div class="task-card-body">
+                        <div class="task-card-top">
+                            <span class="task-id">Belum ada riwayat pekerjaan</span>
+                            <span class="task-status status-completed">Kosong</span>
+                        </div>
+                        <ul class="task-details-list">
+                            <li><i data-lucide="history"></i><span>Pekerjaan yang telah diselesaikan akan otomatis tampil di bagian ini.</span></li>
+                        </ul>
+                    </div>
+                </div>`;
+            if (window.lucide) window.lucide.createIcons();
+            return;
+        }
+
+        historyList.innerHTML = completedReports.map(report => {
+            const id = escape(getReportId(report));
+            const image = staticPath(report.repair_image_path || report.image_path) || 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?q=80&w=800';
+            return `
+                <article class="task-card history-card">
+                    <div class="task-card-image"><img src="${escape(image)}" alt="Bukti pekerjaan selesai"></div>
+                    <div class="task-card-body">
+                        <div class="task-card-top">
+                            <span class="task-id">${escape(shortId(report))}</span>
+                            <span class="task-status status-completed">Selesai</span>
+                        </div>
+                        <ul class="task-details-list">
+                            <li><i data-lucide="map-pin"></i><span>${escape(report.address || '-')}</span></li>
+                            <li><i data-lucide="check-circle"></i><span>${escape(report.title || report.category || 'Pekerjaan jalan')}</span></li>
+                            <li><i data-lucide="calendar-check"></i><span>Selesai: ${escape(formatDate(report.completed_at))}</span></li>
+                            ${report.completion_note ? `<li><i data-lucide="clipboard-check"></i><span>${escape(report.completion_note)}</span></li>` : ''}
+                        </ul>
+                        <div class="task-actions" style="grid-template-columns: 1fr;">
+                            <button class="btn btn-outline-dark" onclick="openDetailModal('${id}')"><i data-lucide="eye"></i> Lihat Detail</button>
+                        </div>
+                    </div>
+                </article>`;
+        }).join('');
         if (window.lucide) window.lucide.createIcons();
     };
 
@@ -518,12 +617,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             reports = response.ok && Array.isArray(data.data) ? data.data : [];
             renderTasks();
+            renderHistory();
             renderMapMarkers();
         } catch (error) {
             console.error('Gagal memuat tugas petugas:', error);
             if (taskList) {
                 taskList.innerHTML = '<div class="task-card"><div class="task-card-body">Gagal memuat penugasan.</div></div>';
             }
+            if (historyList) historyList.innerHTML = '<div class="task-card"><div class="task-card-body">Gagal memuat riwayat pekerjaan.</div></div>';
         }
     }
 

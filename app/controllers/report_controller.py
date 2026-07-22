@@ -5,6 +5,7 @@ import re
 from app.db import db
 from werkzeug.utils import secure_filename
 from flask import current_app
+from app.utils.gamification import award_points_for_report
 
 reports_collection = db["reports"] if db is not None else None
 users_collection = db["users"] if db is not None else None
@@ -615,12 +616,17 @@ def update_report_status(report_id, new_status, assigned_petugas_email=None):
         same_status = report.get("status") == new_status
         same_petugas = _normalize_email(report.get("assigned_petugas_email")) == assigned_petugas_email if new_status == "Proses" else True
         if same_status and same_petugas:
+            if new_status == "Selesai":
+                award_points_for_report(ObjectId(report_id))
             return {"status": "success", "message": "Status laporan tidak berubah"}, 200
             
         result = reports_collection.update_one(
             {"_id": ObjectId(report_id)},
             {"$set": update_fields}
         )
+        award_result = None
+        if new_status == "Selesai":
+            award_result = award_points_for_report(ObjectId(report_id))
         
         # Create a notification for the user
         notifications_collection = db["notifications"]
@@ -641,7 +647,10 @@ def update_report_status(report_id, new_status, assigned_petugas_email=None):
                 "created_at": datetime.utcnow()
             })
         
-        return {"status": "success", "message": f"Status laporan berhasil diperbarui menjadi {new_status}"}, 200
+        message = f"Status laporan berhasil diperbarui menjadi {new_status}"
+        if award_result and award_result.get("awarded"):
+            message += f" dan {len(award_result.get('events', []))} reward poin dibagikan"
+        return {"status": "success", "message": message}, 200
     except Exception as e:
         logging.error(f"Error saat memperbarui status laporan: {e}")
         return {"status": "error", "message": "Terjadi kesalahan saat memperbarui status"}, 500
@@ -676,6 +685,9 @@ def complete_assigned_report(report_id, petugas_email, data, file):
         if _normalize_email(report.get("assigned_petugas_email")) != _normalize_email(petugas_email):
             return {"status": "error", "message": "Laporan ini tidak ditugaskan kepada Anda"}, 403
         if report.get("status") == "Selesai":
+            award_result = award_points_for_report(ObjectId(report_id))
+            if award_result.get("awarded"):
+                return {"status": "success", "message": f"Laporan sudah selesai dan {len(award_result.get('events', []))} reward poin dibagikan"}, 200
             return {"status": "success", "message": "Laporan sudah selesai"}, 200
         if not file or file.filename == "":
             return {"status": "error", "message": "Foto bukti perbaikan wajib diunggah"}, 400
@@ -703,6 +715,7 @@ def complete_assigned_report(report_id, petugas_email, data, file):
                 "completed_by": petugas_email
             }}
         )
+        award_result = award_points_for_report(ObjectId(report_id))
 
         notifications_collection = db["notifications"]
         notifications_collection.insert_one({
@@ -713,7 +726,10 @@ def complete_assigned_report(report_id, petugas_email, data, file):
             "created_at": datetime.utcnow()
         })
 
-        return {"status": "success", "message": "Konfirmasi penyelesaian berhasil dikirim"}, 200
+        message = "Konfirmasi penyelesaian berhasil dikirim"
+        if award_result.get("awarded"):
+            message += f" dan {len(award_result.get('events', []))} reward poin dibagikan"
+        return {"status": "success", "message": message}, 200
     except Exception as e:
         logging.error(f"Error saat menyelesaikan laporan: {e}")
         return {"status": "error", "message": "Terjadi kesalahan saat menyelesaikan laporan"}, 500

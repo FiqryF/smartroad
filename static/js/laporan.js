@@ -13,6 +13,40 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 0. DYNAMIC PROFILE & NOTIFICATION LOGIC ---
+    const updateProfileGamificationSummary = (profile) => {
+        if (!profile) return;
+        const points = Number(profile.points || 0);
+        const badge = profile.badge || 'Warga Peduli';
+        const badgeInfo = profile.badge_info || {};
+        const nextBadge = badgeInfo.next_badge?.name || 'Level maksimal dicapai';
+        const next = Number(badgeInfo.next_threshold || points || 0);
+        const percentage = Number(badgeInfo.progress_percentage ?? 100);
+        const badgeColors = {
+            'Warga Peduli': 'linear-gradient(135deg, #3b82f6, #2563eb)',
+            'Relawan Jalan': 'linear-gradient(135deg, #06b6d4, #0284c7)',
+            'Penjaga Lingkungan': 'linear-gradient(135deg, #10b981, #059669)',
+            'Pahlawan Jalanan': 'linear-gradient(135deg, #f59e0b, #d97706)',
+            'Patriot Infrastruktur': 'linear-gradient(135deg, #FF6B00, #dc2626)',
+            'Duta SmartRoad': 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+            'Legenda Jalanan': 'linear-gradient(135deg, #0f172a, #334155)'
+        };
+        const badgeBg = badgeInfo.current_badge?.color || badgeColors[badge] || badgeColors['Warga Peduli'];
+
+        document.querySelectorAll('[data-profile-game-badge]').forEach(el => {
+            el.textContent = badge;
+            el.style.background = badgeBg;
+        });
+        document.querySelectorAll('[data-profile-game-points]').forEach(el => {
+            el.textContent = `${points} Poin`;
+        });
+        document.querySelectorAll('[data-profile-game-fill]').forEach(el => {
+            el.style.width = `${percentage}%`;
+        });
+        document.querySelectorAll('[data-profile-game-next]').forEach(el => {
+            el.textContent = badgeInfo.next_badge ? `Menuju ${nextBadge} (${points}/${next})` : nextBadge;
+        });
+    };
+
     const initDynamicProfile = async () => {
         const isLoggedIn = sessionStorage.getItem('isLoggedIn');
         const userEmail = sessionStorage.getItem('userEmail');
@@ -40,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const resData = await response.json();
                 if (response.ok && resData.data) {
                     const profile = resData.data;
+                    updateProfileGamificationSummary(profile);
 
                     const profilePic = profile.profile_pic === 'default-profile.png'
                         ? `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.nama)}&background=FF6B00&color=FFFFFF`

@@ -4,6 +4,7 @@ import logging
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from app.db import db
+from app.utils.gamification import award_points_for_completed_reports, get_badge, get_badge_info
 
 users_collection = db["users"] if db is not None else None
 
@@ -36,17 +37,12 @@ def _validate_image_upload(file):
     return filename, None
 
 def _get_badge(points):
-    if points < 50:
-        return "Warga Peduli"
-    elif points < 150:
-        return "Pahlawan Jalanan"
-    else:
-        return "Suhu Jalanan"
+    return get_badge(points)
 
 def get_user_profile(email):
     if users_collection is None:
         return {"status": "error", "message": "Database error"}, 500
-        
+
     user = users_collection.find_one({"email": email})
     if not user:
         return {"status": "error", "message": "User tidak ditemukan"}, 404
@@ -61,7 +57,12 @@ def get_user_profile(email):
         formatted_date = "Anggota Lama"
 
     points = user.get("points", 0)
-    badge = _get_badge(points)
+    badge_info = get_badge_info(points)
+    point_history = user.get("point_history", [])
+    if isinstance(point_history, list):
+        point_history = sorted(point_history, key=lambda item: item.get("awarded_at") or datetime.min, reverse=True)[:5]
+    else:
+        point_history = []
 
     profile_data = {
         "nama": user.get("nama", ""),
@@ -71,27 +72,58 @@ def get_user_profile(email):
         "profile_pic": user.get("profile_pic", "default-profile.png"),
         "bergabung": formatted_date,
         "points": points,
-        "badge": badge
+        "badge": badge_info["badge"],
+        "badge_info": badge_info,
+        "point_history": point_history
     }
     
     return {"status": "success", "data": profile_data}, 200
 
-def get_leaderboard():
+def get_leaderboard(limit=10):
     if users_collection is None:
         return {"status": "error", "message": "Database error"}, 500
+    safe_limit = max(1, min(int(limit or 10), 50))
         
-    cursor = users_collection.find({"role": "user", "points": {"$gt": 0}}).sort("points", -1).limit(5)
+    cursor = users_collection.find({
+        "role": {"$in": ["user", "warga", None, ""]},
+        "points": {"$gt": 0}
+    }).sort("points", -1).limit(safe_limit)
     leaderboard = []
     for doc in cursor:
         points = doc.get("points", 0)
+        badge_info = get_badge_info(points)
         leaderboard.append({
             "nama": doc.get("nama", "Warga"),
             "profile_pic": doc.get("profile_pic", "default-profile.png"),
             "points": points,
-            "badge": _get_badge(points)
+            "badge": badge_info["badge"],
+            "badge_info": badge_info
         })
         
     return {"status": "success", "data": leaderboard}, 200
+
+def get_point_history(email, limit=20):
+    if users_collection is None:
+        return {"status": "error", "message": "Database error"}, 500
+
+    safe_limit = max(1, min(int(limit or 20), 100))
+    user = users_collection.find_one({"email": email}, {"point_history": 1})
+    if not user:
+        return {"status": "error", "message": "User tidak ditemukan"}, 404
+
+    history = user.get("point_history", [])
+    if not isinstance(history, list):
+        history = []
+    history = sorted(history, key=lambda item: item.get("awarded_at") or datetime.min, reverse=True)[:safe_limit]
+    return {"status": "success", "data": history}, 200
+
+def run_gamification_backfill(limit=1000):
+    try:
+        result = award_points_for_completed_reports(limit=max(1, min(int(limit or 1000), 5000)))
+        return {"status": "success", "data": result}, 200
+    except Exception as exc:
+        logging.error(f"Error saat menjalankan backfill gamifikasi: {exc}")
+        return {"status": "error", "message": "Gagal menjalankan backfill gamifikasi"}, 500
 
 def update_user_profile(email, data):
     if users_collection is None:

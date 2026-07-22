@@ -1,5 +1,39 @@
 // static/js/dashboard.js
 
+const updateProfileGamificationSummary = (profile) => {
+    if (!profile) return;
+    const points = Number(profile.points || 0);
+    const badge = profile.badge || 'Warga Peduli';
+    const badgeInfo = profile.badge_info || {};
+    const nextBadge = badgeInfo.next_badge?.name || 'Level maksimal dicapai';
+    const next = Number(badgeInfo.next_threshold || points || 0);
+    const percentage = Number(badgeInfo.progress_percentage ?? 100);
+    const badgeColors = {
+        'Warga Peduli': 'linear-gradient(135deg, #3b82f6, #2563eb)',
+        'Relawan Jalan': 'linear-gradient(135deg, #06b6d4, #0284c7)',
+        'Penjaga Lingkungan': 'linear-gradient(135deg, #10b981, #059669)',
+        'Pahlawan Jalanan': 'linear-gradient(135deg, #f59e0b, #d97706)',
+        'Patriot Infrastruktur': 'linear-gradient(135deg, #FF6B00, #dc2626)',
+        'Duta SmartRoad': 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+        'Legenda Jalanan': 'linear-gradient(135deg, #0f172a, #334155)'
+    };
+    const badgeBg = badgeInfo.current_badge?.color || badgeColors[badge] || badgeColors['Warga Peduli'];
+
+    document.querySelectorAll('[data-profile-game-badge]').forEach(el => {
+        el.textContent = badge;
+        el.style.background = badgeBg;
+    });
+    document.querySelectorAll('[data-profile-game-points]').forEach(el => {
+        el.textContent = `${points} Poin`;
+    });
+    document.querySelectorAll('[data-profile-game-fill]').forEach(el => {
+        el.style.width = `${percentage}%`;
+    });
+    document.querySelectorAll('[data-profile-game-next]').forEach(el => {
+        el.textContent = badgeInfo.next_badge ? `Menuju ${nextBadge} (${points}/${next})` : nextBadge;
+    });
+};
+
 // 1. Validasi Sesi saat halaman dimuat
 window.onload = async () => {
     const isLoggedIn = sessionStorage.getItem('isLoggedIn');
@@ -23,6 +57,7 @@ window.onload = async () => {
                 const profile = resData.data;
                 sessionStorage.setItem('userName', profile.nama);
                 userName = profile.nama;
+                updateProfileGamificationSummary(profile);
 
                 // Tentukan URL Avatar
                 const profilePic = profile.profile_pic === 'default-profile.png'
@@ -115,7 +150,7 @@ window.onload = async () => {
 
     async function loadLeaderboard() {
         try {
-            const res = await fetch('/api/profile/leaderboard');
+            const res = await fetch('/api/profile/leaderboard?limit=10');
             if (res.ok) {
                 const data = await res.json();
                 if (data.status === 'success' && data.data) {
@@ -126,27 +161,65 @@ window.onload = async () => {
                         lbList.innerHTML = '<div style="text-align: center; color: #64748b; padding: 2rem;">Belum ada warga yang memiliki poin. Jadilah yang pertama!</div>';
                         return;
                     }
-                    data.data.forEach((user, index) => {
+                    const getBadgeClass = (user) => {
+                        const badgeFromApi = user.badge_info?.current_badge?.class_name;
+                        if (badgeFromApi) return badgeFromApi;
+                        const badge = user.badge;
+                        if (badge === 'Relawan Jalan') return 'badge-relawan';
+                        if (badge === 'Penjaga Lingkungan') return 'badge-penjaga';
+                        if (badge === 'Pahlawan Jalanan') return 'badge-pahlawan';
+                        if (badge === 'Patriot Infrastruktur') return 'badge-suhu';
+                        if (badge === 'Duta SmartRoad') return 'badge-duta';
+                        if (badge === 'Legenda Jalanan') return 'badge-legenda';
+                        return '';
+                    };
+                    const renderUser = (user, index, champion = false) => {
                         const rank = index + 1;
-                        let badgeClass = '';
-                        if (user.badge === 'Suhu Jalanan') badgeClass = 'badge-suhu';
-                        else if (user.badge === 'Pahlawan Jalanan') badgeClass = 'badge-pahlawan';
+                        const badgeClass = getBadgeClass(user);
                         
                         const profilePicUrl = user.profile_pic === 'default-profile.png'
                             ? `https://ui-avatars.com/api/?name=${encodeURIComponent(user.nama)}&background=FF6B00&color=FFFFFF`
                             : `http://127.0.0.1:5000/static/${user.profile_pic}`;
 
-                        lbList.innerHTML += `
+                        if (champion) {
+                            return `
+                                <div class="leaderboard-item leaderboard-champion rank-${rank}">
+                                    <div class="leaderboard-champion-top">
+                                        <div class="rank-number">Juara #${rank}</div>
+                                        <div class="leaderboard-points">${user.points} pts</div>
+                                    </div>
+                                    <div class="leaderboard-champion-body">
+                                        <img src="${profilePicUrl}" alt="${user.nama}" class="leaderboard-avatar">
+                                        <div class="leaderboard-info">
+                                            <div class="leaderboard-name">${user.nama}</div>
+                                            <span class="leaderboard-badge ${badgeClass}">${user.badge}</span>
+                                            <div class="leaderboard-meta">Kontributor tertinggi SmartRoad</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+
+                        return `
                             <div class="leaderboard-item rank-${rank}">
-                                <div class="rank-number">${rank}</div>
+                                <div class="rank-number">#${rank}</div>
                                 <img src="${profilePicUrl}" alt="${user.nama}" class="leaderboard-avatar">
                                 <div class="leaderboard-info">
                                     <div class="leaderboard-name">${user.nama} <span class="leaderboard-badge ${badgeClass}">${user.badge}</span></div>
+                                    <div class="leaderboard-meta">Reward dari laporan selesai</div>
                                 </div>
                                 <div class="leaderboard-points">${user.points} pts</div>
                             </div>
                         `;
-                    });
+                    };
+
+                    const [champion, ...others] = data.data;
+                    lbList.innerHTML = `
+                        ${renderUser(champion, 0, true)}
+                        <div class="leaderboard-stack">
+                            ${others.map((user, index) => renderUser(user, index + 1)).join('')}
+                        </div>
+                    `;
                 }
             }
         } catch(err) {

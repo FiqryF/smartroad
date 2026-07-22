@@ -557,6 +557,60 @@
             color: var(--asphalt-dark);
         }
 
+        .profile-gamification {
+            border: 1px solid #fed7aa;
+            background: #fff7ed;
+            border-radius: 10px;
+            padding: 0.85rem;
+            margin: -0.25rem 0 1rem;
+        }
+
+        .profile-game-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 0.65rem;
+        }
+
+        .profile-game-badge {
+            color: #ffffff;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border-radius: 999px;
+            padding: 0.3rem 0.65rem;
+            font-size: 0.68rem;
+            font-weight: 800;
+        }
+
+        .profile-game-points {
+            color: var(--safety-orange);
+            font-size: 0.9rem;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .profile-game-track {
+            height: 7px;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .profile-game-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #FF6B00, #E63946);
+            border-radius: inherit;
+            transition: width 0.35s ease;
+        }
+
+        .profile-game-next {
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            font-weight: 700;
+            margin-top: 0.45rem;
+        }
+
         .panel-actions {
             display: flex;
             gap: 0.75rem;
@@ -1452,6 +1506,16 @@
                             <span>Email</span>
                             <strong id="popupEmail">fiqry@example.com</strong>
                         </div>
+                        <div class="profile-gamification">
+                            <div class="profile-game-top">
+                                <span class="profile-game-badge" data-profile-game-badge>Warga Peduli</span>
+                                <strong class="profile-game-points" data-profile-game-points>0 Poin</strong>
+                            </div>
+                            <div class="profile-game-track" aria-hidden="true">
+                                <div class="profile-game-fill" data-profile-game-fill></div>
+                            </div>
+                            <div class="profile-game-next" data-profile-game-next>Menuju Relawan Jalan (0/100)</div>
+                        </div>
                         <div class="panel-actions">
                             <a href="profile.html" class="btn btn-outline-primary">Lihat Profil</a>
                             <button type="button" class="btn btn-secondary" data-logout-button>Keluar</button>
@@ -1744,7 +1808,7 @@
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
 
     <!-- Scripts Logic -->
-    <script src="{{ url_for('static', filename='js/laporan.js') }}?v=cluster-owner-5"></script>
+    <script src="{{ url_for('static', filename='js/laporan.js') }}?v=game-prod-1"></script>
     <script src="{{ url_for('static', filename='js/cs-chat.js') }}?v=1"></script>
 </body>
 

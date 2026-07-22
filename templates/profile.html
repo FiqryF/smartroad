@@ -222,6 +222,283 @@
             padding: 2.5rem;
         }
 
+        .gamification-panel {
+            margin-bottom: 2rem;
+            border: 1px solid #fed7aa;
+            border-radius: 10px;
+            background: #fff7ed;
+            padding: 1.25rem;
+            position: relative;
+        }
+
+        .gamification-panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .badge-dropdown {
+            position: relative;
+        }
+
+        .badge-dropdown-toggle,
+        .history-icon-button {
+            border: 0;
+            min-height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .badge-dropdown-toggle {
+            padding: 0.52rem 0.85rem;
+            border-radius: 999px;
+            color: #ffffff;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            font-size: 0.74rem;
+            font-weight: 900;
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.22);
+        }
+
+        .history-icon-button {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: #ffffff;
+            color: var(--brand-primary);
+        }
+
+        .badge-dropdown-toggle:hover,
+        .history-icon-button:hover {
+            transform: translateY(-1px);
+        }
+
+        .badge-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            width: min(320px, 82vw);
+            background: #ffffff;
+            border: 1px solid #fed7aa;
+            border-radius: 10px;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.15);
+            padding: 0.5rem;
+            z-index: 20;
+            display: none;
+        }
+
+        .badge-dropdown.active .badge-menu {
+            display: grid;
+            gap: 0.35rem;
+        }
+
+        .badge-menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            border-radius: 8px;
+            padding: 0.55rem 0.6rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        .badge-menu-item.active {
+            border-color: var(--brand-primary);
+            background: #fff7ed;
+        }
+
+        .badge-menu-pill {
+            color: #ffffff;
+            border-radius: 999px;
+            padding: 0.25rem 0.55rem;
+            font-size: 0.66rem;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .badge-menu-range {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .gamification-top {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 1rem;
+            align-items: stretch;
+        }
+
+        .level-card,
+        .reward-card {
+            background: #ffffff;
+            border: 1px solid #ffedd5;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .level-title,
+        .reward-title {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            color: var(--text-primary);
+            font-size: 0.82rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+
+        .level-summary {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .level-summary strong {
+            color: var(--text-primary);
+            font-size: 1.35rem;
+            line-height: 1;
+        }
+
+        .level-summary span {
+            color: var(--text-muted);
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-top: 0.25rem;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 10px;
+            border-radius: 999px;
+            background: #e2e8f0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #FF6B00, #E63946);
+            transition: width 0.35s ease;
+        }
+
+        .progress-meta {
+            margin-top: 0.55rem;
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .reward-list {
+            display: grid;
+            gap: 0.55rem;
+        }
+
+        .reward-item,
+        .point-history-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 7px;
+            background: #f8fafc;
+            padding: 0.65rem 0.75rem;
+            color: var(--text-primary);
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .reward-item strong,
+        .point-history-item strong {
+            color: var(--brand-primary);
+            white-space: nowrap;
+        }
+
+        .point-history-list {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .point-history-empty {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            line-height: 1.5;
+            background: #ffffff;
+            border: 1px dashed #fed7aa;
+            border-radius: 8px;
+            padding: 0.85rem;
+        }
+
+        .point-history-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.25rem;
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(4px);
+        }
+
+        .point-history-modal.active {
+            display: flex;
+        }
+
+        .point-history-card {
+            width: min(760px, 100%);
+            max-height: calc(100vh - 3rem);
+            overflow: auto;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.24);
+            padding: 1.25rem;
+        }
+
+        .point-history-card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .point-history-card-head h3 {
+            color: var(--text-primary);
+            font-size: 1rem;
+            margin: 0;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+
+        .point-history-close {
+            width: 34px;
+            height: 34px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
         .section-header {
             font-size: 0.8rem;
             font-weight: 700;
@@ -440,6 +717,10 @@
                 text-align: center;
             }
 
+            .gamification-top {
+                grid-template-columns: 1fr;
+            }
+
             .settings-form {
                 padding: 1.5rem;
             }
@@ -484,7 +765,7 @@
                 <li class="menu-item active" onclick="window.location.href='profile.html'">
                     <i data-lucide="user" style="width: 16px; height: 16px;"></i> Akun & Profil
                 </li>
-                <li class="menu-item" onclick="window.location.href='level.html'">
+                <li class="menu-item" onclick="document.getElementById('gamificationSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' })">
                     <i data-lucide="award" style="width: 16px; height: 16px;"></i> Level & Badge
                 </li>
                 <li class="menu-item" onclick="alert('Fitur notifikasi akan segera hadir.')">
@@ -523,6 +804,74 @@
 
             <!-- Form Utama -->
             <div class="settings-form">
+                <section class="gamification-panel" id="gamificationSection" aria-label="Gamifikasi SmartRoad">
+                    <div class="gamification-panel-head">
+                        <div class="badge-dropdown" id="badgeDropdown">
+                            <button type="button" class="badge-dropdown-toggle" id="badgeDropdownToggle" aria-expanded="false">
+                                <i data-lucide="medal" style="width: 14px; height: 14px;"></i>
+                                <span id="currentBadgeMini">Warga Peduli</span>
+                                <i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i>
+                            </button>
+                            <div class="badge-menu" id="badgeMenu" aria-label="Jenjang badge SmartRoad"></div>
+                        </div>
+                        <button type="button" class="history-icon-button" id="pointHistoryButton" aria-label="Lihat riwayat poin">
+                            <i data-lucide="history" style="width: 17px; height: 17px;"></i>
+                        </button>
+                    </div>
+                    <div class="gamification-top">
+                        <div class="level-card" id="progressContainer" style="display: none;">
+                            <div class="level-title">
+                                <i data-lucide="award" style="width: 15px; height: 15px;"></i>
+                                Level Partisipasi
+                            </div>
+                            <div class="level-summary">
+                                <div>
+                                    <strong id="profilePointTotal">0</strong>
+                                    <span>Total poin</span>
+                                </div>
+                                <div>
+                                    <strong id="progressPercentage">0%</strong>
+                                    <span>Progress level</span>
+                                </div>
+                            </div>
+                            <div class="progress-track" aria-hidden="true">
+                                <div class="progress-fill" id="progressBar"></div>
+                            </div>
+                            <div class="progress-meta">
+                                <span id="nextLevelText">Memuat progress...</span>
+                            </div>
+                        </div>
+                        <div class="reward-card">
+                            <div class="reward-title">
+                                <i data-lucide="sparkles" style="width: 15px; height: 15px;"></i>
+                                Aturan Reward
+                            </div>
+                            <div class="reward-list">
+                                <div class="reward-item">
+                                    <span>Laporan selesai sebagai pelapor</span>
+                                    <strong>+50</strong>
+                                </div>
+                                <div class="reward-item">
+                                    <span>Ikut terdampak pada laporan selesai</span>
+                                    <strong>+10</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="point-history-modal" id="pointHistoryModal" aria-hidden="true">
+                    <div class="point-history-card" role="dialog" aria-modal="true" aria-label="Riwayat poin">
+                        <div class="point-history-card-head">
+                            <h3>Riwayat Poin</h3>
+                            <button type="button" class="point-history-close" id="pointHistoryClose" aria-label="Tutup riwayat poin">x</button>
+                        </div>
+                        <div class="point-history-list" id="pointHistoryList">
+                            <div class="point-history-empty">Belum ada reward poin. Poin akan masuk saat laporan selesai dikerjakan.</div>
+                        </div>
+                    </div>
+                </div>
+
                 <form id="profileForm">
                     <!-- Section 1 -->
                     <div class="section-header">
@@ -606,7 +955,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ url_for('static', filename='js/api.js') }}?v=2"></script>
-    <script src="{{ url_for('static', filename='js/profile.js') }}?v=4"></script>
+    <script src="{{ url_for('static', filename='js/profile.js') }}?v=10"></script>
     <script src="{{ url_for('static', filename='js/cs-chat.js') }}?v=1"></script>
 </body>
 

@@ -1,6 +1,7 @@
 from datetime import datetime
 import os
 import logging
+import re
 from app.db import db
 from werkzeug.utils import secure_filename
 from flask import current_app
@@ -12,6 +13,13 @@ cs_messages_collection = db["cs_messages"] if db is not None else None
 ALLOWED_IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
 ALLOWED_IMAGE_MIMETYPES = {"image/jpeg", "image/png", "image/webp"}
 MAX_IMAGE_SIZE = 5 * 1024 * 1024
+
+def _normalize_email(email):
+    return str(email or "").strip().lower()
+
+def _email_exact_query(email):
+    normalized_email = _normalize_email(email)
+    return {"$regex": f"^{re.escape(normalized_email)}$", "$options": "i"}
 
 def _validate_report_image(file):
     filename = secure_filename(file.filename or "")
@@ -46,6 +54,35 @@ def save_report(data, file):
         if not data.get('title') or not data.get('reporter_email'):
             return {"status": "error", "message": "Data tidak lengkap. Harap isi semua kolom."}, 400
 
+        new_lat = float(data.get('lat', 0))
+        new_lng = float(data.get('lng', 0))
+        reporter_email = data.get('reporter_email')
+
+        # Auto-Clustering logic
+        from app.utils.geo import calculate_distance
+        waiting_reports = reports_collection.find({"status": {"$in": ["Menunggu", "Proses"]}})
+        
+        for rep in waiting_reports:
+            dist = calculate_distance(new_lat, new_lng, float(rep.get('lat', 0)), float(rep.get('lng', 0)))
+            if dist <= 20:
+                # Merge into existing report
+                rep_id = rep['_id']
+                upvoted_by = rep.get('upvoted_by', [])
+                if reporter_email not in upvoted_by:
+                    upvoted_by.append(reporter_email)
+                    upvote_count = rep.get('upvote_count', 0) + 1
+                    reports_collection.update_one(
+                        {"_id": rep_id}, 
+                        {"$set": {"upvote_count": upvote_count, "upvoted_by": upvoted_by}}
+                    )
+                
+                return {
+                    "status": "success",
+                    "message": "Laporan Anda telah digabungkan dengan laporan di titik yang sama (Auto-Clustering).",
+                    "report_id": str(rep_id),
+                    "title": rep.get("title", "Laporan")
+                }, 201
+
         image_path = ""
         if file and file.filename != '':
             filename, error_message = _validate_report_image(file)
@@ -73,11 +110,13 @@ def save_report(data, file):
             "hazard_level": data.get('hazard_level'),
             "dimensions": data.get('dimensions'),
             "description": data.get('description'),
-            "lat": float(data.get('lat', 0)),
-            "lng": float(data.get('lng', 0)),
+            "lat": new_lat,
+            "lng": new_lng,
             "image_path": image_path,
-            "reporter_email": data.get('reporter_email'),
+            "reporter_email": reporter_email,
             "status": "Menunggu",
+            "upvote_count": 0,
+            "upvoted_by": [],
             "created_at": datetime.utcnow()
         }
 
@@ -424,6 +463,7 @@ def update_report_status(report_id, new_status, assigned_petugas_email=None):
 
         update_fields = {"status": new_status}
         assigned_petugas = None
+        assigned_petugas_email = _normalize_email(assigned_petugas_email)
 
         if new_status == "Proses":
             if not assigned_petugas_email:
@@ -432,7 +472,7 @@ def update_report_status(report_id, new_status, assigned_petugas_email=None):
                 return {"status": "error", "message": "Database user tidak terhubung"}, 500
 
             assigned_petugas = users_collection.find_one({
-                "email": assigned_petugas_email,
+                "email": _email_exact_query(assigned_petugas_email),
                 "role": "petugas"
             })
             if not assigned_petugas:
@@ -445,7 +485,7 @@ def update_report_status(report_id, new_status, assigned_petugas_email=None):
             })
 
         same_status = report.get("status") == new_status
-        same_petugas = report.get("assigned_petugas_email") == assigned_petugas_email if new_status == "Proses" else True
+        same_petugas = _normalize_email(report.get("assigned_petugas_email")) == assigned_petugas_email if new_status == "Proses" else True
         if same_status and same_petugas:
             return {"status": "success", "message": "Status laporan tidak berubah"}, 200
             
@@ -483,8 +523,9 @@ def get_assigned_reports(petugas_email):
         return {"status": "error", "message": "Database tidak terhubung"}, 500
 
     try:
+        normalized_email = _normalize_email(petugas_email)
         cursor = reports_collection.find({
-            "assigned_petugas_email": petugas_email,
+            "assigned_petugas_email": _email_exact_query(normalized_email),
             "status": {"$in": ["Proses", "Selesai"]}
         }).sort("assigned_at", -1)
         reports = [_serialize_report(doc) for doc in cursor]
@@ -504,7 +545,7 @@ def complete_assigned_report(report_id, petugas_email, data, file):
         report = reports_collection.find_one({"_id": ObjectId(report_id)})
         if not report:
             return {"status": "error", "message": "Laporan tidak ditemukan"}, 404
-        if report.get("assigned_petugas_email") != petugas_email:
+        if _normalize_email(report.get("assigned_petugas_email")) != _normalize_email(petugas_email):
             return {"status": "error", "message": "Laporan ini tidak ditugaskan kepada Anda"}, 403
         if report.get("status") == "Selesai":
             return {"status": "success", "message": "Laporan sudah selesai"}, 200
@@ -580,3 +621,56 @@ def mark_notifications_read(email):
     except Exception as e:
         logging.error(f"Error saat menandai notifikasi: {e}")
         return {"status": "error", "message": "Terjadi kesalahan sistem"}, 500
+
+def upvote_report(report_id, email):
+    if reports_collection is None:
+        return {"status": "error", "message": "Database tidak terhubung"}, 500
+
+    try:
+        if not ObjectId.is_valid(report_id):
+            return {"status": "error", "message": "ID laporan tidak valid"}, 400
+
+        report = reports_collection.find_one({"_id": ObjectId(report_id)})
+        if not report:
+            return {"status": "error", "message": "Laporan tidak ditemukan"}, 404
+
+        if report.get("status") not in ["Menunggu", "Proses"]:
+            return {"status": "error", "message": "Hanya laporan dengan status Menunggu atau Proses yang dapat di-upvote"}, 400
+
+        upvoted_by = report.get('upvoted_by', [])
+        if email in upvoted_by or report.get("reporter_email") == email:
+            return {"status": "error", "message": "Anda sudah melaporkan atau melakukan upvote pada laporan ini"}, 400
+
+        upvoted_by.append(email)
+        upvote_count = report.get('upvote_count', 0) + 1
+
+        reports_collection.update_one(
+            {"_id": ObjectId(report_id)},
+            {"$set": {"upvote_count": upvote_count, "upvoted_by": upvoted_by}}
+        )
+
+        return {"status": "success", "message": "Berhasil melakukan upvote"}, 200
+    except Exception as e:
+        logging.error(f"Error saat upvote laporan: {e}")
+        return {"status": "error", "message": "Terjadi kesalahan saat memproses upvote"}, 500
+
+def get_public_waiting_reports():
+    if reports_collection is None:
+        return {"status": "error", "message": "Database tidak terhubung"}, 500
+
+    try:
+        cursor = reports_collection.find(
+            {"status": {"$in": ["Menunggu", "Proses"]}},
+            {"title": 1, "description": 1, "address": 1, "lat": 1, "lng": 1, "image_path": 1, "upvote_count": 1, "status": 1}
+        )
+        reports = []
+        for doc in cursor:
+            doc['_id'] = str(doc['_id'])
+            doc['upvote_count'] = doc.get('upvote_count', 0)
+            reports.append(doc)
+            
+        return {"status": "success", "data": reports}, 200
+    except Exception as e:
+        logging.error(f"Error saat mengambil public waiting reports: {e}")
+        return {"status": "error", "message": "Terjadi kesalahan sistem"}, 500
+

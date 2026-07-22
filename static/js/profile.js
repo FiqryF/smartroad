@@ -43,6 +43,71 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (labelBergabung) labelBergabung.textContent = `Bergabung ${data.bergabung}`;
             if (heroNama) heroNama.textContent = data.nama;
             
+            const heroBadge = document.getElementById('heroBadge');
+            const heroPoints = document.getElementById('heroPoints');
+            
+            if (heroBadge && data.badge) {
+                heroBadge.textContent = data.badge;
+                // Atur warna badge berdasarkan gelar
+                if (data.badge === 'Suhu Jalanan') {
+                    heroBadge.style.background = 'linear-gradient(135deg, #FF6B00, #E63946)';
+                    heroBadge.style.boxShadow = '0 2px 4px rgba(230, 57, 70, 0.3)';
+                } else if (data.badge === 'Pahlawan Jalanan') {
+                    heroBadge.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                    heroBadge.style.boxShadow = 'none';
+                } else {
+                    heroBadge.style.background = 'linear-gradient(135deg, #3b82f6, #2563eb)';
+                    heroBadge.style.boxShadow = '0 2px 4px rgba(37, 99, 235, 0.2)';
+                }
+            }
+            if (heroPoints && data.points !== undefined) {
+                heroPoints.textContent = `${data.points} Poin`;
+                
+                // Progress Level Calculation
+                const progressContainer = document.getElementById('progressContainer');
+                const progressBar = document.getElementById('progressBar');
+                const progressPercentage = document.getElementById('progressPercentage');
+                const nextLevelText = document.getElementById('nextLevelText');
+                
+                if (progressContainer && progressBar && progressPercentage && nextLevelText) {
+                    progressContainer.style.display = 'block';
+                    let currentPoints = data.points;
+                    let nextLevelThreshold = 0;
+                    let prevLevelThreshold = 0;
+                    let nextBadge = '';
+                    
+                    if (currentPoints < 50) {
+                        prevLevelThreshold = 0;
+                        nextLevelThreshold = 50;
+                        nextBadge = 'Pahlawan Jalanan';
+                    } else if (currentPoints < 150) {
+                        prevLevelThreshold = 50;
+                        nextLevelThreshold = 150;
+                        nextBadge = 'Suhu Jalanan';
+                    } else {
+                        prevLevelThreshold = 150;
+                        nextLevelThreshold = 150; // Max level
+                        nextBadge = 'Level Maksimal';
+                    }
+                    
+                    if (nextBadge === 'Level Maksimal') {
+                        progressBar.style.width = '100%';
+                        progressPercentage.textContent = '100%';
+                        nextLevelText.textContent = 'Level Maksimal Dicapai!';
+                    } else {
+                        let range = nextLevelThreshold - prevLevelThreshold;
+                        let earned = currentPoints - prevLevelThreshold;
+                        let percentage = Math.floor((earned / range) * 100);
+                        
+                        setTimeout(() => {
+                            progressBar.style.width = `${percentage}%`;
+                        }, 100);
+                        progressPercentage.textContent = `${percentage}%`;
+                        nextLevelText.textContent = `Menuju ${nextBadge} (${currentPoints}/${nextLevelThreshold} Poin)`;
+                    }
+                }
+            }
+            
             if (avatarImg) {
                 avatarImg.src = data.profile_pic === 'default-profile.png' 
                     ? `https://ui-avatars.com/api/?name=${encodeURIComponent(data.nama)}&background=FF6B00&color=FFFFFF`

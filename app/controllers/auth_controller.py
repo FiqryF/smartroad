@@ -1,5 +1,6 @@
 from datetime import datetime
-import bcrypt
+from app.bcrypt_compat import gensalt, hashpw, checkpw
+import app.bcrypt_compat as bcrypt
 import logging
 from app.db import db
 from flask_jwt_extended import create_access_token

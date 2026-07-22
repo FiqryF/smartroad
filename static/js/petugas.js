@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('fileInput');
     const completionNote = document.getElementById('completionNote');
     const uploadContent = document.getElementById('uploadContent');
+    const submitCompletionBtn = document.getElementById('submitCompletionBtn');
     const toastWrap = document.getElementById('appToastWrap');
     const notificationBadge = document.getElementById('notificationBadge');
     const showIdCardBtn = document.getElementById('showIdCardBtn');
@@ -27,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let mainMarkers = null;
     let miniMap = null;
     let miniMapMarker = null;
+    let isSubmittingCompletion = false;
 
     const escape = window.escapeHtml || (value => String(value ?? '').replace(/[&<>"']/g, char => ({
         '&': '&amp;',
@@ -540,6 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.closeConfirmModal = () => {
+        if (isSubmittingCompletion) return;
         confirmModal?.classList.remove('active');
         if (fileInput) fileInput.value = '';
         if (completionNote) completionNote.value = '';
@@ -557,7 +560,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!fileInput?.files?.[0] || !uploadContent) return;
         uploadContent.innerHTML = `
             <i data-lucide="check-circle" style="color: var(--success-green); width: 32px; height: 32px;"></i>
-            <span style="font-weight: 600; color: var(--success-green);">${escape(fileInput.files[0].name)}</span>
+            <span class="file-upload-filename">${escape(fileInput.files[0].name)}</span>
             <span style="font-size: 0.75rem;">File terpilih dan siap dikirim</span>
         `;
         if (window.lucide) window.lucide.createIcons();
@@ -565,6 +568,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.submitCompletionForm = async (event) => {
         event.preventDefault();
+        if (isSubmittingCompletion) return;
+
         const reportId = modalTaskId?.dataset.reportId;
         const file = fileInput?.files?.[0];
         if (!reportId) {
@@ -587,6 +592,13 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('completion_note', completionNote?.value || '');
 
         try {
+            isSubmittingCompletion = true;
+            if (submitCompletionBtn) {
+                submitCompletionBtn.disabled = true;
+                submitCompletionBtn.innerHTML = '<i data-lucide="loader-circle"></i> Mengirim...';
+                if (window.lucide) window.lucide.createIcons();
+            }
+
             const response = await fetchWithAuth(`/api/reports/${encodeURIComponent(reportId)}/complete`, {
                 method: 'POST',
                 body: formData
@@ -600,12 +612,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             showToast('Konfirmasi Terkirim', data.message || 'Konfirmasi penyelesaian berhasil dikirim.', 'success');
+            isSubmittingCompletion = false;
             closeConfirmModal();
             await loadAssignedReports();
             await loadNotifications();
         } catch (error) {
             console.error(error);
             showToast('Koneksi Bermasalah', 'Gagal terhubung ke server.', 'error');
+        } finally {
+            isSubmittingCompletion = false;
+            if (submitCompletionBtn) {
+                submitCompletionBtn.disabled = false;
+                submitCompletionBtn.innerHTML = '<i data-lucide="send"></i> Kirim Konfirmasi';
+                if (window.lucide) window.lucide.createIcons();
+            }
         }
     };
 

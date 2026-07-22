@@ -1,4 +1,4 @@
-import bcrypt
+import app.bcrypt_compat as bcrypt
 from datetime import datetime
 from app.db import db
 

@@ -1,5 +1,5 @@
 import os
-import bcrypt
+import app.bcrypt_compat as bcrypt
 import logging
 from datetime import datetime
 from werkzeug.utils import secure_filename
@@ -35,6 +35,14 @@ def _validate_image_upload(file):
 
     return filename, None
 
+def _get_badge(points):
+    if points < 50:
+        return "Warga Peduli"
+    elif points < 150:
+        return "Pahlawan Jalanan"
+    else:
+        return "Suhu Jalanan"
+
 def get_user_profile(email):
     if users_collection is None:
         return {"status": "error", "message": "Database error"}, 500
@@ -52,16 +60,38 @@ def get_user_profile(email):
     else:
         formatted_date = "Anggota Lama"
 
+    points = user.get("points", 0)
+    badge = _get_badge(points)
+
     profile_data = {
         "nama": user.get("nama", ""),
         "email": user.get("email", ""),
         "telepon": user.get("telepon", ""),
         "alamat": user.get("alamat", ""),
         "profile_pic": user.get("profile_pic", "default-profile.png"),
-        "bergabung": formatted_date
+        "bergabung": formatted_date,
+        "points": points,
+        "badge": badge
     }
     
     return {"status": "success", "data": profile_data}, 200
+
+def get_leaderboard():
+    if users_collection is None:
+        return {"status": "error", "message": "Database error"}, 500
+        
+    cursor = users_collection.find({"role": "user", "points": {"$gt": 0}}).sort("points", -1).limit(5)
+    leaderboard = []
+    for doc in cursor:
+        points = doc.get("points", 0)
+        leaderboard.append({
+            "nama": doc.get("nama", "Warga"),
+            "profile_pic": doc.get("profile_pic", "default-profile.png"),
+            "points": points,
+            "badge": _get_badge(points)
+        })
+        
+    return {"status": "success", "data": leaderboard}, 200
 
 def update_user_profile(email, data):
     if users_collection is None:

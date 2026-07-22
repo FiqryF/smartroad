@@ -5,7 +5,8 @@ from app.controllers.profile_controller import (
     get_user_profile, 
     update_user_profile, 
     update_user_password,
-    upload_profile_photo
+    upload_profile_photo,
+    get_leaderboard
 )
 
 profile_bp = Blueprint('profile', __name__)
@@ -18,6 +19,11 @@ def get_profile():
         
     email = get_jwt_identity()
     result, status = get_user_profile(email)
+    return jsonify(result), status
+
+@profile_bp.route('/leaderboard', methods=['GET'])
+def leaderboard_route():
+    result, status = get_leaderboard()
     return jsonify(result), status
 
 @profile_bp.route('/update-profile', methods=['POST', 'OPTIONS'])

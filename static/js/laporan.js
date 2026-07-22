@@ -290,11 +290,117 @@ document.addEventListener('DOMContentLoaded', () => {
     let map = null;
     let marker = null;
     if (window.L && document.getElementById('map')) {
+        const style = document.createElement('style');
+        style.innerHTML = `
+            .custom-premium-popup .leaflet-popup-content-wrapper {
+                padding: 0;
+                border-radius: 12px;
+                overflow: hidden;
+            }
+            .custom-premium-popup .leaflet-popup-content {
+                margin: 0;
+                line-height: 1.5;
+                width: 240px !important;
+            }
+            .custom-premium-popup .leaflet-popup-tip-container {
+                margin-top: -1px;
+            }
+            .popup-inner-content {
+                padding: 15px;
+            }
+            .map-wrapper.fullscreen-map {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                z-index: 999999 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border-radius: 0 !important;
+            }
+            .map-wrapper.fullscreen-map #map {
+                height: 100% !important;
+                border-radius: 0 !important;
+            }
+            .map-wrapper.fullscreen-map .location-actions {
+                position: absolute;
+                bottom: 30px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 90%;
+                max-width: 500px;
+                z-index: 999999;
+                border-radius: 12px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            }
+            body.map-fullscreen-active {
+                overflow: hidden !important;
+            }
+            body.map-fullscreen-active .header {
+                display: none !important;
+            }
+            .leaflet-control-fullscreen a {
+                background: #fff;
+                width: 34px;
+                height: 34px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #333;
+                text-decoration: none;
+                border-radius: 6px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+                cursor: pointer;
+            }
+            .leaflet-control-fullscreen a:hover {
+                background: #f4f4f4;
+            }
+            .leaflet-control-fullscreen a svg {
+                width: 18px;
+                height: 18px;
+            }
+        `;
+        document.head.appendChild(style);
+
         map = L.map('map', {
             center: [defaultLat, defaultLng],
             zoom: 15,
             zoomControl: true
         });
+
+        // Add Fullscreen Control
+        L.Control.Fullscreen = L.Control.extend({
+            options: {
+                position: 'topleft'
+            },
+            onAdd: function (map) {
+                var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-fullscreen');
+                var button = L.DomUtil.create('a', '', container);
+                button.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>';
+                button.href = '#';
+                button.title = 'Toggle Fullscreen';
+                
+                L.DomEvent.on(button, 'click', function (e) {
+                    L.DomEvent.stopPropagation(e);
+                    L.DomEvent.preventDefault(e);
+                    var mapContainer = document.querySelector('.map-wrapper') || document.getElementById('map');
+                    if (mapContainer.classList.contains('fullscreen-map')) {
+                        mapContainer.classList.remove('fullscreen-map');
+                        document.body.classList.remove('map-fullscreen-active');
+                        button.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>';
+                    } else {
+                        mapContainer.classList.add('fullscreen-map');
+                        document.body.classList.add('map-fullscreen-active');
+                        button.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path></svg>';
+                    }
+                    setTimeout(() => map.invalidateSize(), 300);
+                });
+                
+                return container;
+            }
+        });
+        map.addControl(new L.Control.Fullscreen());
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
@@ -302,10 +408,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }).addTo(map);
 
         const orangeIcon = L.divIcon({
-            className: 'custom-orange-pin',
-            html: '<div style="background-color: #FF6B00; width: 14px; height: 14px; border: 2.5px solid #FFFFFF; border-radius: 50%; box-shadow: 0 0 8px rgba(255, 107, 0, 0.65);"></div>',
-            iconSize: [14, 14],
-            iconAnchor: [7, 7]
+            className: 'custom-user-pin',
+            html: `
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="#FF6B00" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0px 3px 4px rgba(0,0,0,0.4));">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" stroke="#ffffff" stroke-width="1.5"/>
+                    <circle cx="12" cy="9.5" r="1.5" fill="#ffffff" />
+                </svg>`,
+            iconSize: [36, 36],
+            iconAnchor: [18, 36]
         });
 
         marker = L.marker([defaultLat, defaultLng], {
@@ -322,6 +432,75 @@ document.addEventListener('DOMContentLoaded', () => {
             marker.setLatLng(e.latlng);
             updateCoordsDisplay(e.latlng.lat, e.latlng.lng);
         });
+
+        const getMarkerIcon = (upvotes) => {
+            let color = '#10b981'; // Hijau (Sedikit)
+            if (upvotes >= 20) {
+                color = '#ef4444'; // Merah (Banyak)
+            } else if (upvotes >= 5) {
+                color = '#facc15'; // Kuning (Sedang)
+            }
+            
+            const svgIcon = `
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="${color}" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0px 3px 4px rgba(0,0,0,0.4));">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" stroke="#ffffff" stroke-width="1"/>
+                </svg>
+            `;
+            
+            return L.divIcon({
+                className: 'custom-svg-pin',
+                html: svgIcon,
+                iconSize: [36, 36],
+                iconAnchor: [18, 36], // Point of the pin at the bottom center
+                popupAnchor: [0, -32] // Popup opens just above the pin
+            });
+        };
+
+        // Load waiting reports
+        const loadWaitingReports = async () => {
+            try {
+                const res = await fetch('/api/reports/public/waiting');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.status === 'success') {
+                        data.data.forEach(rep => {
+                            const icon = getMarkerIcon(rep.upvote_count || 0);
+                            const repMarker = L.marker([rep.lat, rep.lng], { icon: icon }).addTo(map);
+                            const imageUrl = rep.image_path ? `/static/${rep.image_path}` : 'https://via.placeholder.com/240x120?text=No+Image';
+                            const popupContent = `
+                                <div style="font-family: 'Inter', sans-serif;">
+                                    <div style="height: 120px; width: 100%; position: relative; background-color: #f1f5f9;">
+                                        <img src="${imageUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="Foto Laporan" onerror="this.onerror=null; this.src='https://via.placeholder.com/240x120?text=No+Image'" />
+                                        <div style="position: absolute; top: 10px; right: 10px; background: ${rep.status === 'Proses' ? '#3b82f6' : '#FF6B00'}; color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10;">
+                                            ${rep.status || 'Menunggu'}
+                                        </div>
+                                    </div>
+                                    <div class="popup-inner-content">
+                                        <h4 style="margin: 0 0 6px 0; font-size: 14px; font-weight: 700; color: #1e293b; line-height: 1.3;">${rep.title}</h4>
+                                        <p style="margin: 0 0 12px 0; font-size: 12px; color: #64748b; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;">${rep.description}</p>
+                                        <div style="font-size: 12px; color: #FF6B00; margin-bottom: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                                            ${rep.upvote_count} warga terdampak
+                                        </div>
+                                        <button onclick="window.upvoteReport('${rep._id}')" 
+                                            style="width: 100%; padding: 8px; background: linear-gradient(135deg, #FF6B00, #E63946); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(230, 57, 70, 0.3);">
+                                            Saya juga terdampak
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                            repMarker.bindPopup(popupContent, {
+                                className: 'custom-premium-popup'
+                            });
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to load waiting reports:", err);
+            }
+        };
+        
+        loadWaitingReports();
     }
 
     const btnGps = document.getElementById('btnGps');
@@ -455,4 +634,31 @@ window.logout = function () {
     if (window.clearAuthSession) window.clearAuthSession();
     if (window.showLogoutNotice) window.showLogoutNotice();
     else window.location.href = 'login.html';
+};
+
+window.upvoteReport = async function(reportId) {
+    try {
+        const response = await fetchWithAuth(`/api/reports/${reportId}/upvote`, {
+            method: 'POST'
+        });
+        
+        if (!response) return;
+        const result = await response.json();
+        
+        if (response.ok) {
+            Swal.fire({
+                title: 'Berhasil!',
+                text: 'Laporan Anda telah digabungkan (Upvote sukses). Terima kasih atas partisipasinya.',
+                icon: 'success',
+                confirmButtonColor: '#FF6B00'
+            }).then(() => {
+                window.location.href = 'riwayat.html';
+            });
+        } else {
+            Swal.fire('Gagal', result.message || 'Terjadi kesalahan saat melakukan upvote.', 'error');
+        }
+    } catch (error) {
+        console.error('Upvote error:', error);
+        Swal.fire('Error', 'Gagal terhubung ke server', 'error');
+    }
 };

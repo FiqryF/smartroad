@@ -776,7 +776,7 @@
             display: grid;
             place-items: center;
             background: rgba(18, 20, 22, 0.6);
-            padding: 1.5rem;
+            padding: clamp(1rem, 3vw, 1.5rem);
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
@@ -794,14 +794,18 @@
         .modal-card {
             width: min(720px, 100%);
             background: var(--text-white);
-            border-radius: 12px;
+            border-radius: 10px;
             box-shadow: var(--shadow-lg);
             overflow: hidden;
             transform: translateY(-20px);
             transition: var(--transition);
-            max-height: 90vh;
+            max-height: calc(100vh - 2rem);
             display: flex;
             flex-direction: column;
+        }
+
+        .modal-card-confirm {
+            width: min(640px, 100%);
         }
 
         .modal-overlay.active .modal-card {
@@ -811,23 +815,35 @@
         .modal-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem 1.75rem;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1.35rem 1.75rem 1.1rem;
             border-bottom: 1px solid var(--concrete-border);
+            flex-shrink: 0;
         }
 
         .modal-title {
             font-family: 'Montserrat', sans-serif;
             font-size: 1.25rem;
+            line-height: 1.25;
             font-weight: 800;
             text-transform: uppercase;
             color: var(--asphalt-dark);
+            overflow-wrap: anywhere;
         }
 
         .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
+            width: 2.25rem;
+            height: 2.25rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            background: var(--concrete-gray);
+            border: 1px solid var(--concrete-border);
+            border-radius: 999px;
+            font-size: 1.4rem;
+            line-height: 1;
             cursor: pointer;
             color: var(--text-muted);
             transition: var(--transition);
@@ -840,6 +856,7 @@
         .modal-body {
             padding: 1.5rem 1.75rem;
             overflow-y: auto;
+            min-height: 0;
         }
 
         .id-card-template {
@@ -1114,6 +1131,7 @@
             display: flex;
             justify-content: flex-end;
             gap: 1rem;
+            flex-shrink: 0;
         }
 
         /* Form styling */
@@ -1153,7 +1171,7 @@
             position: relative;
             border: 2px dashed var(--concrete-border);
             border-radius: var(--border-radius);
-            padding: 2.25rem;
+            padding: clamp(1.4rem, 5vw, 2.25rem);
             text-align: center;
             background: var(--concrete-gray);
             cursor: pointer;
@@ -1179,11 +1197,22 @@
             align-items: center;
             gap: 0.5rem;
             color: var(--text-muted);
+            min-width: 0;
+            pointer-events: none;
         }
 
         .file-upload-content i {
             color: var(--safety-orange);
             font-size: 1.5rem;
+        }
+
+        .file-upload-filename {
+            width: 100%;
+            max-width: 100%;
+            color: var(--success-green);
+            font-weight: 700;
+            line-height: 1.35;
+            overflow-wrap: anywhere;
         }
 
         /* Drawer Overlay Mobile Navbar */
@@ -1488,6 +1517,30 @@
             .detail-layout {
                 grid-template-columns: 1fr;
             }
+
+            .modal-overlay {
+                align-items: start;
+                padding-top: 5.25rem;
+            }
+
+            .modal-header,
+            .modal-body,
+            .modal-footer {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            .modal-title {
+                font-size: 1rem;
+            }
+
+            .modal-footer {
+                flex-direction: column-reverse;
+            }
+
+            .modal-footer .btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -1716,10 +1769,10 @@
 
     <!-- Confirm Modal -->
     <div class="modal-overlay" id="confirmModal">
-        <div class="modal-card" style="width: min(500px, 100%);">
+        <div class="modal-card modal-card-confirm">
             <div class="modal-header">
                 <h3 class="modal-title">Konfirmasi Penyelesaian</h3>
-                <button class="modal-close" onclick="closeConfirmModal()">&times;</button>
+                <button type="button" class="modal-close" onclick="closeConfirmModal()" aria-label="Tutup modal">&times;</button>
             </div>
             <form onsubmit="submitCompletionForm(event)">
                 <div class="modal-body">
@@ -1731,11 +1784,11 @@
                     <div class="form-group">
                         <label class="form-label">Foto Bukti Selesai Perbaikan</label>
                         <div class="file-upload-wrapper">
-                            <input type="file" class="file-upload-input" accept="image/*" required id="fileInput" onchange="handleFileChange()">
+                            <input type="file" class="file-upload-input" accept="image/jpeg,image/png,image/webp" required id="fileInput" onchange="handleFileChange()">
                             <div class="file-upload-content" id="uploadContent">
                                 <i data-lucide="camera"></i>
                                 <span style="font-weight: 600; color: var(--asphalt-dark);">Klik atau Drag Foto Disini</span>
-                                <span style="font-size: 0.75rem;">Format JPG/PNG, Maksimal 5MB</span>
+                                <span style="font-size: 0.75rem;">Format JPG/PNG/WEBP, Maksimal 5MB</span>
                             </div>
                         </div>
                     </div>
@@ -1747,7 +1800,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeConfirmModal()">Batal</button>
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary" id="submitCompletionBtn">
                         <i data-lucide="send"></i> Kirim Konfirmasi
                     </button>
                 </div>

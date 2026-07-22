@@ -1404,6 +1404,90 @@
                 gap: 2rem;
             }
         }
+        
+        /* Leaderboard */
+        .leaderboard-section {
+            padding: 5rem 0;
+            background: #f8fafc;
+        }
+        .leaderboard-container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+        }
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        .leaderboard-item:last-child {
+            border-bottom: none;
+        }
+        .leaderboard-item:hover {
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+        .rank-number {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #cbd5e1;
+            width: 40px;
+            text-align: center;
+        }
+        .rank-1 .rank-number { color: #fbbf24; font-size: 1.5rem; }
+        .rank-2 .rank-number { color: #94a3b8; font-size: 1.4rem; }
+        .rank-3 .rank-number { color: #b45309; font-size: 1.3rem; }
+        
+        .leaderboard-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+            object-fit: cover;
+            border: 2px solid transparent;
+        }
+        .rank-1 .leaderboard-avatar { border-color: #fbbf24; }
+        .rank-2 .leaderboard-avatar { border-color: #94a3b8; }
+        .rank-3 .leaderboard-avatar { border-color: #b45309; }
+        
+        .leaderboard-info {
+            flex-grow: 1;
+        }
+        .leaderboard-name {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .leaderboard-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #fff;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            padding: 2px 10px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+        }
+        .badge-suhu { background: linear-gradient(135deg, #FF6B00, #E63946); box-shadow: 0 2px 4px rgba(230, 57, 70, 0.3); }
+        .badge-pahlawan { background: linear-gradient(135deg, #10b981, #059669); }
+        
+        .leaderboard-points {
+            font-weight: 800;
+            color: #FF6B00;
+            font-size: 1.1rem;
+            text-align: right;
+            background: #fff3eb;
+            padding: 5px 12px;
+            border-radius: 20px;
+        }
 
         @media (max-width: 768px) {
             .section-header {
@@ -1673,7 +1757,22 @@
         </div>
     </section>
 
-
+    <!-- 3.5 Leaderboard Warga -->
+    <section class="leaderboard-section" id="leaderboard">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">Gamifikasi & Partisipasi Warga</span>
+                <h2 class="section-title">Pahlawan SmartRoad</h2>
+                <p class="section-desc">Apresiasi tertinggi untuk warga yang paling aktif melaporkan dan memvalidasi infrastruktur jalan kota demi kebaikan bersama.</p>
+            </div>
+            
+            <div class="leaderboard-container">
+                <div class="leaderboard-list" id="leaderboardList">
+                    <div style="text-align: center; color: #64748b; padding: 2rem;">Memuat daftar warga teraktif...</div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- 4. Professional Eyecatching Action Banner -->
     <section class="professional-cta">

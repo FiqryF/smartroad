@@ -112,6 +112,49 @@ window.onload = async () => {
             );
         }
     }
+
+    async function loadLeaderboard() {
+        try {
+            const res = await fetch('/api/profile/leaderboard');
+            if (res.ok) {
+                const data = await res.json();
+                if (data.status === 'success' && data.data) {
+                    const lbList = document.getElementById('leaderboardList');
+                    if (!lbList) return;
+                    lbList.innerHTML = '';
+                    if (data.data.length === 0) {
+                        lbList.innerHTML = '<div style="text-align: center; color: #64748b; padding: 2rem;">Belum ada warga yang memiliki poin. Jadilah yang pertama!</div>';
+                        return;
+                    }
+                    data.data.forEach((user, index) => {
+                        const rank = index + 1;
+                        let badgeClass = '';
+                        if (user.badge === 'Suhu Jalanan') badgeClass = 'badge-suhu';
+                        else if (user.badge === 'Pahlawan Jalanan') badgeClass = 'badge-pahlawan';
+                        
+                        const profilePicUrl = user.profile_pic === 'default-profile.png'
+                            ? `https://ui-avatars.com/api/?name=${encodeURIComponent(user.nama)}&background=FF6B00&color=FFFFFF`
+                            : `http://127.0.0.1:5000/static/${user.profile_pic}`;
+
+                        lbList.innerHTML += `
+                            <div class="leaderboard-item rank-${rank}">
+                                <div class="rank-number">${rank}</div>
+                                <img src="${profilePicUrl}" alt="${user.nama}" class="leaderboard-avatar">
+                                <div class="leaderboard-info">
+                                    <div class="leaderboard-name">${user.nama} <span class="leaderboard-badge ${badgeClass}">${user.badge}</span></div>
+                                </div>
+                                <div class="leaderboard-points">${user.points} pts</div>
+                            </div>
+                        `;
+                    });
+                }
+            }
+        } catch(err) {
+            console.error('Failed to load leaderboard', err);
+        }
+    }
+    
+    loadLeaderboard();
 };
 
 // 4. Fungsi Logout

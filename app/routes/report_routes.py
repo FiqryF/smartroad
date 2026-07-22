@@ -13,7 +13,9 @@ from app.controllers.report_controller import (
     submit_report_review,
     get_report_cs_messages,
     send_report_cs_message,
-    get_admin_cs_conversations
+    get_admin_cs_conversations,
+    upvote_report,
+    get_public_waiting_reports
 )
 
 report_bp = Blueprint('reports', __name__)
@@ -21,6 +23,24 @@ report_bp = Blueprint('reports', __name__)
 @report_bp.route('/public-summary', methods=['GET'])
 def get_public_summary_route():
     result, status_code = get_public_report_summary()
+    return jsonify(result), status_code
+
+@report_bp.route('/public/waiting', methods=['GET', 'OPTIONS'])
+def get_waiting_reports_route():
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+        
+    result, status_code = get_public_waiting_reports()
+    return jsonify(result), status_code
+
+@report_bp.route('/<report_id>/upvote', methods=['POST', 'OPTIONS'])
+@jwt_required()
+def upvote_report_route(report_id):
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+        
+    email = get_jwt_identity()
+    result, status_code = upvote_report(report_id, email)
     return jsonify(result), status_code
 
 @report_bp.route('/submit', methods=['POST', 'OPTIONS'])

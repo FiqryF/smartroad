@@ -1,4 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const escape = window.escapeHtml || (value => String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    }[char])));
+
     // Initialize Lucide Icons
     if (window.lucide) {
         window.lucide.createIcons();
@@ -92,6 +100,22 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) window.lucide.createIcons();
         });
     }
+
+    document.querySelectorAll('[data-profile-link]').forEach(button => {
+        button.addEventListener('click', () => {
+            window.location.href = button.dataset.profileLink || 'profile.html';
+        });
+    });
+
+    document.querySelectorAll('[data-logout-button]').forEach(button => {
+        button.addEventListener('click', () => window.logout());
+    });
+
+    document.querySelectorAll('[data-cancel-report]').forEach(button => {
+        button.addEventListener('click', () => {
+            window.location.href = 'dashboard.html';
+        });
+    });
 
     const notificationBtn = document.querySelector('.notification-btn');
     const profileDesktop = document.querySelector('.user-profile-desktop');
@@ -289,6 +313,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let map = null;
     let marker = null;
+    let publicReports = [];
+    window.smartRoadSupportedReportIds = window.smartRoadSupportedReportIds || new Set();
+    window.smartRoadPublicReports = window.smartRoadPublicReports || [];
     if (window.L && document.getElementById('map')) {
         const style = document.createElement('style');
         style.innerHTML = `
@@ -360,6 +387,233 @@ document.addEventListener('DOMContentLoaded', () => {
                 width: 18px;
                 height: 18px;
             }
+            .crowd-map-legend {
+                background: rgba(255, 255, 255, 0.96);
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                box-shadow: 0 8px 22px rgba(15, 23, 42, 0.14);
+                color: #0f172a;
+                font-size: 0.68rem;
+                line-height: 1.2;
+                padding: 8px 10px;
+                min-width: 145px;
+            }
+            .crowd-map-legend strong {
+                display: block;
+                font-size: 0.68rem;
+                font-weight: 900;
+                letter-spacing: 0.05em;
+                margin-bottom: 6px;
+                text-transform: uppercase;
+            }
+            .crowd-map-legend span {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                margin-top: 5px;
+                white-space: nowrap;
+            }
+            .crowd-map-dot {
+                width: 10px;
+                height: 10px;
+                border-radius: 999px;
+                border: 2px solid #ffffff;
+                box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.16);
+                flex: 0 0 auto;
+            }
+            .report-detail-modal {
+                position: fixed;
+                inset: 0;
+                z-index: 10000;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                background: rgba(15, 23, 42, 0.58);
+                backdrop-filter: blur(5px);
+            }
+            .report-detail-modal.active {
+                display: flex;
+            }
+            .report-detail-card {
+                width: min(900px, 100%);
+                max-height: calc(100vh - 32px);
+                background: #ffffff;
+                border-radius: 10px;
+                overflow: hidden;
+                box-shadow: 0 28px 70px rgba(15, 23, 42, 0.28);
+                display: flex;
+                align-items: stretch;
+            }
+            .report-detail-card.is-own-report {
+                border: 2px solid #2563eb;
+            }
+            .report-detail-card.is-own-report .report-detail-body {
+                background: linear-gradient(180deg, #eff6ff 0%, #ffffff 42%);
+            }
+            .report-detail-card.is-supported-report {
+                border: 2px solid #94a3b8;
+            }
+            .report-detail-card.is-supported-report .report-detail-body {
+                background: linear-gradient(180deg, #f8fafc 0%, #ffffff 42%);
+            }
+            .report-detail-photo {
+                width: min(46%, 420px);
+                flex: 0 0 min(46%, 420px);
+                min-height: 460px;
+                background: #0f172a;
+                border-right: 1px solid #e2e8f0;
+                border-bottom: none;
+                display: block;
+                overflow: hidden;
+            }
+            .report-detail-photo img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                object-position: center center;
+                display: block;
+            }
+            .report-detail-body {
+                padding: 18px;
+                overflow: visible;
+                min-width: 0;
+                flex: 1 1 auto;
+            }
+            .report-detail-top {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 12px;
+                margin-bottom: 8px;
+            }
+            .report-detail-kicker {
+                color: #FF6B00;
+                font-size: 0.68rem;
+                font-weight: 900;
+                text-transform: uppercase;
+                letter-spacing: 0.09em;
+                margin-bottom: 5px;
+            }
+            .report-detail-card.is-own-report .report-detail-kicker {
+                color: #2563eb;
+            }
+            .report-detail-card.is-supported-report .report-detail-kicker {
+                color: #475569;
+            }
+            .report-detail-title {
+                color: #0f172a;
+                font-size: 1.15rem;
+                font-weight: 900;
+                line-height: 1.25;
+                margin: 0;
+            }
+            .report-detail-close {
+                width: 34px;
+                height: 34px;
+                border: 1px solid #e2e8f0;
+                background: #ffffff;
+                color: #64748b;
+                border-radius: 8px;
+                cursor: pointer;
+                display: grid;
+                place-items: center;
+                flex: 0 0 auto;
+            }
+            .report-detail-desc {
+                color: #475569;
+                font-size: 0.84rem;
+                line-height: 1.35;
+                margin: 0 0 10px;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            .report-detail-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 8px;
+                margin-bottom: 10px;
+            }
+            .report-detail-stat {
+                border: 1px solid #e2e8f0;
+                background: #f8fafc;
+                border-radius: 7px;
+                padding: 8px 10px;
+            }
+            .report-detail-stat span {
+                display: block;
+                color: #64748b;
+                font-size: 0.62rem;
+                font-weight: 900;
+                text-transform: uppercase;
+                letter-spacing: 0.07em;
+                margin-bottom: 3px;
+            }
+            .report-detail-stat strong {
+                color: #0f172a;
+                font-size: 0.82rem;
+                font-weight: 900;
+                line-height: 1.25;
+                word-break: break-word;
+            }
+            .report-detail-address {
+                border-top: 1px solid #e2e8f0;
+                padding-top: 8px;
+                color: #475569;
+                font-size: 0.78rem;
+                line-height: 1.3;
+                margin-bottom: 10px;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            .report-detail-action {
+                width: 100%;
+                border: none;
+                border-radius: 7px;
+                background: #FF6B00;
+                color: #ffffff;
+                min-height: 38px;
+                font-weight: 900;
+                cursor: pointer;
+            }
+            .report-detail-action:hover {
+                background: #E05E00;
+            }
+            .report-detail-action[disabled] {
+                background: #e2e8f0;
+                color: #64748b;
+                cursor: not-allowed;
+            }
+            .report-detail-card.is-own-report .report-detail-action[disabled] {
+                background: #2563eb;
+                color: #ffffff;
+            }
+            .report-detail-card.is-supported-report .report-detail-action[disabled] {
+                background: #64748b;
+                color: #ffffff;
+            }
+            @media (max-width: 640px) {
+                .report-detail-card {
+                    display: flex;
+                    flex-direction: column;
+                    width: min(520px, 100%);
+                }
+                .report-detail-photo {
+                    width: 100%;
+                    flex-basis: auto;
+                    height: 190px;
+                    min-height: 190px;
+                    border-right: none;
+                    border-bottom: 1px solid #e2e8f0;
+                }
+                .report-detail-grid {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+            }
         `;
         document.head.appendChild(style);
 
@@ -402,6 +656,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         map.addControl(new L.Control.Fullscreen());
 
+        L.Control.CrowdLegend = L.Control.extend({
+            options: {
+                position: 'bottomleft'
+            },
+            onAdd: function () {
+                const container = L.DomUtil.create('div', 'crowd-map-legend');
+                container.innerHTML = `
+                    <strong>Status Marker</strong>
+                    <span><i class="crowd-map-dot" style="background:#2563eb"></i> Laporan Anda</span>
+                    <span><i class="crowd-map-dot" style="background:#64748b"></i> Sudah terdampak</span>
+                    <span><i class="crowd-map-dot" style="background:#10b981"></i> Prioritas normal</span>
+                    <span><i class="crowd-map-dot" style="background:#f59e0b"></i> Prioritas sedang</span>
+                    <span><i class="crowd-map-dot" style="background:#f97316"></i> Prioritas tinggi</span>
+                    <span><i class="crowd-map-dot" style="background:#ef4444"></i> Mendesak</span>
+                `;
+                L.DomEvent.disableClickPropagation(container);
+                return container;
+            }
+        });
+        map.addControl(new L.Control.CrowdLegend());
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; OpenStreetMap contributors'
@@ -433,12 +708,105 @@ document.addEventListener('DOMContentLoaded', () => {
             updateCoordsDisplay(e.latlng.lat, e.latlng.lng);
         });
 
-        const getMarkerIcon = (upvotes) => {
+        const calculateDistanceMeters = (lat1, lng1, lat2, lng2) => {
+            const toRad = value => value * Math.PI / 180;
+            const earthRadius = 6371000;
+            const dLat = toRad(lat2 - lat1);
+            const dLng = toRad(lng2 - lng1);
+            const a = Math.sin(dLat / 2) ** 2
+                + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+            return 2 * earthRadius * Math.asin(Math.sqrt(a));
+        };
+
+        const reportModal = document.createElement('div');
+        reportModal.id = 'reportDetailModal';
+        reportModal.className = 'report-detail-modal';
+        reportModal.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(reportModal);
+
+        const closeReportModal = () => {
+            reportModal.classList.remove('active');
+            reportModal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+        };
+
+        window.addEventListener('pageshow', () => {
+            closeReportModal();
+        });
+
+        reportModal.addEventListener('click', (event) => {
+            if (event.target === reportModal || event.target.closest('[data-close-report-modal]')) {
+                closeReportModal();
+            }
+        });
+
+        const openReportDetailModal = (report, distance = 0) => {
+            const affectedCount = report.affected_count || ((report.upvote_count || 0) + 1);
+            const priorityLevel = report.priority_level || 'Normal';
+            const supportCount = Number(report.upvote_count || 0) || Math.max(affectedCount - 1, 0);
+            const imageUrl = report.image_path ? `/static/${report.image_path}` : 'https://via.placeholder.com/720x360?text=No+Image';
+            const isOwnReport = Boolean(report.is_own_report);
+            const isSupported = Boolean(report.is_supported_by_current_user || report.clustered_by_current_user);
+            const detailKicker = isOwnReport
+                ? 'Laporan Anda'
+                : (isSupported ? 'Laporan yang Anda dukung' : 'Detail laporan publik');
+            const actionHtml = isOwnReport
+                ? '<button type="button" class="report-detail-action" disabled>Laporan ini dibuat oleh Anda</button>'
+                : (isSupported
+                    ? '<button type="button" class="report-detail-action" disabled>Anda sudah tercatat terdampak</button>'
+                    : `<button type="button" class="report-detail-action" data-modal-upvote-report-id="${escape(report._id)}">Saya juga terdampak</button>`);
+            const modalClass = isOwnReport ? ' is-own-report' : (isSupported ? ' is-supported-report' : '');
+            reportModal.innerHTML = `
+                <div class="report-detail-card${modalClass}" role="dialog" aria-modal="true" aria-label="Detail laporan terdekat">
+                    <div class="report-detail-photo">
+                        <img src="${escape(imageUrl)}" alt="Foto laporan" onerror="this.onerror=null; this.src='https://via.placeholder.com/720x360?text=No+Image';">
+                    </div>
+                    <div class="report-detail-body">
+                        <div class="report-detail-top">
+                            <div>
+                                <div class="report-detail-kicker">${detailKicker}</div>
+                                <h3 class="report-detail-title">${escape(report.title || 'Laporan')}</h3>
+                            </div>
+                            <button type="button" class="report-detail-close" data-close-report-modal aria-label="Tutup detail laporan">x</button>
+                        </div>
+                        <p class="report-detail-desc">${escape(report.description || '-')}</p>
+                        <div class="report-detail-grid">
+                            <div class="report-detail-stat"><span>Warga terdampak</span><strong>${affectedCount} orang</strong></div>
+                            <div class="report-detail-stat"><span>Prioritas</span><strong>${escape(priorityLevel)}</strong></div>
+                            <div class="report-detail-stat"><span>Status</span><strong>${escape(report.status || 'Menunggu')}</strong></div>
+                            <div class="report-detail-stat"><span>Jarak dari titik Anda</span><strong>${Math.round(distance)} meter</strong></div>
+                            <div class="report-detail-stat"><span>Dukungan warga</span><strong>${supportCount} warga tambahan</strong></div>
+                            <div class="report-detail-stat"><span>Koordinat</span><strong>${escape(Number(report.lat).toFixed(5))}, ${escape(Number(report.lng).toFixed(5))}</strong></div>
+                        </div>
+                        <div class="report-detail-address">
+                            <strong>Alamat:</strong> ${escape(report.address || '-')}
+                        </div>
+                        ${actionHtml}
+                    </div>
+                </div>
+            `;
+            reportModal.classList.add('active');
+            reportModal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+            reportModal.querySelector('[data-modal-upvote-report-id]')?.addEventListener('click', (event) => {
+                window.upvoteReport(event.currentTarget.dataset.modalUpvoteReportId);
+            });
+        };
+
+        const getMarkerIcon = (report) => {
+            const affectedCount = report.affected_count || ((report.upvote_count || 0) + 1);
+            const priorityLevel = report.priority_level || '';
             let color = '#10b981'; // Hijau (Sedikit)
-            if (upvotes >= 20) {
-                color = '#ef4444'; // Merah (Banyak)
-            } else if (upvotes >= 5) {
-                color = '#facc15'; // Kuning (Sedang)
+            if (report.is_own_report) {
+                color = '#2563eb';
+            } else if (report.is_supported_by_current_user || report.clustered_by_current_user) {
+                color = '#64748b';
+            } else if (priorityLevel === 'Mendesak' || affectedCount >= 10) {
+                color = '#ef4444';
+            } else if (priorityLevel === 'Tinggi' || affectedCount >= 5) {
+                color = '#f97316';
+            } else if (priorityLevel === 'Sedang' || affectedCount >= 3) {
+                color = '#f59e0b';
             }
             
             const svgIcon = `
@@ -459,40 +827,68 @@ document.addEventListener('DOMContentLoaded', () => {
         // Load waiting reports
         const loadWaitingReports = async () => {
             try {
-                const res = await fetch('/api/reports/public/waiting');
+                const token = sessionStorage.getItem('jwtToken');
+                const publicRequestOptions = token ? {
+                    headers: { Authorization: `Bearer ${token}` }
+                } : undefined;
+                const [publicResponse, userReportsResponse] = await Promise.all([
+                    fetch('/api/reports/public/waiting', publicRequestOptions),
+                    token ? fetch('/api/reports/user', publicRequestOptions).catch(() => null) : Promise.resolve(null)
+                ]);
+
+                const ownReportIds = new Set();
+                if (userReportsResponse && userReportsResponse.ok) {
+                    const userReportsPayload = await userReportsResponse.json();
+                    const userEmail = (sessionStorage.getItem('userEmail') || '').trim().toLowerCase();
+                    (userReportsPayload.data || []).forEach(item => {
+                        const id = String(item._id || '');
+                        const reporterEmail = String(item.reporter_email || '').trim().toLowerCase();
+                        if (!id) return;
+                        if (reporterEmail === userEmail) ownReportIds.add(id);
+                        if (item.clustered_by_current_user || (Array.isArray(item.upvoted_by) && item.upvoted_by.map(email => String(email || '').trim().toLowerCase()).includes(userEmail))) {
+                            window.smartRoadSupportedReportIds.add(id);
+                        }
+                    });
+                }
+
+                const res = publicResponse;
                 if (res.ok) {
                     const data = await res.json();
                     if (data.status === 'success') {
-                        data.data.forEach(rep => {
-                            const icon = getMarkerIcon(rep.upvote_count || 0);
+                        const currentUserEmail = (sessionStorage.getItem('userEmail') || '').trim().toLowerCase();
+                        const reports = data.data.map(rep => {
+                            const reporterEmail = String(rep.reporter_email || '').trim().toLowerCase();
+                            const upvotedBy = Array.isArray(rep.upvoted_by) ? rep.upvoted_by.map(email => String(email || '').trim().toLowerCase()) : [];
+                            return {
+                                ...rep,
+                                is_own_report: Boolean(rep.is_own_report) || ownReportIds.has(String(rep._id || '')) || (currentUserEmail && reporterEmail === currentUserEmail),
+                                is_supported_by_current_user: Boolean(rep.is_supported_by_current_user || rep.clustered_by_current_user) || window.smartRoadSupportedReportIds.has(String(rep._id || '')) || (currentUserEmail && upvotedBy.includes(currentUserEmail))
+                            };
+                        });
+
+                        reports.forEach(rep => {
+                            const affectedCount = rep.affected_count || ((rep.upvote_count || 0) + 1);
+                            const priorityLevel = rep.priority_level || 'Normal';
+                            const icon = getMarkerIcon(rep);
                             const repMarker = L.marker([rep.lat, rep.lng], { icon: icon }).addTo(map);
-                            const imageUrl = rep.image_path ? `/static/${rep.image_path}` : 'https://via.placeholder.com/240x120?text=No+Image';
-                            const popupContent = `
-                                <div style="font-family: 'Inter', sans-serif;">
-                                    <div style="height: 120px; width: 100%; position: relative; background-color: #f1f5f9;">
-                                        <img src="${imageUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="Foto Laporan" onerror="this.onerror=null; this.src='https://via.placeholder.com/240x120?text=No+Image'" />
-                                        <div style="position: absolute; top: 10px; right: 10px; background: ${rep.status === 'Proses' ? '#3b82f6' : '#FF6B00'}; color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10;">
-                                            ${rep.status || 'Menunggu'}
-                                        </div>
-                                    </div>
-                                    <div class="popup-inner-content">
-                                        <h4 style="margin: 0 0 6px 0; font-size: 14px; font-weight: 700; color: #1e293b; line-height: 1.3;">${rep.title}</h4>
-                                        <p style="margin: 0 0 12px 0; font-size: 12px; color: #64748b; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;">${rep.description}</p>
-                                        <div style="font-size: 12px; color: #FF6B00; margin-bottom: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                                            ${rep.upvote_count} warga terdampak
-                                        </div>
-                                        <button onclick="window.upvoteReport('${rep._id}')" 
-                                            style="width: 100%; padding: 8px; background: linear-gradient(135deg, #FF6B00, #E63946); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(230, 57, 70, 0.3);">
-                                            Saya juga terdampak
-                                        </button>
-                                    </div>
-                                </div>
-                            `;
-                            repMarker.bindPopup(popupContent, {
-                                className: 'custom-premium-popup'
+                            const tooltipPrefix = rep.is_own_report
+                                ? 'Laporan Anda'
+                                : (rep.is_supported_by_current_user || rep.clustered_by_current_user ? 'Anda terdampak' : `${affectedCount} terdampak`);
+                            repMarker.bindTooltip(`${tooltipPrefix} - ${priorityLevel}`, {
+                                direction: 'top',
+                                offset: [0, -28],
+                                opacity: 0.9
+                            });
+                            repMarker.on('click', () => {
+                                const userPos = marker?.getLatLng();
+                                const distance = userPos
+                                    ? calculateDistanceMeters(userPos.lat, userPos.lng, Number(rep.lat), Number(rep.lng))
+                                    : 0;
+                                openReportDetailModal(rep, distance);
                             });
                         });
+                        publicReports = reports;
+                        window.smartRoadPublicReports = reports;
                     }
                 }
             } catch (err) {
@@ -608,14 +1004,25 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
 
             if (response.ok) {
-                Swal.fire({
-                    title: 'Berhasil!',
-                    text: `Laporan "${result.title || 'Aduan Anda'}" telah resmi masuk ke dalam sistem verifikasi Dinas Pekerjaan Umum Kota.`,
-                    icon: 'success',
-                    confirmButtonColor: '#FF6B00'
-                }).then(() => {
-                    window.location.href = 'riwayat.html';
-                });
+                if (result.clustered) {
+                    Swal.fire({
+                        title: 'Laporan Digabungkan',
+                        text: `Sudah ada laporan serupa dalam radius 20 meter. Foto dan deskripsi Anda tersimpan sebagai bukti tambahan. Dukungan Anda membuat laporan "${result.title || 'Aduan terkait'}" menjadi prioritas ${result.priority_level || 'lebih tinggi'} dengan ${result.affected_count || 'beberapa'} warga terdampak.`,
+                        icon: 'success',
+                        confirmButtonColor: '#FF6B00'
+                    }).then(() => {
+                        window.location.href = 'riwayat.html';
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: `Laporan "${result.title || 'Aduan Anda'}" telah resmi masuk ke dalam sistem verifikasi Dinas Pekerjaan Umum Kota.`,
+                        icon: 'success',
+                        confirmButtonColor: '#FF6B00'
+                    }).then(() => {
+                        window.location.href = 'riwayat.html';
+                    });
+                }
             } else {
                 Swal.fire('Gagal', result.message || 'Terjadi kesalahan saat mengirim laporan', 'error');
             }
@@ -637,28 +1044,78 @@ window.logout = function () {
 };
 
 window.upvoteReport = async function(reportId) {
+    const targetId = String(reportId || '');
+    const escapedTargetId = window.CSS && CSS.escape ? CSS.escape(targetId) : targetId.replace(/"/g, '\\"');
+    const activeButton = document.querySelector(`[data-modal-upvote-report-id="${escapedTargetId}"]`);
+    const markAsSupported = () => {
+        window.smartRoadSupportedReportIds = window.smartRoadSupportedReportIds || new Set();
+        window.smartRoadSupportedReportIds.add(targetId);
+        if (activeButton) {
+            activeButton.disabled = true;
+            activeButton.removeAttribute('data-modal-upvote-report-id');
+            activeButton.textContent = 'Anda sudah tercatat terdampak';
+            activeButton.closest('.report-detail-card')?.classList.add('is-supported-report');
+        }
+    };
+
+    if (activeButton) {
+        activeButton.disabled = true;
+        activeButton.textContent = 'Mencatat dukungan...';
+    }
+
     try {
         const response = await fetchWithAuth(`/api/reports/${reportId}/upvote`, {
             method: 'POST'
         });
         
-        if (!response) return;
+        if (!response) {
+            if (activeButton) {
+                activeButton.disabled = false;
+                activeButton.textContent = 'Saya juga terdampak';
+            }
+            return;
+        }
         const result = await response.json();
         
         if (response.ok) {
+            markAsSupported();
+            window.smartRoadPublicReports = (window.smartRoadPublicReports || []).map(report => String(report._id || '') === targetId
+                ? {
+                    ...report,
+                    is_supported_by_current_user: true,
+                    upvote_count: Number(report.upvote_count || 0) + 1,
+                    affected_count: result.affected_count || report.affected_count,
+                    priority_level: result.priority_level || report.priority_level
+                }
+                : report
+            );
             Swal.fire({
                 title: 'Berhasil!',
-                text: 'Laporan Anda telah digabungkan (Upvote sukses). Terima kasih atas partisipasinya.',
+                text: `Anda sudah tercatat sebagai warga terdampak. Kini ada ${result.affected_count || 'lebih banyak'} warga terdampak.`,
                 icon: 'success',
-                confirmButtonColor: '#FF6B00'
-            }).then(() => {
-                window.location.href = 'riwayat.html';
+                confirmButtonColor: '#FF6B00',
+                timer: 1500,
+                showConfirmButton: false
             });
         } else {
+            const alreadySupported = /sudah|melaporkan|upvote/i.test(result.message || '');
+            if (alreadySupported) {
+                markAsSupported();
+                Swal.close();
+                return;
+            }
+            if (activeButton) {
+                activeButton.disabled = false;
+                activeButton.textContent = 'Saya juga terdampak';
+            }
             Swal.fire('Gagal', result.message || 'Terjadi kesalahan saat melakukan upvote.', 'error');
         }
     } catch (error) {
         console.error('Upvote error:', error);
+        if (activeButton) {
+            activeButton.disabled = false;
+            activeButton.textContent = 'Saya juga terdampak';
+        }
         Swal.fire('Error', 'Gagal terhubung ke server', 'error');
     }
 };

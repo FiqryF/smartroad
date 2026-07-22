@@ -15,7 +15,7 @@
 
     <!-- Leaflet.js Map Library CSS (Clean mapping assets) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous" />
 
     <!-- Unified Stylesheet with exact dashboard.html Sync -->
     <style>
@@ -269,10 +269,26 @@
             box-shadow: 0 0 5px var(--safety-orange);
         }
 
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
         .user-profile-desktop {
             display: flex;
             align-items: center;
             gap: 0.6rem;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            font: inherit;
             cursor: pointer;
             transition: var(--transition);
         }
@@ -560,6 +576,12 @@
             gap: 0.75rem;
             padding: 1rem 0;
             border-top: 1px solid var(--asphalt-border);
+            border-right: 0;
+            border-bottom: 0;
+            border-left: 0;
+            background: transparent;
+            font: inherit;
+            cursor: pointer;
             width: 100%;
         }
 
@@ -1375,11 +1397,12 @@
 
                 <!-- Mobile Only User Info inside drawer menu (Centered & non-duplicating) -->
                 <li class="menu-user-item">
-                    <div class="user-profile-mobile" onclick="window.location.href='profile.html'">
+                    <button type="button" class="user-profile-mobile" data-profile-link="profile.html"
+                        aria-label="Buka profil pengguna">
                         <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Fiqry"
                             class="avatar-img">
                         <span class="user-name">Fiqry</span>
-                    </div>
+                    </button>
                 </li>
             </ul>
 
@@ -1390,14 +1413,14 @@
                 </button>
 
                 <!-- SweetAlert2 -->
-                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" crossorigin="anonymous"></script>
 
                 <!-- Desktop Only Profile section (Aligned perfectly in a single row) -->
-                <div class="user-profile-desktop">
+                <button type="button" class="user-profile-desktop" aria-label="Buka menu profil">
                     <img src="https://ui-avatars.com/api/?name=Fiqry&background=FF6B00&color=FFFFFF" alt="Fiqry"
                         class="avatar-img">
                     <span class="user-name">Fiqry</span>
-                </div>
+                </button>
 
                 <button class="menu-toggle" id="menuToggle" aria-label="Toggle Menu">
                     <i data-lucide="menu"></i>
@@ -1431,7 +1454,7 @@
                         </div>
                         <div class="panel-actions">
                             <a href="profile.html" class="btn btn-outline-primary">Lihat Profil</a>
-                            <a href="javascript:void(0)" onclick="logout()" class="btn btn-secondary">Keluar</a>
+                            <button type="button" class="btn btn-secondary" data-logout-button>Keluar</button>
                         </div>
                     </div>
                 </div>
@@ -1571,7 +1594,7 @@
                     <!-- Right Column: Visual Box Upload & Geo-coordinates Map -->
                     <div class="form-column">
                         <div class="form-group">
-                            <label class="form-label">Dokumentasi Bukti Foto Visual</label>
+                            <label for="fileInput" class="form-label">Dokumentasi Bukti Foto Visual</label>
                             <div class="upload-drag-box" id="uploadBox">
                                 <div class="upload-icon-circle">
                                     <i data-lucide="camera"></i>
@@ -1598,7 +1621,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Titik Lokasi Peta (Geo-Location GPS)</label>
+                            <p class="form-label">Titik Lokasi Peta (Geo-Location GPS)</p>
                             <div class="map-wrapper">
                                 <!-- Leaflet Map Container -->
                                 <div id="map" class="map-element"></div>
@@ -1621,8 +1644,7 @@
 
                         <!-- Buttons Row inside Card Columns -->
                         <div class="form-actions">
-                            <button type="button" class="btn btn-secondary"
-                                onclick="window.location.href='dashboard.html'">Batal</button>
+                            <button type="button" class="btn btn-secondary" data-cancel-report>Batal</button>
                             <button type="submit" class="btn btn-primary" id="btnSubmit">
                                 <i data-lucide="send" style="width: 14px; height: 14px;"></i> Kirim Aduan
                             </button>
@@ -1690,7 +1712,9 @@
                         peningkatan platform SmartRoad.</p>
                     <form class="newsletter-form"
                         onsubmit="event.preventDefault(); alert('Terima kasih telah bergabung dengan newsletter kami!');">
-                        <input type="email" class="newsletter-input" placeholder="Masukkan email Anda..." required>
+                        <label for="newsletterEmail" class="sr-only">Email buletin kota</label>
+                        <input type="email" id="newsletterEmail" class="newsletter-input"
+                            placeholder="Masukkan email Anda..." required>
                         <button type="submit" class="newsletter-btn" aria-label="Berlangganan">
                             <i data-lucide="arrow-right"></i>
                         </button>
@@ -1713,14 +1737,14 @@
     </footer>
 
     <!-- Lucide Icons Bundle -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@latest" crossorigin="anonymous"></script>
 
     <!-- Leaflet.js Map Library JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
 
     <!-- Scripts Logic -->
-    <script src="{{ url_for('static', filename='js/laporan.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/laporan.js') }}?v=cluster-owner-5"></script>
     <script src="{{ url_for('static', filename='js/cs-chat.js') }}?v=1"></script>
 </body>
 

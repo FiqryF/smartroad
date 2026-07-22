@@ -58,6 +58,30 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     };
 
+    const getPriorityClasses = (priority) => {
+        if (priority === 'Mendesak') return 'bg-red-600 text-white border border-red-600';
+        if (priority === 'Tinggi') return 'bg-red-50 text-red-700 border border-red-100';
+        if (priority === 'Sedang') return 'bg-amber-50 text-amber-700 border border-amber-100';
+        return 'bg-gray-50 text-gray-600 border border-gray-100';
+    };
+
+    const getAffectedCount = (report) => Number(report.affected_count || 0) || ((Number(report.upvote_count || 0) || 0) + 1);
+
+    const renderCrowdMeta = (report) => {
+        const affectedCount = getAffectedCount(report);
+        const priority = report.priority_level || 'Normal';
+        return `
+            <div class="mt-1 flex flex-wrap items-center gap-1.5">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-100">
+                    <i class="fa-solid fa-users text-[10px]"></i> ${affectedCount} terdampak
+                </span>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold ${getPriorityClasses(priority)}">
+                    <i class="fa-solid fa-arrow-trend-up text-[10px]"></i> ${escape(priority)}
+                </span>
+            </div>
+        `;
+    };
+
     const formatDate = (value) => {
         const date = new Date(value);
         if (Number.isNaN(date.getTime())) return '-';
@@ -74,6 +98,16 @@ document.addEventListener('DOMContentLoaded', () => {
         image_path: report.image_path ? `/static/${report.image_path}` : '',
         lat: report.lat ?? '',
         lng: report.lng ?? ''
+        ,
+        affected_count: getAffectedCount(report),
+        upvote_count: report.upvote_count || 0,
+        priority_level: report.priority_level || 'Normal',
+        priority_score: report.priority_score || getAffectedCount(report),
+        is_clustered: Boolean(report.is_clustered || getAffectedCount(report) > 1),
+        cluster_radius_meters: report.cluster_radius_meters || 20,
+        upvoted_by: Array.isArray(report.upvoted_by) ? report.upvoted_by : [],
+        cluster_evidence: Array.isArray(report.cluster_evidence) ? report.cluster_evidence : [],
+        cluster_evidence_count: Number(report.cluster_evidence_count || 0) || (Array.isArray(report.cluster_evidence) ? report.cluster_evidence.length : 0)
     });
 
     const updateAdminIdentity = () => {
@@ -519,6 +553,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const safeEmail = escape(report.reporter_email || '-');
             const safeTitle = escape(report.title || 'Laporan');
             const safeCategory = escape(report.category || 'Infrastruktur');
+            const crowdMetaHtml = renderCrowdMeta(report);
             const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(report.reporter_email || 'User')}&background=E0F2FE&color=0284C7`;
             const reportPayload = encodeURIComponent(JSON.stringify(getReportPayload(report, dateStr)));
             const statusHtml = renderStatusBadge(report.status);
@@ -538,6 +573,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td class="px-6 py-4">
                         <p class="font-medium text-gray-800">${safeTitle}</p>
                         <p class="text-xs text-gray-500 truncate max-w-[150px]">${safeCategory}</p>
+                        ${crowdMetaHtml}
                     </td>
                     <td class="px-6 py-4">${statusHtml}</td>
                     <td class="px-6 py-4 text-center">
@@ -566,6 +602,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td class="px-6 py-4">
                         <p class="font-medium text-gray-800">${safeTitle}</p>
                         <p class="text-xs text-gray-500 truncate max-w-[150px]">${safeCategory}</p>
+                        ${crowdMetaHtml}
                     </td>
                     <td class="px-6 py-4">${statusHtml}</td>
                     <td class="px-6 py-4 text-center">
@@ -708,6 +745,54 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('detailDate').textContent = report.created_at || '-';
             document.getElementById('detailAddress').textContent = report.address || '-';
             document.getElementById('detailDesc').textContent = report.description || '-';
+            const detailCrowd = document.getElementById('detailCrowd');
+            if (detailCrowd) {
+                const supporters = Array.isArray(report.upvoted_by) ? report.upvoted_by : [];
+                const evidence = Array.isArray(report.cluster_evidence) ? report.cluster_evidence : [];
+                const evidenceHtml = evidence.length
+                    ? `
+                        <div class="mt-4">
+                            <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Bukti Tambahan Warga</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                ${evidence.map(item => {
+                                    const image = item.image_path ? `/static/${item.image_path}` : '';
+                                    return `
+                                        <div class="border border-gray-100 rounded-xl overflow-hidden bg-gray-50">
+                                            ${image ? `<img src="${escape(image)}" alt="Bukti Tambahan" class="w-full h-28 object-cover">` : ''}
+                                            <div class="p-3">
+                                                <p class="font-bold text-gray-900 text-sm">${escape(item.title || 'Bukti warga')}</p>
+                                                <p class="text-[11px] text-gray-500 mt-1">${escape(item.email || '-')} - ${escape(item.distance_meters ?? '-')}m dari titik utama</p>
+                                                <p class="text-xs text-gray-700 mt-2 leading-relaxed">${escape(item.description || '-')}</p>
+                                                <p class="text-[11px] text-gray-500 mt-2">${escape(item.category || '-')} - ${escape(item.hazard_level || '-')} - ${escape(item.dimensions || '-')}</p>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `
+                    : '';
+                detailCrowd.innerHTML = `
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="bg-blue-50 border border-blue-100 rounded-xl p-3">
+                            <p class="text-[11px] font-bold text-blue-700 uppercase tracking-wider">Warga Terdampak</p>
+                            <p class="text-2xl font-black text-blue-900 mt-1">${escape(report.affected_count || 1)}</p>
+                        </div>
+                        <div class="bg-orange-50 border border-orange-100 rounded-xl p-3">
+                            <p class="text-[11px] font-bold text-safety uppercase tracking-wider">Prioritas</p>
+                            <p class="text-lg font-black text-gray-900 mt-1">${escape(report.priority_level || 'Normal')}</p>
+                        </div>
+                        <div class="bg-gray-50 border border-gray-100 rounded-xl p-3">
+                            <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Radius Cluster</p>
+                            <p class="text-lg font-black text-gray-900 mt-1">${escape(report.cluster_radius_meters || 20)}m</p>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-500">
+                        ${report.is_clustered ? `Laporan ini hasil penggabungan dukungan warga. Pendukung tambahan: ${supporters.length ? escape(supporters.join(', ')) : '-'}` : 'Belum ada dukungan tambahan dari warga lain.'}
+                    </div>
+                    ${evidenceHtml}
+                `;
+            }
 
             const detailCoords = document.getElementById('detailCoords');
             if (detailCoords) {

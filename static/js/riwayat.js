@@ -112,6 +112,24 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const safeServiceNote = escape(serviceNote || defaultNote);
                 const safeReviewRating = escape(report.review_rating || '');
                 const safeReviewText = escape(report.review_text || '');
+                const affectedCount = Number(report.affected_count || 0) || ((Number(report.upvote_count || 0) || 0) + 1);
+                const priorityLevel = report.priority_level || 'Normal';
+                const isClusterSupport = Boolean(report.clustered_by_current_user);
+                const canCurrentUserReview = report.can_review_by_current_user !== undefined
+                    ? Boolean(report.can_review_by_current_user)
+                    : (!isClusterSupport && report.reporter_email === userEmail);
+                const evidenceCount = Number(report.cluster_evidence_count || 0) || (Array.isArray(report.cluster_evidence) ? report.cluster_evidence.length : 0);
+                const currentEvidence = report.current_user_cluster_evidence || {};
+                const currentEvidenceDesc = currentEvidence.description || '';
+                const currentEvidenceImg = currentEvidence.image_path ? `/static/${currentEvidence.image_path}` : '';
+                const crowdBadge = `
+                    <div style="display:flex; flex-wrap:wrap; gap:0.45rem; margin-top:0.75rem;">
+                        ${isClusterSupport ? '<span style="display:inline-flex; align-items:center; gap:0.3rem; padding:0.32rem 0.55rem; border-radius:6px; background:#eff6ff; color:#1d4ed8; font-size:0.72rem; font-weight:800;">Laporan Gabungan</span>' : ''}
+                        <span style="display:inline-flex; align-items:center; gap:0.3rem; padding:0.32rem 0.55rem; border-radius:6px; background:#f8fafc; color:#334155; font-size:0.72rem; font-weight:800;">${affectedCount} warga terdampak</span>
+                        <span style="display:inline-flex; align-items:center; gap:0.3rem; padding:0.32rem 0.55rem; border-radius:6px; background:#fff7ed; color:#c2410c; font-size:0.72rem; font-weight:800;">Prioritas ${escape(priorityLevel)}</span>
+                        ${evidenceCount ? `<span style="display:inline-flex; align-items:center; gap:0.3rem; padding:0.32rem 0.55rem; border-radius:6px; background:#f0fdf4; color:#15803d; font-size:0.72rem; font-weight:800;">${evidenceCount} bukti tambahan</span>` : ''}
+                    </div>
+                `;
 
                 const card = `
                     <article class="history-card" data-status="${safeStatus}" data-title="${safeTitle}" data-date="${safeCreatedAt}">
@@ -124,6 +142,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <h3 class="history-card-title">${safeTitle}</h3>
                             <div class="history-address"><i data-lucide="map-pin"></i> ${safeAddress}</div>
                             <p class="history-desc-text">${safeDescription}</p>
+                            ${crowdBadge}
                             <div class="card-divider"></div>
                             <div class="history-actions">
                                 <button class="btn btn-outline-orange detail-button" 
@@ -138,6 +157,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     data-note="${safeServiceNote}"
                                     data-review-rating="${safeReviewRating}"
                                     data-review-text="${safeReviewText}"
+                                    data-affected-count="${escape(affectedCount)}"
+                                    data-priority-level="${escape(priorityLevel)}"
+                                    data-cluster-support="${escape(isClusterSupport ? 'true' : 'false')}"
+                                    data-can-review="${escape(canCurrentUserReview ? 'true' : 'false')}"
+                                    data-evidence-count="${escape(evidenceCount)}"
+                                    data-current-evidence-desc="${escape(currentEvidenceDesc)}"
+                                    data-current-evidence-img="${escape(currentEvidenceImg)}"
                                 >Lihat Detail</button>
                             </div>
                         </div>
@@ -391,6 +417,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             const note = btn.getAttribute('data-note');
             const reviewRatingValue = parseInt(btn.getAttribute('data-review-rating') || '0', 10);
             const reviewTextValue = btn.getAttribute('data-review-text') || '';
+            const affectedCount = btn.getAttribute('data-affected-count') || '1';
+            const priorityLevel = btn.getAttribute('data-priority-level') || 'Normal';
+            const isClusterSupport = btn.getAttribute('data-cluster-support') === 'true';
+            const canCurrentUserReview = btn.getAttribute('data-can-review') === 'true';
+            const evidenceCount = btn.getAttribute('data-evidence-count') || '0';
+            const currentEvidenceDesc = btn.getAttribute('data-current-evidence-desc') || '';
+            const currentEvidenceImg = btn.getAttribute('data-current-evidence-img') || '';
 
             // Injeksi data ke elemen modal eksisting di riwayat.html
             const detailOriginalPhoto = document.getElementById('detailOriginalPhoto');
@@ -414,20 +447,34 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (detailDate) detailDate.textContent = date;
             if (detailLocation) detailLocation.textContent = address;
             if (detailDescription) detailDescription.textContent = desc;
-            if (detailNote) detailNote.textContent = note || 'Laporan Anda telah berhasil terdaftar dan berada dalam antrean penelaahan berkas administrasi.';
+            if (detailNote) {
+                detailNote.textContent = isClusterSupport
+                    ? `Anda tercatat sebagai warga terdampak pada laporan gabungan ini. Foto dan deskripsi tambahan Anda tersimpan sebagai bukti cluster. Total ${affectedCount} warga terdampak, ${evidenceCount} bukti tambahan, prioritas ${priorityLevel}. ${currentEvidenceDesc ? 'Catatan Anda: ' + currentEvidenceDesc : ''}`
+                    : (note || `Laporan Anda telah berhasil terdaftar. Saat ini tercatat ${affectedCount} warga terdampak, ${evidenceCount} bukti tambahan, prioritas ${priorityLevel}.`);
+            }
+            if (isClusterSupport && currentEvidenceImg && detailOriginalPhoto) {
+                detailOriginalPhoto.src = currentEvidenceImg;
+            }
             if (reviewReportId) reviewReportId.value = reportId || '';
             if (reviewText) reviewText.value = reviewTextValue;
             setRating(Number.isFinite(reviewRatingValue) ? reviewRatingValue : 0);
 
-            const canReview = status === 'Selesai';
+            const canReview = status === 'Selesai' && canCurrentUserReview;
             if (reviewPanel) reviewPanel.classList.toggle('active', canReview);
             if (reviewExistingBadge) reviewExistingBadge.style.display = reviewRatingValue > 0 ? 'inline-flex' : 'none';
-            if (reviewStatus) reviewStatus.textContent = reviewRatingValue > 0
-                ? 'Anda dapat memperbarui penilaian untuk laporan ini.'
-                : 'Penilaian Anda dapat tampil di halaman utama.';
-            if (submitReviewBtn) submitReviewBtn.innerHTML = reviewRatingValue > 0
-                ? '<i data-lucide="send"></i> Perbarui'
-                : '<i data-lucide="send"></i> Kirim';
+            if (reviewStatus) {
+                reviewStatus.textContent = canCurrentUserReview
+                    ? (reviewRatingValue > 0
+                        ? 'Anda dapat memperbarui penilaian untuk laporan ini.'
+                        : 'Penilaian Anda dapat tampil di halaman utama.')
+                    : 'Penilaian laporan gabungan hanya dapat diberikan oleh pelapor utama.';
+            }
+            if (submitReviewBtn) {
+                submitReviewBtn.disabled = !canCurrentUserReview;
+                submitReviewBtn.innerHTML = reviewRatingValue > 0
+                    ? '<i data-lucide="send"></i> Perbarui'
+                    : '<i data-lucide="send"></i> Kirim';
+            }
 
             if (detailStatus) {
                 detailStatus.textContent = status;

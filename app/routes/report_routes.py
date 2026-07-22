@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt, verify_jwt_in_request
 from app.controllers.report_controller import (
     save_report,
     get_user_reports,
@@ -29,8 +29,15 @@ def get_public_summary_route():
 def get_waiting_reports_route():
     if request.method == 'OPTIONS':
         return jsonify({}), 200
-        
-    result, status_code = get_public_waiting_reports()
+
+    viewer_email = None
+    try:
+        verify_jwt_in_request(optional=True)
+        viewer_email = get_jwt_identity()
+    except Exception:
+        viewer_email = None
+
+    result, status_code = get_public_waiting_reports(viewer_email)
     return jsonify(result), status_code
 
 @report_bp.route('/<report_id>/upvote', methods=['POST', 'OPTIONS'])

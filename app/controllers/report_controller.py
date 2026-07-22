@@ -13,6 +13,53 @@ cs_messages_collection = db["cs_messages"] if db is not None else None
 ALLOWED_IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
 ALLOWED_IMAGE_MIMETYPES = {"image/jpeg", "image/png", "image/webp"}
 MAX_IMAGE_SIZE = 5 * 1024 * 1024
+CLUSTER_RADIUS_METERS = 20
+
+def _priority_from_count(count):
+    if count >= 10:
+        return "Mendesak"
+    if count >= 5:
+        return "Tinggi"
+    if count >= 3:
+        return "Sedang"
+    return "Normal"
+
+def _affected_count(report):
+    supporters = report.get("upvoted_by", [])
+    return 1 + len(supporters)
+
+def _supporter_count(report):
+    supporters = report.get("upvoted_by", [])
+    if isinstance(supporters, list):
+        return len(supporters)
+    return int(report.get("upvote_count", 0) or 0)
+
+def _crowd_update_fields(upvote_count):
+    affected_count = 1 + int(upvote_count or 0)
+    return {
+        "upvote_count": int(upvote_count or 0),
+        "affected_count": affected_count,
+        "priority_score": affected_count,
+        "priority_level": _priority_from_count(affected_count),
+        "is_clustered": affected_count > 1
+    }
+
+def _hydrate_crowd_fields(doc, viewer_email=None):
+    supporter_count = _supporter_count(doc)
+    doc["upvote_count"] = supporter_count
+    doc["affected_count"] = 1 + supporter_count
+    doc["priority_score"] = doc["affected_count"]
+    doc["priority_level"] = _priority_from_count(doc["affected_count"])
+    doc["is_clustered"] = bool(doc.get("is_clustered", doc["affected_count"] > 1))
+    doc["cluster_evidence_count"] = int(doc.get("cluster_evidence_count", len(doc.get("cluster_evidence", []))) or 0)
+    if viewer_email:
+        doc["clustered_by_current_user"] = viewer_email in doc.get("upvoted_by", [])
+        doc["can_review_by_current_user"] = doc.get("reporter_email") == viewer_email
+        doc["current_user_cluster_evidence"] = next(
+            (item for item in doc.get("cluster_evidence", []) if item.get("email") == viewer_email),
+            None
+        )
+    return doc
 
 def _normalize_email(email):
     return str(email or "").strip().lower()
@@ -45,6 +92,21 @@ def _validate_report_image(file):
 
     return filename, None
 
+def _save_report_image(file, prefix=""):
+    filename, error_message = _validate_report_image(file)
+    if error_message:
+        return "", error_message
+
+    safe_prefix = f"{prefix}_" if prefix else ""
+    unique_filename = f"{safe_prefix}{int(datetime.now().timestamp())}_{filename}"
+    upload_folder = os.path.join(current_app.static_folder, 'uploads', 'reports')
+
+    if not os.path.exists(upload_folder):
+        os.makedirs(upload_folder)
+
+    file.save(os.path.join(upload_folder, unique_filename))
+    return f"uploads/reports/{unique_filename}", None
+
 def save_report(data, file):
     if reports_collection is None:
         return {"status": "error", "message": "Database tidak terhubung"}, 500
@@ -60,43 +122,94 @@ def save_report(data, file):
 
         # Auto-Clustering logic
         from app.utils.geo import calculate_distance
-        waiting_reports = reports_collection.find({"status": {"$in": ["Menunggu", "Proses"]}})
+        waiting_reports = reports_collection.find({"status": "Menunggu"})
         
         for rep in waiting_reports:
             dist = calculate_distance(new_lat, new_lng, float(rep.get('lat', 0)), float(rep.get('lng', 0)))
-            if dist <= 20:
+            if dist <= CLUSTER_RADIUS_METERS:
                 # Merge into existing report
                 rep_id = rep['_id']
                 upvoted_by = rep.get('upvoted_by', [])
+                if reporter_email == rep.get("reporter_email"):
+                    return {
+                        "status": "success",
+                        "clustered": True,
+                        "message": "Laporan serupa dari akun Anda sudah ada di titik yang sama.",
+                        "report_id": str(rep_id),
+                        "title": rep.get("title", "Laporan"),
+                        "affected_count": rep.get("affected_count", _affected_count(rep)),
+                        "priority_level": rep.get("priority_level", _priority_from_count(_affected_count(rep)))
+                    }, 200
+
                 if reporter_email not in upvoted_by:
-                    upvoted_by.append(reporter_email)
-                    upvote_count = rep.get('upvote_count', 0) + 1
-                    reports_collection.update_one(
-                        {"_id": rep_id}, 
-                        {"$set": {"upvote_count": upvote_count, "upvoted_by": upvoted_by}}
+                    evidence_image_path = ""
+                    if file and file.filename != '':
+                        evidence_image_path, error_message = _save_report_image(file, "cluster")
+                        if error_message:
+                            return {"status": "error", "message": error_message}, 400
+
+                    evidence_item = {
+                        "email": reporter_email,
+                        "title": data.get("title"),
+                        "address": data.get("address"),
+                        "province": data.get("province"),
+                        "city": data.get("city"),
+                        "district": data.get("district"),
+                        "category": data.get("category"),
+                        "hazard_level": data.get("hazard_level"),
+                        "dimensions": data.get("dimensions"),
+                        "description": data.get("description"),
+                        "lat": new_lat,
+                        "lng": new_lng,
+                        "distance_meters": round(dist, 2),
+                        "image_path": evidence_image_path,
+                        "created_at": datetime.utcnow()
+                    }
+
+                    update_result = reports_collection.update_one(
+                        {
+                            "_id": rep_id,
+                            "reporter_email": {"$ne": reporter_email},
+                            "upvoted_by": {"$ne": reporter_email},
+                            "status": "Menunggu"
+                        },
+                        {
+                            "$addToSet": {"upvoted_by": reporter_email},
+                            "$push": {"cluster_evidence": evidence_item},
+                            "$set": {
+                                "cluster_radius_meters": CLUSTER_RADIUS_METERS,
+                                "last_clustered_at": datetime.utcnow()
+                            }
+                        }
                     )
+
+                    latest_report = reports_collection.find_one({"_id": rep_id}) or rep
+                    _hydrate_crowd_fields(latest_report, reporter_email)
+                    evidence_count = len(latest_report.get("cluster_evidence", []))
+                    if update_result.modified_count:
+                        sync_fields = _crowd_update_fields(latest_report["upvote_count"])
+                        sync_fields["cluster_evidence_count"] = evidence_count
+                        reports_collection.update_one({"_id": rep_id}, {"$set": sync_fields})
+                    upvoted_by = latest_report.get("upvoted_by", upvoted_by)
+                else:
+                    evidence_count = len(rep.get("cluster_evidence", []))
                 
                 return {
                     "status": "success",
+                    "clustered": True,
                     "message": "Laporan Anda telah digabungkan dengan laporan di titik yang sama (Auto-Clustering).",
                     "report_id": str(rep_id),
-                    "title": rep.get("title", "Laporan")
+                    "title": rep.get("title", "Laporan"),
+                    "affected_count": 1 + len(upvoted_by),
+                    "priority_level": _priority_from_count(1 + len(upvoted_by)),
+                    "cluster_evidence_count": evidence_count
                 }, 201
 
         image_path = ""
         if file and file.filename != '':
-            filename, error_message = _validate_report_image(file)
+            image_path, error_message = _save_report_image(file)
             if error_message:
                 return {"status": "error", "message": error_message}, 400
-
-            unique_filename = f"{int(datetime.now().timestamp())}_{filename}"
-            upload_folder = os.path.join(current_app.static_folder, 'uploads', 'reports')
-            
-            if not os.path.exists(upload_folder):
-                os.makedirs(upload_folder)
-                
-            file.save(os.path.join(upload_folder, unique_filename))
-            image_path = f"uploads/reports/{unique_filename}"
         else:
             return {"status": "error", "message": "Harap unggah foto bukti kerusakan."}, 400
 
@@ -117,6 +230,13 @@ def save_report(data, file):
             "status": "Menunggu",
             "upvote_count": 0,
             "upvoted_by": [],
+            "affected_count": 1,
+            "priority_score": 1,
+            "priority_level": "Normal",
+            "is_clustered": False,
+            "cluster_radius_meters": CLUSTER_RADIUS_METERS,
+            "cluster_evidence": [],
+            "cluster_evidence_count": 0,
             "created_at": datetime.utcnow()
         }
 
@@ -124,6 +244,7 @@ def save_report(data, file):
         if result.inserted_id:
             return {
                 "status": "success",
+                "clustered": False,
                 "message": "Laporan berhasil dikirim!",
                 "report_id": str(result.inserted_id),
                 "title": new_report["title"]
@@ -140,10 +261,16 @@ def get_user_reports(email):
         
     try:
         # Fetch reports matching the email, sorted by created_at descending (-1)
-        reports_cursor = reports_collection.find({"reporter_email": email}).sort("created_at", -1)
+        reports_cursor = reports_collection.find({
+            "$or": [
+                {"reporter_email": email},
+                {"upvoted_by": email}
+            ]
+        }).sort("created_at", -1)
         reports = []
         for doc in reports_cursor:
             doc['_id'] = str(doc['_id'])
+            _hydrate_crowd_fields(doc, email)
             reports.append(doc)
             
         return {"status": "success", "data": reports}, 200
@@ -161,6 +288,7 @@ def get_all_reports():
         reports = []
         for doc in reports_cursor:
             doc['_id'] = str(doc['_id'])
+            _hydrate_crowd_fields(doc)
             reports.append(doc)
             
         return {"status": "success", "data": reports}, 200
@@ -637,36 +765,70 @@ def upvote_report(report_id, email):
         if report.get("status") not in ["Menunggu", "Proses"]:
             return {"status": "error", "message": "Hanya laporan dengan status Menunggu atau Proses yang dapat di-upvote"}, 400
 
-        upvoted_by = report.get('upvoted_by', [])
-        if email in upvoted_by or report.get("reporter_email") == email:
+        if report.get("reporter_email") == email:
             return {"status": "error", "message": "Anda sudah melaporkan atau melakukan upvote pada laporan ini"}, 400
 
-        upvoted_by.append(email)
-        upvote_count = report.get('upvote_count', 0) + 1
-
-        reports_collection.update_one(
-            {"_id": ObjectId(report_id)},
-            {"$set": {"upvote_count": upvote_count, "upvoted_by": upvoted_by}}
+        update_result = reports_collection.update_one(
+            {
+                "_id": ObjectId(report_id),
+                "reporter_email": {"$ne": email},
+                "upvoted_by": {"$ne": email},
+                "status": {"$in": ["Menunggu", "Proses"]}
+            },
+            {
+                "$addToSet": {"upvoted_by": email},
+                "$set": {
+                    "cluster_radius_meters": report.get("cluster_radius_meters", CLUSTER_RADIUS_METERS),
+                    "last_upvoted_at": datetime.utcnow()
+                }
+            }
         )
 
-        return {"status": "success", "message": "Berhasil melakukan upvote"}, 200
+        if update_result.modified_count == 0:
+            latest_report = reports_collection.find_one({"_id": ObjectId(report_id)}) or report
+            latest_report = _hydrate_crowd_fields(latest_report, email)
+            if latest_report.get("clustered_by_current_user"):
+                return {
+                    "status": "error",
+                    "message": "Anda sudah melaporkan atau melakukan upvote pada laporan ini",
+                    "affected_count": latest_report["affected_count"],
+                    "priority_level": latest_report["priority_level"]
+                }, 400
+            return {"status": "error", "message": "Laporan tidak dapat di-upvote saat ini"}, 400
+
+        updated_report = reports_collection.find_one({"_id": ObjectId(report_id)}) or {}
+        hydrated_report = _hydrate_crowd_fields(updated_report, email)
+        update_fields = _crowd_update_fields(hydrated_report["upvote_count"])
+        reports_collection.update_one(
+            {"_id": ObjectId(report_id)},
+            {"$set": update_fields}
+        )
+
+        return {
+            "status": "success",
+            "message": "Berhasil melakukan upvote",
+            "affected_count": update_fields["affected_count"],
+            "priority_level": update_fields["priority_level"]
+        }, 200
     except Exception as e:
         logging.error(f"Error saat upvote laporan: {e}")
         return {"status": "error", "message": "Terjadi kesalahan saat memproses upvote"}, 500
 
-def get_public_waiting_reports():
+def get_public_waiting_reports(viewer_email=None):
     if reports_collection is None:
         return {"status": "error", "message": "Database tidak terhubung"}, 500
 
     try:
         cursor = reports_collection.find(
             {"status": {"$in": ["Menunggu", "Proses"]}},
-            {"title": 1, "description": 1, "address": 1, "lat": 1, "lng": 1, "image_path": 1, "upvote_count": 1, "status": 1}
+            {"title": 1, "description": 1, "address": 1, "lat": 1, "lng": 1, "image_path": 1, "reporter_email": 1, "upvoted_by": 1, "upvote_count": 1, "affected_count": 1, "priority_level": 1, "priority_score": 1, "is_clustered": 1, "cluster_evidence_count": 1, "status": 1}
         )
         reports = []
         for doc in cursor:
             doc['_id'] = str(doc['_id'])
-            doc['upvote_count'] = doc.get('upvote_count', 0)
+            _hydrate_crowd_fields(doc, viewer_email)
+            doc["is_own_report"] = viewer_email is not None and doc.get("reporter_email") == viewer_email
+            doc["is_supported_by_current_user"] = viewer_email is not None and viewer_email in doc.get("upvoted_by", [])
             reports.append(doc)
             
         return {"status": "success", "data": reports}, 200

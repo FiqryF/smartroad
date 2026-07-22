@@ -82,6 +82,29 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     };
 
+    const getAiClasses = (status, riskLevel) => {
+        if (status === 'confirmed') return 'bg-green-50 text-green-700 border border-green-100';
+        if (status === 'suspicious' || riskLevel === 'high') return 'bg-red-50 text-red-700 border border-red-100';
+        return 'bg-amber-50 text-amber-700 border border-amber-100';
+    };
+
+    const renderAiMeta = (report) => {
+        const ai = report.ai_validation || {};
+        if (!ai.status) {
+            return `
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-gray-50 text-gray-500 border border-gray-100">
+                    <i class="fa-solid fa-robot text-[10px]"></i> AI belum cek
+                </span>
+            `;
+        }
+        const confidence = Math.round(Number(ai.damage_confidence || 0) * 100);
+        return `
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold ${getAiClasses(ai.status, ai.fake_risk_level)}">
+                <i class="fa-solid fa-robot text-[10px]"></i> ${escape(ai.damage_label_display || ai.damage_label || 'AI')} ${confidence}%
+            </span>
+        `;
+    };
+
     const formatDate = (value) => {
         const date = new Date(value);
         if (Number.isNaN(date.getTime())) return '-';
@@ -107,7 +130,9 @@ document.addEventListener('DOMContentLoaded', () => {
         cluster_radius_meters: report.cluster_radius_meters || 20,
         upvoted_by: Array.isArray(report.upvoted_by) ? report.upvoted_by : [],
         cluster_evidence: Array.isArray(report.cluster_evidence) ? report.cluster_evidence : [],
-        cluster_evidence_count: Number(report.cluster_evidence_count || 0) || (Array.isArray(report.cluster_evidence) ? report.cluster_evidence.length : 0)
+        cluster_evidence_count: Number(report.cluster_evidence_count || 0) || (Array.isArray(report.cluster_evidence) ? report.cluster_evidence.length : 0),
+        ai_validation: report.ai_validation || {},
+        admin_validation: report.admin_validation || {}
     });
 
     const updateAdminIdentity = () => {
@@ -554,6 +579,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const safeTitle = escape(report.title || 'Laporan');
             const safeCategory = escape(report.category || 'Infrastruktur');
             const crowdMetaHtml = renderCrowdMeta(report);
+            const aiMetaHtml = renderAiMeta(report);
             const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(report.reporter_email || 'User')}&background=E0F2FE&color=0284C7`;
             const reportPayload = encodeURIComponent(JSON.stringify(getReportPayload(report, dateStr)));
             const statusHtml = renderStatusBadge(report.status);
@@ -574,6 +600,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p class="font-medium text-gray-800">${safeTitle}</p>
                         <p class="text-xs text-gray-500 truncate max-w-[150px]">${safeCategory}</p>
                         ${crowdMetaHtml}
+                        <div class="mt-1">${aiMetaHtml}</div>
                     </td>
                     <td class="px-6 py-4">${statusHtml}</td>
                     <td class="px-6 py-4 text-center">
@@ -603,6 +630,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p class="font-medium text-gray-800">${safeTitle}</p>
                         <p class="text-xs text-gray-500 truncate max-w-[150px]">${safeCategory}</p>
                         ${crowdMetaHtml}
+                        <div class="mt-1">${aiMetaHtml}</div>
                     </td>
                     <td class="px-6 py-4">${statusHtml}</td>
                     <td class="px-6 py-4 text-center">
@@ -792,6 +820,40 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     ${evidenceHtml}
                 `;
+            }
+            const detailAiValidation = document.getElementById('detailAiValidation');
+            if (detailAiValidation) {
+                const ai = report.ai_validation || {};
+                const adminValidation = report.admin_validation || {};
+                const confidence = Math.round(Number(ai.damage_confidence || 0) * 100);
+                const riskLevel = ai.fake_risk_level || '-';
+                const signals = Array.isArray(ai.signals) ? ai.signals : [];
+                detailAiValidation.innerHTML = ai.status ? `
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="bg-green-50 border border-green-100 rounded-xl p-3">
+                            <p class="text-[11px] font-bold text-green-700 uppercase tracking-wider">Prediksi Kerusakan</p>
+                            <p class="text-lg font-black text-gray-900 mt-1">${escape(ai.damage_label_display || ai.damage_label || '-')}</p>
+                            <p class="text-xs text-gray-500 mt-1">Confidence ${escape(confidence)}%</p>
+                        </div>
+                        <div class="bg-orange-50 border border-orange-100 rounded-xl p-3">
+                            <p class="text-[11px] font-bold text-safety uppercase tracking-wider">Fake Risk</p>
+                            <p class="text-lg font-black text-gray-900 mt-1">${escape(riskLevel)} (${escape(ai.fake_risk_score ?? 0)})</p>
+                        </div>
+                        <div class="bg-gray-50 border border-gray-100 rounded-xl p-3">
+                            <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Status AI</p>
+                            <p class="text-lg font-black text-gray-900 mt-1">${escape(ai.status || '-')}</p>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Sinyal Validasi</p>
+                        <div class="flex flex-wrap gap-2">
+                            ${signals.map(signal => `<span class="px-2 py-1 bg-gray-50 border border-gray-100 rounded-md text-xs font-bold text-gray-600">${escape(signal)}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-500">
+                        Validasi admin: ${adminValidation.validated_at ? `${adminValidation.is_valid_damage ? 'Valid' : 'Tidak valid'} - ${escape(adminValidation.label || '-')}` : 'Belum divalidasi manual'}
+                    </div>
+                ` : '<div class="text-sm text-gray-500">Belum ada hasil validasi AI untuk laporan ini.</div>';
             }
 
             const detailCoords = document.getElementById('detailCoords');

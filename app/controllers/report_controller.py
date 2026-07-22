@@ -6,6 +6,7 @@ from app.db import db
 from werkzeug.utils import secure_filename
 from flask import current_app
 from app.utils.gamification import award_points_for_report
+from app.utils.ai_validation import validate_report_image, export_internal_dataset
 
 reports_collection = db["reports"] if db is not None else None
 users_collection = db["users"] if db is not None else None
@@ -144,10 +145,17 @@ def save_report(data, file):
 
                 if reporter_email not in upvoted_by:
                     evidence_image_path = ""
+                    evidence_ai_validation = {}
                     if file and file.filename != '':
                         evidence_image_path, error_message = _save_report_image(file, "cluster")
                         if error_message:
                             return {"status": "error", "message": error_message}, 400
+                        evidence_ai_validation = validate_report_image(
+                            evidence_image_path,
+                            data,
+                            reports_collection,
+                            current_app.static_folder
+                        )
 
                     evidence_item = {
                         "email": reporter_email,
@@ -164,6 +172,7 @@ def save_report(data, file):
                         "lng": new_lng,
                         "distance_meters": round(dist, 2),
                         "image_path": evidence_image_path,
+                        "ai_validation": evidence_ai_validation,
                         "created_at": datetime.utcnow()
                     }
 
@@ -207,10 +216,12 @@ def save_report(data, file):
                 }, 201
 
         image_path = ""
+        ai_validation = {}
         if file and file.filename != '':
             image_path, error_message = _save_report_image(file)
             if error_message:
                 return {"status": "error", "message": error_message}, 400
+            ai_validation = validate_report_image(image_path, data, reports_collection, current_app.static_folder)
         else:
             return {"status": "error", "message": "Harap unggah foto bukti kerusakan."}, 400
 
@@ -227,6 +238,8 @@ def save_report(data, file):
             "lat": new_lat,
             "lng": new_lng,
             "image_path": image_path,
+            "image_hash": ai_validation.get("image_hash", ""),
+            "ai_validation": ai_validation,
             "reporter_email": reporter_email,
             "status": "Menunggu",
             "upvote_count": 0,
@@ -284,6 +297,9 @@ def get_all_reports():
         return {"status": "error", "message": "Database tidak terhubung"}, 500
         
     try:
+        # Keep admin dashboard consistent for reports created before AI validation was enabled.
+        backfill_ai_validation(limit=25)
+
         # Fetch all reports, sorted by created_at descending (-1)
         reports_cursor = reports_collection.find().sort("created_at", -1)
         reports = []
@@ -433,6 +449,81 @@ def submit_report_review(report_id, email, data):
     except Exception as e:
         logging.error(f"Error saat menyimpan penilaian laporan: {e}")
         return {"status": "error", "message": "Terjadi kesalahan saat menyimpan penilaian"}, 500
+
+def update_admin_validation(report_id, admin_email, data):
+    if reports_collection is None:
+        return {"status": "error", "message": "Database tidak terhubung"}, 500
+
+    try:
+        if not ObjectId.is_valid(report_id):
+            return {"status": "error", "message": "ID laporan tidak valid"}, 400
+
+        label = str(data.get("label", "")).strip()
+        is_valid_damage = data.get("is_valid_damage")
+        if not isinstance(is_valid_damage, bool):
+            return {"status": "error", "message": "Status validasi wajib berupa true/false"}, 400
+        if not label:
+            return {"status": "error", "message": "Label validasi wajib diisi"}, 400
+
+        admin_validation = {
+            "is_valid_damage": is_valid_damage,
+            "label": label,
+            "notes": str(data.get("notes", "")).strip(),
+            "validated_by": admin_email,
+            "validated_at": datetime.utcnow()
+        }
+        result = reports_collection.update_one(
+            {"_id": ObjectId(report_id)},
+            {"$set": {"admin_validation": admin_validation}}
+        )
+        if result.matched_count == 0:
+            return {"status": "error", "message": "Laporan tidak ditemukan"}, 404
+        return {"status": "success", "message": "Validasi admin berhasil disimpan", "data": admin_validation}, 200
+    except Exception as e:
+        logging.error(f"Error saat menyimpan validasi admin: {e}")
+        return {"status": "error", "message": "Terjadi kesalahan saat menyimpan validasi admin"}, 500
+
+def export_ai_dataset():
+    try:
+        result = export_internal_dataset(current_app.static_folder)
+        return {"status": "success", "data": result}, 200
+    except Exception as e:
+        logging.error(f"Error saat export dataset AI: {e}")
+        return {"status": "error", "message": "Gagal export dataset AI"}, 500
+
+def backfill_ai_validation(limit=200):
+    if reports_collection is None:
+        return {"status": "error", "message": "Database tidak terhubung"}, 500
+
+    try:
+        safe_limit = max(1, min(int(limit or 200), 1000))
+        cursor = reports_collection.find({
+            "image_path": {"$nin": ["", None]},
+            "$or": [
+                {"ai_validation": {"$exists": False}},
+                {"ai_validation.status": {"$exists": False}}
+            ]
+        }).limit(safe_limit)
+        processed = 0
+        for report in cursor:
+            ai_validation = validate_report_image(
+                report.get("image_path", ""),
+                report,
+                reports_collection,
+                current_app.static_folder
+            )
+            reports_collection.update_one(
+                {"_id": report["_id"]},
+                {"$set": {
+                    "ai_validation": ai_validation,
+                    "image_hash": ai_validation.get("image_hash", "")
+                }}
+            )
+            processed += 1
+        return {"status": "success", "data": {"processed": processed}}, 200
+    except Exception as e:
+        logging.error(f"Error saat backfill validasi AI: {e}")
+        return {"status": "error", "message": "Gagal menjalankan backfill validasi AI"}, 500
 
 def get_report_cs_messages(report_id, email, role):
     if reports_collection is None or cs_messages_collection is None:

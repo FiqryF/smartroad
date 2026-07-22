@@ -15,7 +15,10 @@ from app.controllers.report_controller import (
     send_report_cs_message,
     get_admin_cs_conversations,
     upvote_report,
-    get_public_waiting_reports
+    get_public_waiting_reports,
+    update_admin_validation,
+    export_ai_dataset,
+    backfill_ai_validation
 )
 
 report_bp = Blueprint('reports', __name__)
@@ -127,6 +130,39 @@ def update_status_route(report_id):
 
     assigned_petugas_email = data.get("assigned_petugas_email")
     result, status_code = update_report_status(report_id, new_status, assigned_petugas_email)
+    return jsonify(result), status_code
+
+@report_bp.route('/<report_id>/admin-validation', methods=['POST', 'OPTIONS'])
+@jwt_required()
+@admin_required()
+def admin_validation_route(report_id):
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+
+    email = get_jwt_identity()
+    data = request.get_json(silent=True) or {}
+    result, status_code = update_admin_validation(report_id, email, data)
+    return jsonify(result), status_code
+
+@report_bp.route('/ai/dataset/export', methods=['POST', 'OPTIONS'])
+@jwt_required()
+@admin_required()
+def export_ai_dataset_route():
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+
+    result, status_code = export_ai_dataset()
+    return jsonify(result), status_code
+
+@report_bp.route('/ai/validation/backfill', methods=['POST', 'OPTIONS'])
+@jwt_required()
+@admin_required()
+def backfill_ai_validation_route():
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+
+    data = request.get_json(silent=True) or {}
+    result, status_code = backfill_ai_validation(data.get("limit", 200))
     return jsonify(result), status_code
 
 @report_bp.route('/<report_id>/cs-messages', methods=['GET', 'POST', 'OPTIONS'])

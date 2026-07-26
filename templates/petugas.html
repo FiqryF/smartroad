@@ -536,9 +536,121 @@
 
         .workspace-grid {
             display: grid;
-            grid-template-columns: 1fr 1.2fr;
+            grid-template-columns: minmax(320px, 0.9fr) minmax(420px, 1.35fr);
             gap: 2rem;
             align-items: start;
+        }
+
+        .route-command-panel {
+            background: var(--text-white);
+            border: 1px solid var(--concrete-border);
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            padding: 1rem;
+            display: grid;
+            gap: 1rem;
+        }
+
+        .route-panel-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .route-panel-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--asphalt-dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .route-panel-copy {
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            line-height: 1.45;
+            margin: 0;
+        }
+
+        .route-mode-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            border-radius: 999px;
+            padding: 0.4rem 0.65rem;
+            background: #fff7ed;
+            color: #c2410c;
+            border: 1px solid #fed7aa;
+            font-size: 0.68rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .route-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.65rem;
+        }
+
+        .route-stat {
+            background: #f8fafc;
+            border: 1px solid var(--concrete-border);
+            border-radius: 8px;
+            padding: 0.75rem;
+        }
+
+        .route-stat span {
+            display: block;
+            color: #64748b;
+            font-size: 0.66rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .route-stat strong {
+            display: block;
+            color: var(--asphalt-dark);
+            font-size: 1rem;
+            font-weight: 900;
+        }
+
+        .route-panel-actions {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .route-hint {
+            color: var(--text-muted);
+            font-size: 0.76rem;
+            line-height: 1.45;
+        }
+
+        .route-reset-btn {
+            border: 1px solid var(--concrete-border);
+            background: #fff;
+            color: var(--asphalt-dark);
+            border-radius: 8px;
+            width: 42px;
+            height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .route-reset-btn:hover {
+            color: var(--safety-orange);
+            border-color: #fed7aa;
+            background: #fff7ed;
         }
 
         .section-badge {
@@ -589,6 +701,64 @@
             display: flex;
             flex-direction: column;
             transition: var(--transition);
+        }
+
+        .task-card.route-optimized {
+            border-color: #fed7aa;
+            box-shadow: 0 12px 28px rgba(255, 107, 0, 0.1);
+        }
+
+        .route-stop-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            border-radius: 999px;
+            padding: 0.38rem 0.65rem;
+            background: var(--asphalt-dark);
+            color: var(--text-white);
+            font-size: 0.68rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .priority-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            border-radius: 999px;
+            padding: 0.35rem 0.6rem;
+            font-size: 0.68rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            border: 1px solid var(--concrete-border);
+            background: #f8fafc;
+            color: #475569;
+            white-space: nowrap;
+        }
+
+        .priority-chip.mendesak {
+            background: #fee2e2;
+            color: #b91c1c;
+            border-color: #fecaca;
+        }
+
+        .priority-chip.tinggi {
+            background: #ffedd5;
+            color: #c2410c;
+            border-color: #fed7aa;
+        }
+
+        .priority-chip.sedang {
+            background: #fef3c7;
+            color: #a16207;
+            border-color: #fde68a;
+        }
+
+        .priority-chip.normal {
+            background: #e0f2fe;
+            color: #0369a1;
+            border-color: #bae6fd;
         }
 
         .task-card:hover {
@@ -738,7 +908,7 @@
 
         .task-actions {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 0.75rem;
             padding-top: 0.5rem;
         }
@@ -754,6 +924,38 @@
             gap: 1rem;
         }
 
+        .map-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 1rem;
+        }
+
+        .map-route-status {
+            min-width: 180px;
+            background: var(--asphalt-dark);
+            color: var(--text-white);
+            border-radius: 8px;
+            padding: 0.8rem 0.9rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .map-route-status span {
+            display: block;
+            color: var(--text-light);
+            font-size: 0.65rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .map-route-status strong {
+            display: block;
+            color: var(--safety-orange);
+            font-size: 1rem;
+            margin-top: 0.2rem;
+        }
+
         .interactive-map-wrapper {
             flex: 1;
             width: 100%;
@@ -767,6 +969,38 @@
         #main-map {
             width: 100%;
             height: 100%;
+        }
+
+        .numbered-route-marker {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-weight: 900;
+            border: 3px solid #fff;
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.25);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .numbered-route-marker.mendesak { background: #dc2626; }
+        .numbered-route-marker.tinggi { background: #ea580c; }
+        .numbered-route-marker.sedang { background: #d97706; }
+        .numbered-route-marker.normal { background: #0284c7; }
+        .numbered-route-marker.default { background: var(--safety-orange); }
+
+        .operator-marker {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: var(--asphalt-dark);
+            color: var(--safety-orange);
+            border: 3px solid #fff;
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.28);
+            font-weight: 900;
         }
 
         /* Modals */
@@ -1456,6 +1690,12 @@
                 min-height: 300px;
                 order: -1; /* Map displays first on tablet/mobile for geosurvey reference */
             }
+
+            .map-header-row,
+            .route-panel-top {
+                align-items: flex-start;
+                flex-direction: column;
+            }
         }
 
         @media (max-width: 768px) {
@@ -1539,6 +1779,17 @@
             }
 
             .modal-footer .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .route-stats-grid,
+            .route-panel-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .route-reset-btn {
                 width: 100%;
             }
         }
@@ -1656,6 +1907,39 @@
                         <p class="section-desc">Kerusakan infrastruktur jalan yang wajib Anda tindaklanjuti hari ini.</p>
                     </div>
 
+                    <div class="route-command-panel" id="routeCommandPanel">
+                        <div class="route-panel-top">
+                            <div>
+                                <div class="route-panel-title">Rute Operasional Hari Ini</div>
+                                <p class="route-panel-copy">Rekomendasi rute disusun dari prioritas warga terdampak dan estimasi jaringan jalan. Petugas tetap menyesuaikan akses di lapangan.</p>
+                            </div>
+                            <span class="route-mode-pill"><i data-lucide="truck"></i> Kendaraan Operasional</span>
+                        </div>
+                        <div class="route-stats-grid">
+                            <div class="route-stat">
+                                <span>Tugas Aktif</span>
+                                <strong id="routeActiveCount">0</strong>
+                            </div>
+                            <div class="route-stat">
+                                <span>Jarak Rute</span>
+                                <strong id="routeDistanceTotal">-</strong>
+                            </div>
+                            <div class="route-stat">
+                                <span>Prioritas</span>
+                                <strong id="routeTopPriority">-</strong>
+                            </div>
+                        </div>
+                        <div class="route-panel-actions">
+                            <button type="button" class="btn btn-primary" id="optimizeRouteBtn">
+                                <i data-lucide="navigation"></i> Susun Rute Operasional
+                            </button>
+                            <button type="button" class="route-reset-btn" id="resetRouteBtn" title="Kembalikan urutan penugasan" aria-label="Reset rute">
+                                <i data-lucide="rotate-ccw"></i>
+                            </button>
+                        </div>
+                        <div class="route-hint" id="routeHint">Tekan susun rute untuk memakai posisi GPS petugas sebagai titik awal. Rute bersifat rekomendasi operasional.</div>
+                    </div>
+
                     <div id="taskList" class="tasks-list" style="display: grid; gap: 1.5rem;">
                         <div class="task-card">
                             <div class="task-card-body">
@@ -1671,11 +1955,18 @@
                     </div>
                 </div>
 
-                <!-- Right: Map (Sticky on Desktop) -->                <div class="map-column">
-                    <div>
-                        <span class="section-badge">Visualisasi Geospasial</span>
-                        <h2 class="section-title">Peta Navigasi</h2>
-                        <p class="section-desc">Peta penugasan interaktif.</p>
+                <!-- Right: Map (Sticky on Desktop) -->
+                <div class="map-column">
+                    <div class="map-header-row">
+                        <div>
+                            <span class="section-badge">Visualisasi Geospasial</span>
+                            <h2 class="section-title">Peta Navigasi</h2>
+                            <p class="section-desc" style="margin-bottom: 0;">Marker bernomor mengikuti urutan rute kerja lapangan.</p>
+                        </div>
+                        <div class="map-route-status">
+                            <span>Status Rute</span>
+                            <strong id="mapRouteStatus">Belum disusun</strong>
+                        </div>
                     </div>
                     <div class="interactive-map-wrapper">
                         <div id="main-map"></div>
@@ -1753,6 +2044,12 @@
                             <div class="detail-text-field">
                                 Nama: <strong id="detailReporterName">-</strong><br>
                                 Waktu Lapor: <span id="detailReportTime">-</span>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="detail-label">Info Rute Operasional</span>
+                            <div class="detail-text-field" id="detailRouteInfo">
+                                Belum masuk rute operasional.
                             </div>
                         </div>
                     </div>
@@ -1938,7 +2235,7 @@
     <!-- Leaflet.js Library for Map rendering -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-    <script src="{{ url_for('static', filename='js/petugas.js') }}?v=5"></script>
+    <script src="{{ url_for('static', filename='js/petugas.js') }}?v=route-smart-1"></script>
 </body>
 
 </html>

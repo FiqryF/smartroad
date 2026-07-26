@@ -20,15 +20,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const heroSection = document.getElementById('beranda-petugas');
     const workspaceSection = document.getElementById('peta-tugas');
     const historySection = document.getElementById('riwayat-pekerjaan');
+    const optimizeRouteBtn = document.getElementById('optimizeRouteBtn');
+    const resetRouteBtn = document.getElementById('resetRouteBtn');
+    const routeActiveCount = document.getElementById('routeActiveCount');
+    const routeDistanceTotal = document.getElementById('routeDistanceTotal');
+    const routeTopPriority = document.getElementById('routeTopPriority');
+    const routeHint = document.getElementById('routeHint');
+    const mapRouteStatus = document.getElementById('mapRouteStatus');
 
     let reports = [];
     let notifications = [];
     let petugasProfile = null;
     let mainMap = null;
     let mainMarkers = null;
+    let routeLineLayer = null;
+    let operatorMarker = null;
     let miniMap = null;
     let miniMapMarker = null;
     let isSubmittingCompletion = false;
+    let routeOptimized = false;
+    let routeRequestId = 0;
+    let operatorPosition = null;
+    let routeSummary = {
+        totalDistanceMeters: 0,
+        activeCount: 0,
+        topPriority: '-'
+    };
 
     const escape = window.escapeHtml || (value => String(value ?? '').replace(/[&<>"']/g, char => ({
         '&': '&amp;',
@@ -71,6 +88,88 @@ document.addEventListener('DOMContentLoaded', () => {
             hour: '2-digit',
             minute: '2-digit'
         });
+    };
+    const priorityRank = {
+        Mendesak: 4,
+        Tinggi: 3,
+        Sedang: 2,
+        Normal: 1
+    };
+    const priorityClass = (priority) => String(priority || 'Normal').toLowerCase();
+    const getPriority = (report) => report.priority_level || report.priority || 'Normal';
+    const getAffectedCount = (report) => Number(report.affected_count ?? report.priority_score ?? 1) || 1;
+    const toRad = (value) => value * Math.PI / 180;
+    const distanceMeters = (a, b) => {
+        if (!a || !b) return Number.POSITIVE_INFINITY;
+        const lat1 = Number(a.lat);
+        const lng1 = Number(a.lng);
+        const lat2 = Number(b.lat);
+        const lng2 = Number(b.lng);
+        if (![lat1, lng1, lat2, lng2].every(Number.isFinite)) return Number.POSITIVE_INFINITY;
+
+        const radius = 6371000;
+        const dLat = toRad(lat2 - lat1);
+        const dLng = toRad(lng2 - lng1);
+        const h = Math.sin(dLat / 2) ** 2
+            + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+        return radius * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+    };
+    const formatDistance = (meters) => {
+        if (!Number.isFinite(meters) || meters <= 0) return '-';
+        if (meters >= 1000) return `${(meters / 1000).toFixed(1)} km`;
+        return `${Math.round(meters)} m`;
+    };
+    const getActiveReports = () => reports.filter(report => report.status !== 'Selesai');
+    const getRoutableReports = () => getActiveReports().filter(report => {
+        const lat = Number(report.lat);
+        const lng = Number(report.lng);
+        return Number.isFinite(lat) && Number.isFinite(lng);
+    });
+    const updateRouteSummaryUI = () => {
+        const activeReports = getActiveReports();
+        const top = activeReports
+            .map(getPriority)
+            .sort((a, b) => (priorityRank[b] || 0) - (priorityRank[a] || 0))[0] || '-';
+
+        routeSummary.activeCount = activeReports.length;
+        routeSummary.topPriority = top;
+
+        if (routeActiveCount) routeActiveCount.textContent = activeReports.length;
+        if (routeTopPriority) routeTopPriority.textContent = top;
+        if (routeDistanceTotal) routeDistanceTotal.textContent = routeOptimized ? formatDistance(routeSummary.totalDistanceMeters) : '-';
+        if (mapRouteStatus) mapRouteStatus.textContent = routeOptimized ? 'Rute operasional aktif' : 'Belum disusun';
+        if (routeHint && !routeOptimized) {
+            routeHint.textContent = activeReports.length
+                ? 'Tekan susun rute untuk memakai posisi GPS petugas sebagai titik awal. Rute bersifat rekomendasi operasional.'
+                : 'Belum ada tugas aktif untuk disusun menjadi rute.';
+        }
+    };
+    const nearestNeighborByPriority = (items, startPoint) => {
+        const groups = [...items].sort((a, b) => (priorityRank[getPriority(b)] || 0) - (priorityRank[getPriority(a)] || 0));
+        const ordered = [];
+        let currentPoint = startPoint;
+
+        [4, 3, 2, 1].forEach(rank => {
+            const pool = groups.filter(report => (priorityRank[getPriority(report)] || 1) === rank);
+            while (pool.length) {
+                let bestIndex = 0;
+                let bestDistance = Number.POSITIVE_INFINITY;
+                pool.forEach((report, index) => {
+                    const dist = distanceMeters(currentPoint, report);
+                    if (dist < bestDistance) {
+                        bestDistance = dist;
+                        bestIndex = index;
+                    }
+                });
+                const [nextReport] = pool.splice(bestIndex, 1);
+                nextReport.route_distance_from_previous = bestDistance;
+                nextReport.route_stop = ordered.length + 1;
+                ordered.push(nextReport);
+                currentPoint = nextReport;
+            }
+        });
+
+        return ordered;
     };
 
     const showToast = (title, message, type = 'success') => {
@@ -274,31 +373,161 @@ document.addEventListener('DOMContentLoaded', () => {
         mainMarkers = L.featureGroup().addTo(mainMap);
     };
 
+    const createRouteIcon = (label, priority = 'Normal') => L.divIcon({
+        className: '',
+        html: `<div class="numbered-route-marker ${priorityClass(priority)}">${escape(label)}</div>`,
+        iconSize: [34, 34],
+        iconAnchor: [17, 17],
+        popupAnchor: [0, -18]
+    });
+
+    const createOperatorIcon = () => L.divIcon({
+        className: '',
+        html: '<div class="operator-marker"><i data-lucide="navigation"></i></div>',
+        iconSize: [38, 38],
+        iconAnchor: [19, 19],
+        popupAnchor: [0, -20]
+    });
+
+    const drawStraightRouteLine = (linePoints) => {
+        if (!mainMap || linePoints.length < 2) return;
+        routeLineLayer = L.polyline(linePoints, {
+            color: '#FF6B00',
+            weight: 5,
+            opacity: 0.82,
+            dashArray: '10 8',
+            lineJoin: 'round'
+        }).addTo(mainMap);
+    };
+
+    const fetchRoadLeg = async (fromPoint, toPoint) => {
+        const coordinates = [fromPoint, toPoint]
+            .map(point => `${Number(point[1]).toFixed(6)},${Number(point[0]).toFixed(6)}`)
+            .join(';');
+        const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${coordinates}?overview=full&geometries=geojson&steps=false`);
+        if (!response.ok) return null;
+
+        const payload = await response.json();
+        const route = payload?.routes?.[0];
+        const coords = route?.geometry?.coordinates;
+        if (!Array.isArray(coords) || coords.length < 2) return null;
+
+        return {
+            points: coords.map(([lng, lat]) => [lat, lng]),
+            distance: Number(route.distance || 0)
+        };
+    };
+
+    const drawRoadRouteLine = async (linePoints) => {
+        if (!mainMap || linePoints.length < 2) return;
+
+        const requestId = routeRequestId + 1;
+        routeRequestId = requestId;
+        const fallback = () => {
+            if (requestId !== routeRequestId) return;
+            drawStraightRouteLine(linePoints);
+            if (routeHint && routeOptimized) {
+                routeHint.textContent += ' Garis rute memakai estimasi lurus karena layanan jalan tidak tersedia.';
+            }
+        };
+
+        try {
+            const legRequests = [];
+            for (let index = 0; index < linePoints.length - 1; index += 1) {
+                legRequests.push(fetchRoadLeg(linePoints[index], linePoints[index + 1]));
+            }
+
+            const legs = await Promise.all(legRequests);
+            if (legs.some(leg => !leg)) {
+                fallback();
+                return;
+            }
+            if (requestId !== routeRequestId) return;
+
+            routeLineLayer = L.layerGroup().addTo(mainMap);
+
+            let roadDistance = 0;
+            legs.forEach((leg, index) => {
+                roadDistance += Number(leg.distance || 0);
+                L.polyline(leg.points, index === 0 ? {
+                    color: '#FF6B00',
+                    weight: 6,
+                    opacity: 0.92,
+                    lineJoin: 'round',
+                    lineCap: 'round'
+                } : {
+                    color: '#FF6B00',
+                    weight: 3,
+                    opacity: 0.42,
+                    dashArray: '7 9',
+                    lineJoin: 'round',
+                    lineCap: 'round'
+                }).addTo(routeLineLayer);
+            });
+
+            if (routeDistanceTotal && Number.isFinite(roadDistance)) {
+                routeDistanceTotal.textContent = formatDistance(roadDistance);
+            }
+            if (routeHint && routeOptimized) {
+                routeHint.textContent = `Rute mengikuti jalan sebagai rekomendasi operasional. Jalur tebal adalah stop berikutnya, garis putus-putus panduan stop lanjutan. Estimasi total ${formatDistance(roadDistance)}; akses lapangan tetap disesuaikan petugas.`;
+            }
+        } catch (error) {
+            console.error('Gagal mengambil rute jalan:', error);
+            fallback();
+        }
+    };
+
     const renderMapMarkers = () => {
         if (!mainMap || !mainMarkers) return;
         mainMarkers.clearLayers();
+        if (routeLineLayer) {
+            mainMap.removeLayer(routeLineLayer);
+            routeLineLayer = null;
+        }
+        if (operatorMarker) {
+            mainMap.removeLayer(operatorMarker);
+            operatorMarker = null;
+        }
 
-        reports.filter(report => report.status !== 'Selesai').forEach(report => {
+        const activeReports = getRoutableReports();
+        const linePoints = [];
+
+        if (routeOptimized && operatorPosition) {
+            const start = [operatorPosition.lat, operatorPosition.lng];
+            linePoints.push(start);
+            operatorMarker = L.marker(start, { icon: createOperatorIcon() })
+                .bindPopup('<strong>Posisi awal petugas</strong>');
+            mainMarkers.addLayer(operatorMarker);
+        }
+
+        activeReports.forEach((report, index) => {
             const lat = Number(report.lat);
             const lng = Number(report.lng);
             if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
 
             const id = getReportId(report);
-            L.marker([lat, lng])
+            const priority = getPriority(report);
+            const markerLabel = routeOptimized ? report.route_stop || index + 1 : '';
+            const marker = L.marker([lat, lng], { icon: createRouteIcon(markerLabel || '', priority) })
                 .bindPopup(`
                     <div style="font-family: Inter, sans-serif; min-width: 210px;">
-                        <strong style="color: #FF6B00;">${escape(shortId(report))}</strong><br>
+                        <strong style="color: #FF6B00;">${routeOptimized ? `Stop ${escape(markerLabel)} - ` : ''}${escape(shortId(report))}</strong><br>
                         <strong>${escape(report.title || 'Laporan')}</strong>
                         <p style="margin: 6px 0; color: #5A626A;">${escape(report.address || '-')}</p>
+                        <p style="margin: 6px 0; color: #475569; font-size: 12px;">${escape(getAffectedCount(report))} warga terdampak • Prioritas ${escape(priority)}</p>
                         <button onclick="openDetailModal('${escape(id)}')" style="background: #FF6B00; border: none; color: white; padding: 0.4rem 0.75rem; border-radius: 4px; font-weight: 700; width: 100%; cursor: pointer;">Lihat Detail</button>
                     </div>
-                `)
-                .addTo(mainMarkers);
+                `);
+            mainMarkers.addLayer(marker);
+            linePoints.push([lat, lng]);
         });
+
+        if (routeOptimized && linePoints.length >= 2) drawRoadRouteLine(linePoints);
 
         if (mainMarkers.getLayers().length > 0) {
             mainMap.fitBounds(mainMarkers.getBounds(), { padding: [30, 30], maxZoom: 15 });
         }
+        if (window.lucide) window.lucide.createIcons();
     };
 
     const renderNotifications = () => {
@@ -351,7 +580,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderTasks = () => {
         if (!taskList) return;
 
-        const activeReports = reports.filter(report => report.status !== 'Selesai');
+        const activeReports = getActiveReports();
+        updateRouteSummaryUI();
 
         if (activeReports.length === 0) {
             taskList.innerHTML = `
@@ -374,26 +604,45 @@ document.addEventListener('DOMContentLoaded', () => {
         taskList.innerHTML = activeReports.map(report => {
             const id = escape(getReportId(report));
             const image = staticPath(report.image_path) || 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?q=80&w=800';
+            const priority = getPriority(report);
+            const affected = getAffectedCount(report);
+            const priorityReason = `Prioritas ${priority} dari ${affected} warga terdampak`;
+            const stopLabel = routeOptimized && report.route_stop ? `Stop ${report.route_stop}` : 'Belum masuk rute';
+            const distanceLabel = routeOptimized && report.route_distance_from_previous
+                ? `Jarak dari titik sebelumnya: ${formatDistance(report.route_distance_from_previous)}`
+                : 'Tekan susun rute operasional untuk menyusun urutan pengerjaan.';
+            const navUrl = Number.isFinite(Number(report.lat)) && Number.isFinite(Number(report.lng))
+                ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(report.lat)},${encodeURIComponent(report.lng)}`
+                : '';
 
             return `
-                <div class="task-card">
+                <div class="task-card ${routeOptimized ? 'route-optimized' : ''}">
                     <div class="task-card-image">
                         <img src="${escape(image)}" alt="Foto laporan">
                     </div>
                     <div class="task-card-body">
                         <div class="task-card-top">
-                            <span class="task-id">${escape(shortId(report))}</span>
-                            <span class="task-status status-processing">Dalam Pengerjaan</span>
+                            <span class="route-stop-badge">${escape(stopLabel)}</span>
+                            <span class="priority-chip ${priorityClass(priority)}">${escape(priority)}</span>
+                        </div>
+                        <div>
+                            <div class="task-id">${escape(report.title || report.category || shortId(report))}</div>
+                            <div style="color: var(--text-muted); font-size: 0.82rem; margin-top: 0.25rem;">${escape(shortId(report))} • ${escape(affected)} warga terdampak</div>
                         </div>
                         <ul class="task-details-list">
                             <li><i data-lucide="map-pin"></i> <span>${escape(report.address || '-')}</span></li>
-                            <li><i data-lucide="alert-triangle"></i> <span>${escape(report.title || report.category || 'Laporan kerusakan')}</span></li>
+                            <li><i data-lucide="users"></i> <span>${escape(priorityReason)}</span></li>
+                            <li><i data-lucide="route"></i> <span>${escape(distanceLabel)}</span></li>
                             <li><i data-lucide="clock"></i> <span>Ditugaskan: ${escape(formatDate(report.assigned_at || report.created_at))}</span></li>
                         </ul>
                         <div class="task-actions">
                             <button class="btn btn-outline-dark" onclick="openDetailModal('${id}')">
                                 <i data-lucide="eye"></i> Detail
                             </button>
+                            ${navUrl ? `
+                            <a class="btn btn-outline-dark" href="${escape(navUrl)}" target="_blank" rel="noopener">
+                                <i data-lucide="navigation"></i> Navigasi
+                            </a>` : ''}
                             <button class="btn btn-primary" onclick="openConfirmModal('${id}')">
                                 <i data-lucide="check"></i> Selesai
                             </button>
@@ -470,6 +719,24 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('detailLocation').textContent = report.address || '-';
         document.getElementById('detailReporterName').textContent = report.reporter_email || '-';
         document.getElementById('detailReportTime').textContent = formatDate(report.created_at);
+        const detailRouteInfo = document.getElementById('detailRouteInfo');
+        if (detailRouteInfo) {
+            const priority = getPriority(report);
+            const affected = getAffectedCount(report);
+            const routeStop = routeOptimized && report.route_stop ? `Stop ${report.route_stop}` : 'Belum masuk rute operasional';
+            const routeDistance = routeOptimized && report.route_distance_from_previous
+                ? formatDistance(report.route_distance_from_previous)
+                : '-';
+            const navUrl = Number.isFinite(Number(report.lat)) && Number.isFinite(Number(report.lng))
+                ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(report.lat)},${encodeURIComponent(report.lng)}`
+                : '';
+            detailRouteInfo.innerHTML = `
+                <strong>${escape(routeStop)}</strong><br>
+                Alasan urutan: Prioritas ${escape(priority)} dari ${escape(affected)} warga terdampak<br>
+                Jarak dari titik sebelumnya: ${escape(routeDistance)}
+                ${navUrl ? `<br><a href="${escape(navUrl)}" target="_blank" rel="noopener" style="color: var(--safety-orange); font-weight: 800;">Buka navigasi Google Maps</a>` : ''}
+            `;
+        }
 
         const confirmBtn = document.getElementById('detailConfirmBtn');
         confirmBtn.onclick = () => {
@@ -629,6 +896,100 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const applyOptimizedRoute = (startPoint) => {
+        const active = getRoutableReports();
+        const activeIds = new Set(active.map(getReportId));
+        const optimized = nearestNeighborByPriority(active, startPoint);
+        const optimizedIds = new Set(optimized.map(getReportId));
+        const nonRoutableActive = getActiveReports().filter(report => !optimizedIds.has(getReportId(report)));
+        const completed = reports.filter(report => report.status === 'Selesai');
+
+        let totalDistance = 0;
+        optimized.forEach(report => {
+            if (Number.isFinite(report.route_distance_from_previous)) {
+                totalDistance += report.route_distance_from_previous;
+            }
+        });
+
+        reports = [
+            ...optimized,
+            ...nonRoutableActive.filter(report => !activeIds.has(getReportId(report))),
+            ...completed
+        ];
+        routeOptimized = true;
+        operatorPosition = startPoint;
+        routeSummary.totalDistanceMeters = totalDistance;
+
+        if (routeHint) {
+            routeHint.textContent = `Rute operasional disusun dari posisi petugas dengan estimasi ${formatDistance(totalDistance)}. Urutan tetap memprioritaskan warga terdampak.`;
+        }
+        updateRouteSummaryUI();
+        renderTasks();
+        renderHistory();
+        renderMapMarkers();
+    };
+
+    const optimizeRoute = () => {
+        const active = getRoutableReports();
+        if (!active.length) {
+            showToast('Tidak Ada Tugas Aktif', 'Belum ada tugas aktif dengan koordinat valid untuk disusun menjadi rute.', 'error');
+            return;
+        }
+        if (!navigator.geolocation) {
+            showToast('GPS Tidak Tersedia', 'Browser tidak mendukung geolocation. Rute operasional memakai titik tugas pertama sebagai awal sementara.', 'error');
+            applyOptimizedRoute({ lat: Number(active[0].lat), lng: Number(active[0].lng) });
+            return;
+        }
+
+        if (optimizeRouteBtn) {
+            optimizeRouteBtn.disabled = true;
+            optimizeRouteBtn.innerHTML = '<i data-lucide="loader-circle"></i> Membaca GPS...';
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            position => {
+                const startPoint = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                applyOptimizedRoute(startPoint);
+                showToast('Rute Operasional Disusun', 'Urutan kerja disusun berdasarkan prioritas dampak dan jarak terdekat.', 'success');
+                if (optimizeRouteBtn) {
+                    optimizeRouteBtn.disabled = false;
+                    optimizeRouteBtn.innerHTML = '<i data-lucide="navigation"></i> Susun Rute Operasional';
+                    if (window.lucide) window.lucide.createIcons();
+                }
+            },
+            () => {
+                applyOptimizedRoute({ lat: Number(active[0].lat), lng: Number(active[0].lng) });
+                showToast('GPS Tidak Aktif', 'Rute operasional tetap disusun memakai titik tugas pertama sebagai awal sementara.', 'error');
+                if (optimizeRouteBtn) {
+                    optimizeRouteBtn.disabled = false;
+                    optimizeRouteBtn.innerHTML = '<i data-lucide="navigation"></i> Susun Rute Operasional';
+                    if (window.lucide) window.lucide.createIcons();
+                }
+            },
+            { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+        );
+    };
+
+    const resetRoute = () => {
+        routeOptimized = false;
+        operatorPosition = null;
+        routeSummary.totalDistanceMeters = 0;
+        reports = reports.map(report => {
+            const cleanReport = { ...report };
+            delete cleanReport.route_stop;
+            delete cleanReport.route_distance_from_previous;
+            return cleanReport;
+        }).sort((a, b) => new Date(b.assigned_at || b.created_at || 0) - new Date(a.assigned_at || a.created_at || 0));
+        updateRouteSummaryUI();
+        renderTasks();
+        renderHistory();
+        renderMapMarkers();
+    };
+
     async function loadAssignedReports() {
         try {
             const response = await fetchWithAuth('/api/reports/assigned');
@@ -636,6 +997,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             reports = response.ok && Array.isArray(data.data) ? data.data : [];
+            routeOptimized = false;
+            operatorPosition = null;
+            routeSummary.totalDistanceMeters = 0;
             renderTasks();
             renderHistory();
             renderMapMarkers();
@@ -651,6 +1015,8 @@ document.addEventListener('DOMContentLoaded', () => {
     updateIdentity();
     initHeaderInteractions();
     initMap();
+    optimizeRouteBtn?.addEventListener('click', optimizeRoute);
+    resetRouteBtn?.addEventListener('click', resetRoute);
     loadProfile();
     loadAssignedReports();
     loadNotifications();
